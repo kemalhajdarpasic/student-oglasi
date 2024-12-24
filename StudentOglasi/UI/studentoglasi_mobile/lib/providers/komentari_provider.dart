@@ -15,7 +15,7 @@ class KomentariProvider extends BaseProvider<Komentar> {
     var url = "${BaseProvider.baseUrl}$endPoint/$postId/$postType";
     var uri = Uri.parse(url);
 
-    var response = await ioClient.get(uri, headers: createHeaders());
+    var response = await httpClient.get(uri, headers: createHeaders());
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body) as List;

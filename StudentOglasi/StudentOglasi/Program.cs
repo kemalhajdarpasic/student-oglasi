@@ -129,6 +129,19 @@ builder.Services.Configure<StripeSettings>(options =>
     options.PublishableKey = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY");
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevelopmentPolicy", policy =>
+    {
+        policy.SetIsOriginAllowed(origin =>
+            new Uri(origin).Host == "localhost") // Dozvoljava samo localhost, bez obzira na port
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -142,6 +155,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCors("DevelopmentPolicy");
 
 
 using (var scope = app.Services.CreateScope())

@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:studentoglasi_mobile/main.dart';
 
 import 'screens/notifications_screen.dart';
+import 'package:flutter/foundation.dart';
 
 class FirebaseApi {
   final _firebaseMessaging = FirebaseMessaging.instance;
@@ -27,7 +28,11 @@ class FirebaseApi {
 
   Future<void> initNotifications() async {
     await _firebaseMessaging.requestPermission();
-    FirebaseMessaging.instance.subscribeToTopic("news");
+    if (!kIsWeb) {
+      await FirebaseMessaging.instance.subscribeToTopic("news");
+    } else {
+      print('subscribeToTopic is not supported on the web.');
+    }
     initPushNotifications();
     initLocalNotifications();
   }
@@ -53,36 +58,45 @@ class FirebaseApi {
     FirebaseMessaging.onMessage.listen((message) {
       final notification = message.notification;
       if (notification == null) return;
-      _localNotifications.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            androidChannel.id,
-            androidChannel.name,
-            channelDescription: androidChannel.description,
-            icon: '@drawable/ic_launcher',
+      if (!kIsWeb) {
+        _localNotifications.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              androidChannel.id,
+              androidChannel.name,
+              channelDescription: androidChannel.description,
+              icon: '@drawable/ic_launcher',
+            ),
           ),
-        ),
-        payload: jsonEncode(message.toMap()),
-      );
+          payload: jsonEncode(message.toMap()),
+        );
+      } else {
+        print('Received notification on web: ${notification.title}');
+      }
     });
   }
 
-  Future initLocalNotifications() async {
-    const android = AndroidInitializationSettings('@drawable/ic_launcher');
-    const settings = InitializationSettings(android: android);
+  Future<void> initLocalNotifications() async {
+    if (!kIsWeb) {
+      const android = AndroidInitializationSettings('@drawable/ic_launcher');
+      const settings = InitializationSettings(android: android);
 
-    await _localNotifications.initialize(settings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-      if (response.payload != null) {
-        final message = RemoteMessage.fromMap(jsonDecode(response.payload!));
-        handleMessage(message);
-      }
-    });
-    final platform = _localNotifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-        await platform?.createNotificationChannel(androidChannel);
+      await _localNotifications.initialize(settings,
+          onDidReceiveNotificationResponse: (NotificationResponse response) {
+        if (response.payload != null) {
+          final message = RemoteMessage.fromMap(jsonDecode(response.payload!));
+          handleMessage(message);
+        }
+      });
+
+      final platform = _localNotifications.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await platform?.createNotificationChannel(androidChannel);
+    } else {
+      print('Local notifications are not supported on the web.');
+    }
   }
 }

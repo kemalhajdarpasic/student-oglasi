@@ -18,7 +18,7 @@ class StudentiProvider extends BaseProvider<Student> {
     var url = "${BaseProvider.baseUrl}${endPoint}/currentStudent";
     var uri = Uri.parse(url);
 
-    var response = await ioClient.get(uri, headers: createHeaders());
+    var response = await httpClient.get(uri, headers: createHeaders());
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
@@ -35,7 +35,7 @@ class StudentiProvider extends BaseProvider<Student> {
     var headers = createHeaders();
 
     var jsonRequest = jsonEncode(request, toEncodable: myDateSerializer);
-    var response = await ioClient.put(uri, headers: headers, body: jsonRequest);
+    var response = await httpClient.put(uri, headers: headers, body: jsonRequest);
 
     if (isValidResponse(response)) {
       return true;
@@ -48,7 +48,7 @@ class StudentiProvider extends BaseProvider<Student> {
     var url = "${BaseProvider.baseUrl}${endPoint}/check-username/$username";
     var uri = Uri.parse(url);
 
-    var response = await ioClient.get(uri, headers: createHeaders());
+    var response = await httpClient.get(uri, headers: createHeaders());
 
     if (response.statusCode == 200) {
       return false;

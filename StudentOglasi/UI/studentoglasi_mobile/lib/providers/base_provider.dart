@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -9,18 +10,20 @@ import '../utils/util.dart';
 abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
   String _endPoint = "";
-  late IOClient _ioClient;
-
+  late http.Client _httpClient;
+  
   BaseProvider(String endPoint) {
     _endPoint = endPoint;
-    _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "http://10.0.2.2:7198/");
-    _ioClient = IOClient(createHttpClient());
+    _baseUrl = kIsWeb
+        ? "https://localhost:7198/"
+        : "https://10.0.2.2:7198/"; 
+
+    _httpClient = kIsWeb ? http.Client() : IOClient(createHttpClient());
   }
 
   static String? get baseUrl => _baseUrl;
   String get endPoint => _endPoint;
-  IOClient get ioClient => _ioClient;
+  http.Client get httpClient => _httpClient;
 
   HttpClient createHttpClient() {
     final HttpClient httpClient = HttpClient()
@@ -39,7 +42,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
     var uri = Uri.parse(url);
 
-    var response = await _ioClient.get(uri, headers: createHeaders());
+    var response = await _httpClient.get(uri, headers: createHeaders());
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
@@ -77,7 +80,7 @@ Future<T> getById(int id) async {
   
   var uri = Uri.parse(url);
 
-  var response = await _ioClient.get(uri, headers: createHeaders());
+  var response = await _httpClient.get(uri, headers: createHeaders());
 
   if (isValidResponse(response)) {
     var data = jsonDecode(response.body);
@@ -95,7 +98,7 @@ Future<T> getById(int id) async {
 
     var jsonRequest = jsonEncode(request, toEncodable: myDateSerializer);
     var response =
-        await _ioClient.post(uri, headers: headers, body: jsonRequest);
+        await _httpClient.post(uri, headers: headers, body: jsonRequest);
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
@@ -123,7 +126,7 @@ Future<T> getById(int id) async {
         request.fields[key] = value.toString();
       }
     });
-    var response = await _ioClient.send(request);
+    var response = await _httpClient.send(request);
 
     if (response.statusCode < 299) {
       var responseBody = await response.stream.bytesToString();
@@ -166,7 +169,7 @@ Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
   }
   print('Request fields: ${request.fields}'); // Debugging: Log the fields to check the values before sending
 
-  var response = await _ioClient.send(request);
+  var response = await _httpClient.send(request);
 
   if (response.statusCode < 299) {
     var responseBody = await response.stream.bytesToString();
@@ -190,7 +193,7 @@ Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
     }
 
     var headers = createHeaders();
-    final response = await _ioClient.put(url, headers: headers);
+    final response = await _httpClient.put(url, headers: headers);
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -205,7 +208,7 @@ Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
 
     var jsonRequest = jsonEncode(request, toEncodable: myDateSerializer);
     var response =
-        await _ioClient.put(uri, headers: headers, body: jsonRequest);
+        await _httpClient.put(uri, headers: headers, body: jsonRequest);
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
@@ -234,7 +237,7 @@ Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
       }
     });
 
-    var response = await _ioClient.send(request);
+    var response = await _httpClient.send(request);
 
     if (response.statusCode < 299) {
       var responseBody = await response.stream.bytesToString();

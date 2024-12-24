@@ -34,6 +34,7 @@ import 'package:studentoglasi_mobile/providers/univerziteti_provider.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'services/storage_service.dart';
+import 'package:flutter/foundation.dart';
 
 final navigatorKey=GlobalKey<NavigatorState>();
 
@@ -43,7 +44,13 @@ void main() async {
   getIt.registerLazySingleton<MediaService>(() => MediaService());
   getIt.registerLazySingleton<StorageService>(() => StorageService());
   await setup();
-  Stripe.publishableKey = 'pk_test_51PvkhfP3JU9VUaXuXwaJkIdILZyMLDhghKZNrwKc7BaVdFISQ8xyaLeGOLmjnrlN5FYVjuXX2IqHgu41xj8pvDig00v487U8Iz';
+  void initializeStripe(String publishableKey) {
+  if (kIsWeb) {
+    print('Stripe is not supported on the web with this implementation.');
+  } else {
+    Stripe.publishableKey = publishableKey;
+  }
+}
   runApp(
     MultiProvider(
       providers: [

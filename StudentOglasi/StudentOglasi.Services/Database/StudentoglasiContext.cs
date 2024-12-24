@@ -78,7 +78,7 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlServer("Data Source=localhost, 1433;Initial Catalog=200062_200090;User=sa;Password=QWElkj132!;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=Studentoglasi;Trusted_Connection=True;TrustServerCertificate=True");
         }
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

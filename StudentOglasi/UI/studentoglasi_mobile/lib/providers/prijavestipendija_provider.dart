@@ -14,7 +14,7 @@ class PrijaveStipendijaProvider extends BaseProvider<PrijaveStipendija> {
   var url = "${BaseProvider.baseUrl}${endPoint}/student/$studentId";
     var uri = Uri.parse(url);
 
-    var response = await ioClient.get(uri, headers: createHeaders());
+    var response = await httpClient.get(uri, headers: createHeaders());
 
      if (isValidResponse(response)) {
       var data = jsonDecode(response.body) as List;

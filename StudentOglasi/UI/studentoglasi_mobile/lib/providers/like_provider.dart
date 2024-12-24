@@ -46,7 +46,7 @@ class LikeProvider extends BaseProvider<Like> {
 
     var jsonRequest = jsonEncode(like.toJson(), toEncodable: myDateSerializer);
     var response =
-        await ioClient.delete(uri, headers: headers, body: jsonRequest);
+        await httpClient.delete(uri, headers: headers, body: jsonRequest);
 
     if (response.statusCode == 200) {
       _likes.removeWhere(
@@ -76,7 +76,7 @@ class LikeProvider extends BaseProvider<Like> {
     var uri = Uri.parse(url);
     var headers = createHeaders();
 
-    var response = await ioClient.get(uri, headers: headers);
+    var response = await httpClient.get(uri, headers: headers);
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body) as List;
@@ -97,7 +97,7 @@ class LikeProvider extends BaseProvider<Like> {
     var uri = Uri.parse(url);
     var headers = createHeaders();
 
-    var response = await ioClient.get(uri, headers: headers);
+    var response = await httpClient.get(uri, headers: headers);
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body) as List;
