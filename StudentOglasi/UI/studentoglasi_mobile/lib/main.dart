@@ -36,21 +36,19 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'services/storage_service.dart';
 import 'package:flutter/foundation.dart';
 
-final navigatorKey=GlobalKey<NavigatorState>();
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   final GetIt getIt = GetIt.instance;
   getIt.registerLazySingleton<DatabaseService>(() => DatabaseService());
   getIt.registerLazySingleton<MediaService>(() => MediaService());
   getIt.registerLazySingleton<StorageService>(() => StorageService());
+
+  const String stripePublishableKey = 'pk_test_51PvkhfP3JU9VUaXuXwaJkIdILZyMLDhghKZNrwKc7BaVdFISQ8xyaLeGOLmjnrlN5FYVjuXX2IqHgu41xj8pvDig00v487U8Iz';
+  initializeStripe(stripePublishableKey);
+
   await setup();
-  void initializeStripe(String publishableKey) {
-  if (kIsWeb) {
-    print('Stripe is not supported on the web with this implementation.');
-  } else {
-    Stripe.publishableKey = publishableKey;
-  }
-}
+
   runApp(
     MultiProvider(
       providers: [
@@ -71,7 +69,8 @@ void main() async {
         ChangeNotifierProvider(create: (context) => KomentariProvider()),
         ChangeNotifierProvider(create: (context) => OcjeneProvider()),
         ChangeNotifierProvider(create: (context) => StatusPrijaveProvider()),
-        ChangeNotifierProvider(create: (context) => PrijaveStipendijaProvider()),
+        ChangeNotifierProvider(
+            create: (context) => PrijaveStipendijaProvider()),
         ChangeNotifierProvider(create: (context) => PrijavePraksaProvider()),
         ChangeNotifierProvider(create: (context) => RezervacijeProvider()),
         Provider(create: (_) => PaymentProvider()),
@@ -81,31 +80,36 @@ void main() async {
   );
 }
 
+void initializeStripe(String publishableKey) {
+  if (kIsWeb) {
+    print('Stripe is not supported on the web with this implementation.');
+  } else {
+    Stripe.publishableKey = publishableKey;
+  }
+}
+
 Future<void> setup() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupFirebase();
 }
 
 class MyApp extends StatelessWidget {
-  
-  
- const MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Student Oglasi',
-            theme: ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
         primaryColor: Colors.blue,
-         colorScheme: ColorScheme.fromSeed(
+        colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,
           primary: Colors.blue,
           onPrimary: Colors.white,
           secondary: Colors.blue,
           onSecondary: Colors.white,
         ),
-        
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
@@ -144,9 +148,9 @@ class MyApp extends StatelessWidget {
         '/home': (context) => ObjavaListScreen(),
         '/profile': (context) => ProfileScreen(),
         '/logout': (context) => LoginScreen(),
-        '/prijave':(context) => ApplicationsScreen(),
-        '/chat':(context)=>UsersListScreen(),
-        '/obavijesti':(context)=>NotificationScreen(),
+        '/prijave': (context) => ApplicationsScreen(),
+        '/chat': (context) => UsersListScreen(),
+        '/obavijesti': (context) => NotificationScreen(),
       },
     );
   }

@@ -276,7 +276,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                             errorText:
                                 'Lozinka može imati najviše 15 znakova.'),
                         FormBuilderValidators.match(
-                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$',
+                          RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$'),
                           errorText:
                               'Lozinka mora sadržavati barem jedno veliko slovo, jedno malo slovo i jednu znamenku.',
                         ),
