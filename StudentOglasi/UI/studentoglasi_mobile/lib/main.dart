@@ -82,7 +82,7 @@ void main() async {
 
 void initializeStripe(String publishableKey) {
   if (kIsWeb) {
-    print('Stripe is not supported on the web with this implementation.');
+    Stripe.publishableKey = publishableKey;
   } else {
     Stripe.publishableKey = publishableKey;
   }

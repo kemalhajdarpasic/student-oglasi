@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/SmjestajnaJedinica/smjestajna_jedinica.dart';
 import 'package:studentoglasi_mobile/providers/payment_provider.dart';
 import 'package:studentoglasi_mobile/providers/rezervacije_provider.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
+import 'payment/payment_handler_mobile.dart'
+    if (dart.library.js) 'payment/payment_handler_web.dart';
 
 class ReservationScreen extends StatefulWidget {
   final SmjestajnaJedinica jedinica;
@@ -21,6 +24,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
   double _totalPrice = 0.0;
   TextEditingController _notesController = TextEditingController();
   PaymentProvider? paymentProvider;
+
+  String? _paymentIntentSecret;
 
   @override
   void initState() {
@@ -66,6 +71,21 @@ class _ReservationScreenState extends State<ReservationScreen> {
     if (_startDate != null && _endDate != null) {
       int numberOfDays = _endDate!.difference(_startDate!).inDays;
       _totalPrice = numberOfDays * (widget.jedinica.cijena ?? 0);
+    }
+  }
+
+  void _handlePayment() async {
+    if (_totalPrice > 0 && paymentProvider != null) {
+      await PaymentHandler.handlePayment(
+        context,
+        _totalPrice,
+        paymentProvider!,
+        _confirmReservation,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cijena mora biti veća od 0 za uplatu.')),
+      );
     }
   }
 
@@ -226,30 +246,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
                   ],
                 ),
               SizedBox(height: 16),
+              SizedBox(height: 16),
               Center(
                 child: ElevatedButton(
-                  onPressed: (_startDate != null &&
-                          _endDate != null &&
-                          _numberOfGuests > 0 &&
-                          _totalPrice > 0)
-                      ? () async {
-                          try {
-                            await paymentProvider!
-                                .createPaymentIntent(_totalPrice);
-                            await paymentProvider!.presentPaymentSheet();
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Uplata je uspješno izvršena!')),
-                            );
-                            _confirmReservation();
-                          } catch (e) {
-                            print('Uplata nije uspjela: $e');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Uplata nije uspjela')),
-                            );
-                          }
-                        }
-                      : null,
+                  onPressed: () => _handlePayment(),
                   child: Text('Plati i rezerviši'),
                 ),
               ),

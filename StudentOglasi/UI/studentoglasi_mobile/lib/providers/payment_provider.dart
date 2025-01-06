@@ -42,6 +42,20 @@ class PaymentProvider {
     );
   }
 
+  Future<String?> createPaymentIntentWeb(double amount) async {
+  final response = await _httpClient.post(
+    Uri.parse('$_baseUrl/Payment/create-payment-intent'),
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'amount': amount,
+      'currency': 'bam',
+    }),
+  );
+
+  final data = json.decode(response.body);
+  return data['clientSecret'];
+}
+
   Future<void> presentPaymentSheet() async {
     await Stripe.instance.presentPaymentSheet();
   }
