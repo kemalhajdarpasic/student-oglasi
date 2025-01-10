@@ -11,12 +11,10 @@ abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
   String _endPoint = "";
   late http.Client _httpClient;
-  
+
   BaseProvider(String endPoint) {
     _endPoint = endPoint;
-    _baseUrl = kIsWeb
-        ? "https://localhost:7198/"
-        : "https://10.0.2.2:7198/"; 
+    _baseUrl = kIsWeb ? "https://localhost:7198/" : "https://10.0.2.2:7198/";
 
     _httpClient = kIsWeb ? http.Client() : IOClient(createHttpClient());
   }
@@ -75,21 +73,21 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
-Future<T> getById(int id) async {
-  var url = "$_baseUrl$_endPoint/$id"; // Construct the URL with the ID
-  
-  var uri = Uri.parse(url);
+  Future<T> getById(int id) async {
+    var url = "$_baseUrl$_endPoint/$id"; // Construct the URL with the ID
 
-  var response = await _httpClient.get(uri, headers: createHeaders());
+    var uri = Uri.parse(url);
 
-  if (isValidResponse(response)) {
-    var data = jsonDecode(response.body);
+    var response = await _httpClient.get(uri, headers: createHeaders());
 
-    return fromJson(data); 
-  } else {
-    throw Exception("Failed to load item with ID: $id");
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+
+      return fromJson(data);
+    } else {
+      throw Exception("Failed to load item with ID: $id");
+    }
   }
-}
 
   Future<T> insertJsonData(dynamic request) async {
     var url = "$_baseUrl$_endPoint";
@@ -140,49 +138,50 @@ Future<T> getById(int id) async {
       throw Exception("Something bad happened, please try again");
     }
   }
-Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
-  var url = "$_baseUrl$_endPoint";
-  var request = http.MultipartRequest(
-    'POST',
-    Uri.parse(url),
-  );
 
-  request.headers.addAll(createHeaders());
+  Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
+    var url = "$_baseUrl$_endPoint";
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse(url),
+    );
 
-  for (var key in formData.keys) {
-    var value = formData[key];
+    request.headers.addAll(createHeaders());
 
-    if (value != null) {
+    for (var key in formData.keys) {
+      var value = formData[key];
       if (value is String && value.contains('/')) {
-        // Assuming it's a file path
-        var file = await http.MultipartFile.fromPath(key, value);
-        request.files.add(file);
-      }  else if (value is double) {
-        // Convert numeric values to the desired format
+        request.files.add(await http.MultipartFile.fromPath(key, value));
+      } else if (value is Uint8List) {
+        request.files.add(
+            http.MultipartFile.fromBytes(key, value, filename: '$key.pdf'));
+      } 
+      /*else if (value is double) {
         String formattedValue = value.toStringAsFixed(2).replaceAll('.', ',');
         request.fields[key] = formattedValue;
-      }
+      }*/
       else {
         request.fields[key] = value.toString();
       }
     }
-  }
-  print('Request fields: ${request.fields}'); // Debugging: Log the fields to check the values before sending
 
-  var response = await _httpClient.send(request);
+    print(
+        'Request fields: ${request.fields}');
 
-  if (response.statusCode < 299) {
-    var responseBody = await response.stream.bytesToString();
-    var data = jsonDecode(responseBody);
-    return fromJson(data);
-  } else if (response.statusCode == 401) {
-    throw Exception("Unauthorized");
-  } else {
-    var responseBody = await response.stream.bytesToString();
-    print(responseBody);
-    throw Exception("Something bad happened, please try again");
+    var response = await _httpClient.send(request);
+
+    if (response.statusCode < 299) {
+      var responseBody = await response.stream.bytesToString();
+      var data = jsonDecode(responseBody);
+      return fromJson(data);
+    } else if (response.statusCode == 401) {
+      throw Exception("Unauthorized");
+    } else {
+      var responseBody = await response.stream.bytesToString();
+      print(responseBody);
+      throw Exception("Something bad happened, please try again");
+    }
   }
-}
 
   Future<bool> cancel(int? id, {int? entityId}) async {
     var url;
@@ -305,5 +304,4 @@ Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
     }
     return object;
   }
-
 }

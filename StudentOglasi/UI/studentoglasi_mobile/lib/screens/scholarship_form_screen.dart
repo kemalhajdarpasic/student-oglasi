@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -10,20 +11,24 @@ import '../screens/main_screen.dart';
 class PrijavaStipendijaFormScreen extends StatefulWidget {
   final Oglas scholarship;
 
-  const PrijavaStipendijaFormScreen({Key? key, required this.scholarship}) : super(key: key);
+  const PrijavaStipendijaFormScreen({Key? key, required this.scholarship})
+      : super(key: key);
 
   @override
-  _PrijavaStipendijaFormScreenState createState() => _PrijavaStipendijaFormScreenState();
+  _PrijavaStipendijaFormScreenState createState() =>
+      _PrijavaStipendijaFormScreenState();
 }
 
-class _PrijavaStipendijaFormScreenState extends State<PrijavaStipendijaFormScreen> {
+class _PrijavaStipendijaFormScreenState
+    extends State<PrijavaStipendijaFormScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   late PrijaveStipendijaProvider _prijaveStipendijaProvider;
 
   Map<String, dynamic> _formData = {};
 
   final TextEditingController _cvController = TextEditingController();
-  final TextEditingController _dokumentacijaController = TextEditingController();
+  final TextEditingController _dokumentacijaController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -41,21 +46,19 @@ class _PrijavaStipendijaFormScreenState extends State<PrijavaStipendijaFormScree
   Future<void> _pickFile(String fieldName) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null) {
+      var file = result.files.single;
       setState(() {
-        String filePath = result.files.single.path!;
-        String fileName = result.files.single.name;
-
         if (fieldName == 'cv') {
-          _cvController.text = fileName;
-          _formData['cv'] = filePath;
+          _cvController.text = file.name;
+          _formData['cv'] = kIsWeb ? file.bytes : file.path;
         } else if (fieldName == 'dokumentacija') {
-          _dokumentacijaController.text = fileName;
-          _formData['dokumentacija'] = filePath;
+          _dokumentacijaController.text = file.name;
+          _formData['dokumentacija'] = kIsWeb ? file.bytes : file.path;
         }
       });
     } else {
-      print('No file selected or file path is null');
+      print('No file selected');
     }
   }
 
@@ -120,7 +123,8 @@ class _PrijavaStipendijaFormScreenState extends State<PrijavaStipendijaFormScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('CV',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
               FormBuilderTextField(
                 name: 'cv',
@@ -134,10 +138,12 @@ class _PrijavaStipendijaFormScreenState extends State<PrijavaStipendijaFormScree
                   ),
                   border: OutlineInputBorder(),
                 ),
-                validator: FormBuilderValidators.required(errorText: 'Molimo Vas dodajte CV.'),
+                validator: FormBuilderValidators.required(
+                    errorText: 'Molimo Vas dodajte CV.'),
               ),
               SizedBox(height: 20),
-              Text('Dokumentacija', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Dokumentacija',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
               FormBuilderTextField(
                 name: 'dokumentacija',
@@ -151,10 +157,12 @@ class _PrijavaStipendijaFormScreenState extends State<PrijavaStipendijaFormScree
                   ),
                   border: OutlineInputBorder(),
                 ),
-                validator: FormBuilderValidators.required(errorText: 'Molimo Vas dodajte dokumentaciju.'),
+                validator: FormBuilderValidators.required(
+                    errorText: 'Molimo Vas dodajte dokumentaciju.'),
               ),
               SizedBox(height: 20),
-              Text('Prosjek Ocjena', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Prosjek Ocjena',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
               FormBuilderTextField(
                 name: 'prosjekOcjena',
@@ -163,15 +171,17 @@ class _PrijavaStipendijaFormScreenState extends State<PrijavaStipendijaFormScree
                   border: OutlineInputBorder(),
                 ),
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(errorText: 'Prosječna ocjena je obavezna'),
+                  FormBuilderValidators.required(
+                      errorText: 'Prosječna ocjena je obavezna'),
                   FormBuilderValidators.numeric(),
-                  FormBuilderValidators.min(5.0, errorText: 'Ocjena mora biti najmanje 6.0'),
-                  FormBuilderValidators.max(10.0, errorText: 'Ocjena može biti najviše 10.0'),
+                  FormBuilderValidators.min(5.0,
+                      errorText: 'Ocjena mora biti najmanje 6.0'),
+                  FormBuilderValidators.max(10.0,
+                      errorText: 'Ocjena može biti najviše 10.0'),
                 ]),
                 keyboardType: TextInputType.number,
               ),
               SizedBox(height: 30),
-
               Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(

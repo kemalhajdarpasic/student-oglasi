@@ -6,14 +6,17 @@ import 'package:provider/provider.dart';
 import '../models/Oglas/oglas.dart';
 import '../providers/prijavepraksa_provider.dart';
 import '../screens/main_screen.dart';
+import 'package:flutter/foundation.dart';
 
 class PrijavaPraksaFormScreen extends StatefulWidget {
   final Oglas internship;
 
-  const PrijavaPraksaFormScreen({Key? key, required this.internship}) : super(key: key);
+  const PrijavaPraksaFormScreen({Key? key, required this.internship})
+      : super(key: key);
 
   @override
-  _PrijavaPraksaFormScreenState createState() => _PrijavaPraksaFormScreenState();
+  _PrijavaPraksaFormScreenState createState() =>
+      _PrijavaPraksaFormScreenState();
 }
 
 class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
@@ -24,7 +27,8 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
 
   final TextEditingController _cvController = TextEditingController();
   final TextEditingController _certifikatiController = TextEditingController();
-  final TextEditingController _propratnoPismoController = TextEditingController();
+  final TextEditingController _propratnoPismoController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -43,23 +47,24 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
   Future<void> _pickFile(String fieldName) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null) {
+      var file = result.files.single;
       setState(() {
-        String filePath = result.files.single.path!;
-        String fileName = result.files.single.name;
         if (fieldName == 'cv') {
-          _cvController.text = fileName;
-          _formData['cv'] = filePath;
+          _cvController.text = file.name;
+          _formData['cv'] = kIsWeb ? file.bytes : file.path;
         } else if (fieldName == 'certifikati') {
-          _certifikatiController.text = fileName;
-          _formData['certifikati'] = filePath;
+          _certifikatiController.text = file.name;
+          _formData['certifikati'] = kIsWeb ? file.bytes : file.path;
         } else if (fieldName == 'propratnoPismo') {
-          _propratnoPismoController.text = fileName;
-          _formData['propratnoPismo'] = filePath;
+          _propratnoPismoController.text = file.name;
+          _formData['propratnoPismo'] = kIsWeb ? file.bytes : file.path;
         }
       });
     } else {
-      print('No file selected or file path is null');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No file selected.')),
+      );
     }
   }
 
@@ -77,19 +82,30 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
   }
 
   void _submitForm() async {
-    _saveForm();
-
     if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final requestData = {
+      _formData = {
+        ..._formKey.currentState?.value ?? {},
         'praksaId': widget.internship.id,
         'propratnoPismo': _formData['propratnoPismo'],
         'certifikati': _formData['certifikati'],
         'cv': _formData['cv'] ?? '',
       };
 
-      _sendDataToApi(requestData);
+      try {
+        await _prijavaPraksaProvider.insertFileMultipartData(_formData);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => ObjavaListScreen(),
+        ));
+      } catch (e) {
+        print('Error submitting application: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } else {
-      print('Form is not valid');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please complete all required fields.')),
+      );
     }
   }
 
@@ -125,7 +141,8 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Certifikati', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Certifikati',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
               FormBuilderTextField(
                 name: 'certifikati',
@@ -139,11 +156,12 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
                   ),
                   border: OutlineInputBorder(),
                 ),
-                validator: FormBuilderValidators.required(errorText: 'Odaberite certifikate'),
+                validator: FormBuilderValidators.required(
+                    errorText: 'Odaberite certifikate'),
               ),
               SizedBox(height: 20),
-
-              Text('CV', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('CV',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
               FormBuilderTextField(
                 name: 'cv',
@@ -157,10 +175,12 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
                   ),
                   border: OutlineInputBorder(),
                 ),
-                validator: FormBuilderValidators.required(errorText: 'Odaberite CV dokument'),
+                validator: FormBuilderValidators.required(
+                    errorText: 'Odaberite CV dokument'),
               ),
               SizedBox(height: 20),
-              Text('Propratno pismo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Propratno pismo',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
               FormBuilderTextField(
                 name: 'propratnoPismo',
@@ -174,7 +194,8 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
                   ),
                   border: OutlineInputBorder(),
                 ),
-                validator: FormBuilderValidators.required(errorText: 'Odaberite propratno pismo'),
+                validator: FormBuilderValidators.required(
+                    errorText: 'Odaberite propratno pismo'),
               ),
               SizedBox(height: 30),
               Align(
