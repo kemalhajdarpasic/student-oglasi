@@ -18,6 +18,8 @@ import 'package:studentoglasi_mobile/screens/main_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_details_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_desktop.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_mobile.dart';
 import '../models/search_result.dart';
 import '../widgets/menu.dart';
 
@@ -174,110 +176,93 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
             .where((p) => !recommendedIds.contains(p.id))
             .toList() ??
         [];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.only(bottom: 12.0),
-                child: TextField(
-                  controller: _naslovController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Pretraži...',
-                    hintStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1),
-                    ),
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1),
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isDesktop = constraints.maxWidth > 900;
+        return Scaffold(
+          appBar: AppBar(
+            title: isDesktop
+                ? NavbarDesktop()
+                : NavBarMobile(
+                    naslovController: _naslovController,
+                    onSearchChanged: _onSearchChanged,
                   ),
-                  onChanged: (text) => _onSearchChanged(),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: _onSearchChanged,
-            ),
-          ],
-        ),
-      ),
-      drawer: DrawerMenu(),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            backgroundColor: Colors.blue,
+            iconTheme: IconThemeData(color: Colors.white),
+            automaticallyImplyLeading: !isDesktop,
+          ),
+          drawer: isDesktop ? null : DrawerMenu(),
+          body: Column(
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ObjavaListScreen(),
+              if (!isDesktop)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ObjavaListScreen(),
+                          ),
+                        );
+                      },
+                      child: Text('Početna'),
                     ),
-                  );
-                },
-                child: Text('Početna'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InternshipsScreen(),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => InternshipsScreen(),
+                          ),
+                        );
+                      },
+                      child: Text('Prakse'),
                     ),
-                  );
-                },
-                child: Text('Prakse'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AccommodationsScreen(),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AccommodationsScreen(),
+                          ),
+                        );
+                      },
+                      child: Text('Smještaj'),
                     ),
-                  );
-                },
-                child: Text('Smještaj'),
+                  ],
+                ),
+              Expanded(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : _hasError
+                        ? Center(
+                            child: Text(
+                                'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
+                        : _stipendije?.count == 0
+                            ? Center(child: Text('Nema dostupnih podataka.'))
+                            : ListView.builder(
+                                itemCount: recommendedStipendije.count +
+                                    filteredStipendije.length,
+                                itemBuilder: (context, index) {
+                                  if (index < (recommendedStipendije.count)) {
+                                    final stipendija =
+                                        recommendedStipendije.result[index];
+                                    return _buildPostCard(stipendija,
+                                        isRecommended: true);
+                                  } else {
+                                    final stipendija = filteredStipendije[
+                                        index - (recommendedStipendije.count)];
+                                    return _buildPostCard(stipendija);
+                                  }
+                                },
+                              ),
               ),
             ],
           ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _hasError
-                    ? Center(
-                        child: Text(
-                            'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
-                    : _stipendije?.count == 0
-                        ? Center(child: Text('Nema dostupnih podataka.'))
-                        : ListView.builder(
-                            itemCount: recommendedStipendije.count +
-                                filteredStipendije.length,
-                            itemBuilder: (context, index) {
-                              if (index < (recommendedStipendije.count)) {
-                                final stipendija =
-                                    recommendedStipendije.result[index];
-                                return _buildPostCard(stipendija,
-                                    isRecommended: true);
-                              } else {
-                                final stipendija = filteredStipendije[
-                                    index - (recommendedStipendije.count)];
-                                return _buildPostCard(stipendija);
-                              }
-                            },
-                          ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

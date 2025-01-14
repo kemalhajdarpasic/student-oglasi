@@ -14,6 +14,8 @@ import 'package:studentoglasi_mobile/screens/main_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
 import 'package:studentoglasi_mobile/widgets/menu.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_desktop.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_mobile.dart';
 
 class AccommodationsScreen extends StatefulWidget {
   const AccommodationsScreen({super.key});
@@ -136,117 +138,94 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
             .toList() ??
         [];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding:
-                    EdgeInsets.only(bottom: 12.0), // Move underline slightly up
-                child: TextField(
-                  controller: _nazivController,
-                  style: TextStyle(color: Colors.white), // Text color to white
-                  decoration: InputDecoration(
-                    hintText: 'Pretraži...',
-                    hintStyle: TextStyle(
-                        color: Colors.white), // Hint text color to white
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.white, width: 1), // Thin white line
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.white, width: 1), // White line on focus
-                    ),
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.white, width: 1), // Default white line
-                    ),
-                  ),
-                  onChanged: (text) => _onSearchChanged(),
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool isDesktop = constraints.maxWidth > 900;
+      return Scaffold(
+        appBar: AppBar(
+          title: isDesktop
+              ? NavbarDesktop()
+              : NavBarMobile(
+                  naslovController: _nazivController,
+                  onSearchChanged: _onSearchChanged,
                 ),
+          backgroundColor: Colors.blue,
+          iconTheme: IconThemeData(color: Colors.white),
+          automaticallyImplyLeading: !isDesktop,
+        ),
+        drawer: isDesktop ? null : DrawerMenu(),
+        body: Column(
+          children: [
+            if (!isDesktop)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ObjavaListScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Početna'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InternshipsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Prakse'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScholarshipsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Stipendije'),
+                  ),
+                ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: _onSearchChanged,
+            Expanded(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : _hasError
+                      ? Center(
+                          child: Text(
+                            'Neuspješno učitavanje podataka.',
+                          ),
+                        )
+                      : smjestaji?.count == 0
+                          ? Center(child: Text('Nema dostupnih podataka.'))
+                          : ListView.builder(
+                              itemCount: recommendedSmjestaji.count +
+                                  filteredSmjestaji.length,
+                              itemBuilder: (context, index) {
+                                if (index < (recommendedSmjestaji.count)) {
+                                  final praksa =
+                                      recommendedSmjestaji.result[index];
+                                  return _buildPostCard(praksa,
+                                      isRecommended: true);
+                                } else {
+                                  final praksa = filteredSmjestaji[
+                                      index - (recommendedSmjestaji.count)];
+                                  return _buildPostCard(praksa);
+                                }
+                              },
+                            ),
             ),
           ],
         ),
-      ),
-      drawer: DrawerMenu(),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ObjavaListScreen(),
-                    ),
-                  );
-                },
-                child: Text('Početna'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InternshipsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Prakse'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScholarshipsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Stipendije'),
-              ),
-            ],
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _hasError
-                    ? Center(
-                        child: Text(
-                          'Neuspješno učitavanje podataka.',
-                        ),
-                      )
-                    : smjestaji?.count == 0
-                        ? Center(child: Text('Nema dostupnih podataka.'))
-                        : ListView.builder(
-                            itemCount: recommendedSmjestaji.count +
-                                filteredSmjestaji.length,
-                            itemBuilder: (context, index) {
-                              if (index < (recommendedSmjestaji.count)) {
-                                final praksa =
-                                    recommendedSmjestaji.result[index];
-                                return _buildPostCard(praksa,
-                                    isRecommended: true);
-                              } else {
-                                final praksa = filteredSmjestaji[
-                                    index - (recommendedSmjestaji.count)];
-                                return _buildPostCard(praksa);
-                              }
-                            },
-                          ),
-          ),
-        ],
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildPostCard(Smjestaj smjestaj, {bool isRecommended = false}) {

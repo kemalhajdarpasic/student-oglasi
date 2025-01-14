@@ -18,6 +18,8 @@ import 'package:studentoglasi_mobile/screens/main_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarships_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_desktop.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_mobile.dart';
 import '../models/search_result.dart';
 import '../widgets/menu.dart';
 
@@ -82,20 +84,23 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
 
   Future<void> _fetchRecommendedPrakse() async {
     try {
-    var studentiProvider = Provider.of<StudentiProvider>(context, listen: false);
-    var studentId = studentiProvider.currentStudent?.id;
+      var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+      var studentId = studentiProvider.currentStudent?.id;
 
-    if (studentId == null) {
-      var student = await studentiProvider.getCurrentStudent();
-      studentId = student.id;
-    }
+      if (studentId == null) {
+        var student = await studentiProvider.getCurrentStudent();
+        studentId = student.id;
+      }
 
-    if (studentId != null) {
-      recommendedPrakse = await Provider.of<PraksaProvider>(context, listen: false).getRecommended(studentId);
-      setState(() {});
-    } else {
-      print("Student ID is not available");
-    }
+      if (studentId != null) {
+        recommendedPrakse =
+            await Provider.of<PraksaProvider>(context, listen: false)
+                .getRecommended(studentId);
+        setState(() {});
+      } else {
+        print("Student ID is not available");
+      }
     } catch (error) {
       print("Error fetching recommended internships: $error");
     }
@@ -172,113 +177,93 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
         _praksa?.result.where((p) => !recommendedIds.contains(p.id)).toList() ??
             [];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding:
-                    EdgeInsets.only(bottom: 12.0), 
-                child: TextField(
-                  controller: _naslovController,
-                  style: TextStyle(color: Colors.white), 
-                  decoration: const InputDecoration(
-                    hintText: 'Pretraži...',
-                    hintStyle: TextStyle(
-                        color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.white, width: 1),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.white, width: 1),
-                    ),
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.white, width: 1),
-                    ),
-                  ),
-                  onChanged: (text) => _onSearchChanged(),
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool isDesktop = constraints.maxWidth > 900;
+      return Scaffold(
+        appBar: AppBar(
+          title: isDesktop
+              ? NavbarDesktop()
+              : NavBarMobile(
+                  naslovController: _naslovController,
+                  onSearchChanged: _onSearchChanged,
                 ),
+          backgroundColor: Colors.blue,
+          iconTheme: IconThemeData(color: Colors.white),
+          automaticallyImplyLeading: !isDesktop,
+        ),
+        drawer: isDesktop ? null : DrawerMenu(),
+        body: Column(
+          children: [
+            if (!isDesktop)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ObjavaListScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Početna'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScholarshipsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Stipendije'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AccommodationsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Smještaj'),
+                  ),
+                ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: _onSearchChanged,
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _hasError
+                      ? const Center(
+                          child: Text(
+                              'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
+                      : _praksa?.count == 0
+                          ? const Center(
+                              child: Text('Nema dostupnih podataka.'))
+                          : ListView.builder(
+                              itemCount: recommendedPrakse.count +
+                                  filteredPraksa.length,
+                              itemBuilder: (context, index) {
+                                if (index < (recommendedPrakse.count)) {
+                                  final praksa =
+                                      recommendedPrakse.result[index];
+                                  return _buildPostCard(praksa,
+                                      isRecommended: true);
+                                } else {
+                                  final praksa = filteredPraksa[
+                                      index - (recommendedPrakse.count)];
+                                  return _buildPostCard(praksa);
+                                }
+                              },
+                            ),
             ),
           ],
         ),
-      ),
-      drawer: DrawerMenu(),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ObjavaListScreen(),
-                    ),
-                  );
-                },
-                child: Text('Početna'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScholarshipsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Stipendije'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AccommodationsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Smještaj'),
-              ),
-            ],
-          ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _hasError
-                    ? const Center(
-                        child: Text(
-                            'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
-                    : _praksa?.count == 0
-                        ? const Center(child: Text('Nema dostupnih podataka.'))
-                        : ListView.builder(
-                            itemCount:
-                                recommendedPrakse.count + filteredPraksa.length,
-                            itemBuilder: (context, index) {
-                              if (index < (recommendedPrakse.count)) {
-                                final praksa = recommendedPrakse.result[index];
-                                return _buildPostCard(praksa,
-                                    isRecommended: true);
-                              } else {
-                                final praksa = filteredPraksa[index - (recommendedPrakse.count)];
-                                return _buildPostCard(praksa);
-                              }
-                            },
-                          ),
-          ),
-        ],
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildPostCard(Praksa praksa, {bool isRecommended = false}) {

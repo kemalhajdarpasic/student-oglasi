@@ -92,7 +92,7 @@ class _PrijavaStipendijaFormScreenState
   }
 
   void _sendDataToApi(Map<String, dynamic> formData) async {
-    print('Sending data to API: $formData');
+    // print('Sending data to API: $formData');
     try {
       await _prijaveStipendijaProvider.insertFileMultipartData(formData);
 

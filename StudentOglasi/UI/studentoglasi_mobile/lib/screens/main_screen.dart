@@ -9,6 +9,8 @@ import 'package:studentoglasi_mobile/widgets/like_button.dart';
 import 'package:studentoglasi_mobile/screens/scholarships_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_desktop.dart';
+import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_mobile.dart';
 import '../models/Kategorija/kategorija.dart';
 import '../models/Objava/objava.dart';
 import '../providers/kategorije_provider.dart';
@@ -82,197 +84,179 @@ class _ObjavaListScreenState extends State<ObjavaListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.only(bottom: 12.0),
-                child: TextField(
-                  controller: _naslovController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Pretraži...',
-                    hintStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1),
-                    ),
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1),
-                    ),
-                  ),
-                  onChanged: (text) => _onSearchChanged(),
-                ),
-              ),
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool isDesktop = constraints.maxWidth > 900;
+
+      return Scaffold(
+        appBar: AppBar(
+          title: isDesktop
+              ? NavbarDesktop()
+               : NavBarMobile (
+              naslovController: _naslovController,
+              onSearchChanged: _onSearchChanged,
             ),
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: _onSearchChanged,
-            ),
-          ],
+          backgroundColor: Colors.blue,
+          iconTheme: IconThemeData(color: Colors.white),
+          automaticallyImplyLeading: !isDesktop,
         ),
-        backgroundColor: Colors.blue, // AppBar background to white
-        iconTheme: IconThemeData(color: Colors.white), // Menu icon to blue
-        elevation: 0, // Remove shadow
-      ),
-      drawer: DrawerMenu(),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScholarshipsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Stipendije'),
+        drawer: isDesktop ? null : DrawerMenu(),
+        body: Column(
+          children: [
+            if (!isDesktop)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScholarshipsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Stipendije'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InternshipsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Prakse'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AccommodationsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text('Smještaj'),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InternshipsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Prakse'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AccommodationsScreen(),
-                    ),
-                  );
-                },
-                child: Text('Smještaj'),
-              ),
-            ],
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _hasError
-                    ? Center(
-                        child: Text(
-                            'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
-                    : _objave?.count == 0
-                        ? Center(child: Text('Nema dostupnih podataka.'))
-                        : ListView.builder(
-                            itemCount: _objave?.count,
-                            itemBuilder: (context, index) {
-                              final objava = _objave!.result[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
-                                child: Card(
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ObjavaDetailsScreen(
-                                                  objava: objava),
-                                        ),
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          objava.slika != null
-                                              ? Image.network(
-                                                  FilePathManager.constructUrl(
-                                                      objava.slika!),
-                                                  height: 200,
-                                                  width: double.infinity,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Container(
-                                                  width: double.infinity,
-                                                  height: 200,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+            Expanded(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : _hasError
+                      ? Center(
+                          child: Text(
+                              'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
+                      : _objave?.count == 0
+                          ? Center(child: Text('Nema dostupnih podataka.'))
+                          : ListView.builder(
+                              itemCount: _objave?.count,
+                              itemBuilder: (context, index) {
+                                final objava = _objave!.result[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 4.0),
+                                  child: Card(
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ObjavaDetailsScreen(
+                                                    objava: objava),
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            objava.slika != null
+                                                ? Image.network(
+                                                    FilePathManager
+                                                        .constructUrl(
+                                                            objava.slika!),
+                                                    height: 200,
+                                                    width: double.infinity,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Container(
+                                                    width: double.infinity,
+                                                    height: 200,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[200],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Icon(
+                                                          Icons.image,
+                                                          size: 100,
+                                                          color: Colors.grey,
+                                                        ),
+                                                        SizedBox(height: 20),
+                                                        Text(
+                                                          'Nema dostupne slike',
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.image,
-                                                        size: 100,
-                                                        color: Colors.grey,
-                                                      ),
-                                                      SizedBox(height: 20),
-                                                      Text(
-                                                        'Nema dostupne slike',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            color: Colors.grey),
-                                                      ),
-                                                    ],
-                                                  ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              objava.naslov ?? 'Bez naslova',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              objava.sadrzaj ?? 'Nema sadržaja',
+                                              style: TextStyle(fontSize: 16),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              softWrap: true,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.comment,
+                                                    color: Colors.blue),
+                                                SizedBox(width: 8),
+                                                Text('Komentari'),
+                                                SizedBox(width: 16),
+                                                LikeButton(
+                                                  itemId: objava.id!,
+                                                  itemType: ItemType.news,
                                                 ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            objava.naslov ?? 'Bez naslova',
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            objava.sadrzaj ?? 'Nema sadržaja',
-                                            style: TextStyle(fontSize: 16),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            softWrap: true,
-                                          ),
-                                          SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Icon(Icons.comment,
-                                                  color: Colors.blue),
-                                              SizedBox(width: 8),
-                                              Text('Komentari'),
-                                              SizedBox(width: 16),
-                                              LikeButton(
-                                                itemId: objava.id!,
-                                                itemType: ItemType.news,
-                                              ),
-                                              SizedBox(width: 8),
-                                              Text('Sviđa mi se'),
-                                            ],
-                                          ),
-                                        ],
+                                                SizedBox(width: 8),
+                                                Text('Sviđa mi se'),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-          ),
-        ],
-      ),
-    );
+                                );
+                              },
+                            ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

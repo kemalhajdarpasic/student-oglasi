@@ -76,69 +76,71 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(height: 100),
-                Icon(Icons.school, size: 80, color: Colors.blueAccent),
-                SizedBox(height: 40),
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Korisničko ime',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Korisničko ime je obavezno';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Lozinka',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lozinka je obavezna';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: _login,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+          child: Center(
+            child: Container(
+              width: 500,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(height: 100),
+                    Icon(Icons.school, size: 80, color: Colors.blueAccent),
+                    SizedBox(height: 40),
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        labelText: 'Korisničko ime',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Korisničko ime je obavezno';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  child: Text('Prijavi se', style: TextStyle(fontSize: 18)),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Lozinka',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Lozinka je obavezna';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(150, 40),
+                      ),
+                      child: Text('Prijavi se', style: TextStyle(fontSize: 18)),
+                    ),
+                    SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => RegistrationForm()),
+                        );
+                      },
+                      child: Text(
+                        'Nemaš korisnički račun? Kreiraj novi račun.',
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 20),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => RegistrationForm()),
-                    );
-                  },
-                  child: Text(
-                    'Nemaš korisnički račun? Kreiraj novi račun.',
-                    style: TextStyle(color: Colors.blueAccent),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
