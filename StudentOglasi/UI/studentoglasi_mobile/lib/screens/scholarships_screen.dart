@@ -18,8 +18,8 @@ import 'package:studentoglasi_mobile/screens/main_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_details_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
-import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_desktop.dart';
-import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_mobile.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/mobile_nav_bar.dart';
 import '../models/search_result.dart';
 import '../widgets/menu.dart';
 

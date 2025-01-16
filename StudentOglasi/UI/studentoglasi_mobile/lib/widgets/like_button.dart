@@ -37,7 +37,8 @@ class _LikeButtonState extends State<LikeButton> {
     );
 
     try {
-      if (_likeProvider.isLiked(widget.itemId, widget.itemType.toShortString())) {
+      if (_likeProvider.isLiked(
+          widget.itemId, widget.itemType.toShortString())) {
         await _likeProvider.unlikeItem(like);
       } else {
         await _likeProvider.likeItem(like);
@@ -72,7 +73,12 @@ class _LikeButtonState extends State<LikeButton> {
               ? () => _toggleLike(currentStudent.id!)
               : null,
         ),
-        Text('$likesCount'),
+        Text(
+          '$likesCount',
+          style: TextStyle(
+            color: Colors.blue,
+          ),
+        ),
       ],
     );
   }

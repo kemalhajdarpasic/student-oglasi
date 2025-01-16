@@ -5,12 +5,13 @@ import 'package:studentoglasi_mobile/providers/objave_provider.dart';
 import 'package:studentoglasi_mobile/screens/accommodations_screen.dart';
 import 'package:studentoglasi_mobile/screens/internships_screen.dart';
 import 'package:studentoglasi_mobile/screens/news_details_screen.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/homepage/desktop_homepage.dart';
 import 'package:studentoglasi_mobile/widgets/like_button.dart';
 import 'package:studentoglasi_mobile/screens/scholarships_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
-import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_desktop.dart';
-import 'package:studentoglasi_mobile/widgets/nav_bar/nav_bar_mobile.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/mobile_nav_bar.dart';
 import '../models/Kategorija/kategorija.dart';
 import '../models/Objava/objava.dart';
 import '../providers/kategorije_provider.dart';
@@ -100,7 +101,12 @@ class _ObjavaListScreenState extends State<ObjavaListScreen> {
           automaticallyImplyLeading: !isDesktop,
         ),
         drawer: isDesktop ? null : DrawerMenu(),
-        body: Column(
+        body: isDesktop
+          ? Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: DesktopHomepage(objave: _objave),
+          )
+          : Column(
           children: [
             if (!isDesktop)
               Row(
