@@ -56,6 +56,7 @@ dependencies:
   flutter_local_notifications: ^17.2.2
   flutter_stripe: ^11.3.0
   flutter_stripe_web: ^6.3.0
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
