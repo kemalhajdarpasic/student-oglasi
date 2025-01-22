@@ -3,13 +3,13 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
-import '../models/Oglas/oglas.dart';
+import 'package:studentoglasi_mobile/models/Praksa/praksa.dart';
 import '../providers/prijavepraksa_provider.dart';
 import '../screens/main_screen.dart';
 import 'package:flutter/foundation.dart';
 
 class PrijavaPraksaFormScreen extends StatefulWidget {
-  final Oglas internship;
+  final Praksa internship;
 
   const PrijavaPraksaFormScreen({Key? key, required this.internship})
       : super(key: key);

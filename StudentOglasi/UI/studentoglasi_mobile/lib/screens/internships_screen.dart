@@ -18,6 +18,7 @@ import 'package:studentoglasi_mobile/screens/main_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarships_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/internship/desktop_internships_layout.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/mobile_nav_bar.dart';
 import '../models/search_result.dart';
@@ -157,8 +158,7 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
       MaterialPageRoute(
         builder: (context) => InternshipDetailsScreen(
           internship: _praksa!.result
-              .firstWhere((p) => p.id == internshipId)
-              .idNavigation!,
+              .firstWhere((p) => p.id == internshipId),
           averageRating: averageRating,
         ),
       ),
@@ -192,76 +192,83 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
           automaticallyImplyLeading: !isDesktop,
         ),
         drawer: isDesktop ? null : DrawerMenu(),
-        body: Column(
-          children: [
-            if (!isDesktop)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: isDesktop
+            ? DesktopInternshipsLayout(
+                praksa: filteredPraksa,
+                recommendedPrakse: recommendedPrakse.result,
+                averageRatings: _averageRatings,
+                onCardTap: _navigateToDetailsScreen,
+              )
+            : Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ObjavaListScreen(),
+                  if (!isDesktop)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ObjavaListScreen(),
+                              ),
+                            );
+                          },
+                          child: Text('Početna'),
                         ),
-                      );
-                    },
-                    child: Text('Početna'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScholarshipsScreen(),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ScholarshipsScreen(),
+                              ),
+                            );
+                          },
+                          child: Text('Stipendije'),
                         ),
-                      );
-                    },
-                    child: Text('Stipendije'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AccommodationsScreen(),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AccommodationsScreen(),
+                              ),
+                            );
+                          },
+                          child: Text('Smještaj'),
                         ),
-                      );
-                    },
-                    child: Text('Smještaj'),
+                      ],
+                    ),
+                  Expanded(
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _hasError
+                            ? const Center(
+                                child: Text(
+                                    'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
+                            : _praksa?.count == 0
+                                ? const Center(
+                                    child: Text('Nema dostupnih podataka.'))
+                                : ListView.builder(
+                                    itemCount: recommendedPrakse.count +
+                                        filteredPraksa.length,
+                                    itemBuilder: (context, index) {
+                                      if (index < (recommendedPrakse.count)) {
+                                        final praksa =
+                                            recommendedPrakse.result[index];
+                                        return _buildPostCard(praksa,
+                                            isRecommended: true);
+                                      } else {
+                                        final praksa = filteredPraksa[
+                                            index - (recommendedPrakse.count)];
+                                        return _buildPostCard(praksa);
+                                      }
+                                    },
+                                  ),
                   ),
                 ],
               ),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _hasError
-                      ? const Center(
-                          child: Text(
-                              'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
-                      : _praksa?.count == 0
-                          ? const Center(
-                              child: Text('Nema dostupnih podataka.'))
-                          : ListView.builder(
-                              itemCount: recommendedPrakse.count +
-                                  filteredPraksa.length,
-                              itemBuilder: (context, index) {
-                                if (index < (recommendedPrakse.count)) {
-                                  final praksa =
-                                      recommendedPrakse.result[index];
-                                  return _buildPostCard(praksa,
-                                      isRecommended: true);
-                                } else {
-                                  final praksa = filteredPraksa[
-                                      index - (recommendedPrakse.count)];
-                                  return _buildPostCard(praksa);
-                                }
-                              },
-                            ),
-            ),
-          ],
-        ),
       );
     });
   }

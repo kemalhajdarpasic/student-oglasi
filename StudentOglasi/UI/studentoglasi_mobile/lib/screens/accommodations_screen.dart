@@ -14,6 +14,7 @@ import 'package:studentoglasi_mobile/screens/main_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
 import 'package:studentoglasi_mobile/widgets/menu.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/accommodation/desktop_accommodations_layout.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/mobile_nav_bar.dart';
 
@@ -153,7 +154,14 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
           automaticallyImplyLeading: !isDesktop,
         ),
         drawer: isDesktop ? null : DrawerMenu(),
-        body: Column(
+        body: isDesktop? DesktopAccommodationsLayout(
+                smjestaji: filteredSmjestaji,
+                recommendedSmjestaji: recommendedSmjestaji.result,
+                averageRatings: _averageRatings,
+                onCardTap: _navigateToDetailsScreen,
+              ):
+        
+        Column(
           children: [
             if (!isDesktop)
               Row(

@@ -8,12 +8,13 @@ import 'package:studentoglasi_mobile/utils/util.dart';
 import 'package:studentoglasi_mobile/widgets/like_button.dart';
 import 'package:studentoglasi_mobile/screens/internship_form_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/internship/desktop_internship_details_layout.dart';
 import 'package:studentoglasi_mobile/widgets/star_rating.dart';
 import 'package:studentoglasi_mobile/providers/ocjene_provider.dart';
 import 'package:provider/provider.dart';
 
 class InternshipDetailsScreen extends StatefulWidget {
-  final Oglas internship;
+  final Praksa internship;
   final double averageRating;
 
   const InternshipDetailsScreen({
@@ -69,171 +70,191 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.internship.naslov ?? 'Detalji prakse'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context, true);
-          },
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool isDesktop = constraints.maxWidth > 900;
+      return Scaffold(
+        appBar: AppBar(
+          title:
+              Text(widget.internship.idNavigation?.naslov ?? 'Detalji prakse'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          // Added this
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              widget.internship.slika != null
-                  ? Image.network(
-                      FilePathManager.constructUrl(widget.internship.slika!),
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  :  Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+        body: isDesktop
+            ? Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: DesktopInternshipDetailsLayout(
+                  praksa: widget.internship,
+                  averageRating: _averageRating,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widget.internship.idNavigation?.slika != null
+                          ? Image.network(
+                              FilePathManager.constructUrl(
+                                  widget.internship.idNavigation!.slika!),
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: double.infinity,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.image,
+                                    size: 100,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    'Nema dostupne slike',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                      SizedBox(height: 8),
+                      Row(
                         children: [
-                          Icon(
-                            Icons.image,
-                            size: 100,
-                            color: Colors.grey,
+                          IconButton(
+                            icon: Icon(Icons.comment, color: Colors.blue),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CommentsScreen(
+                                    postId: widget.internship.id!,
+                                    postType: ItemType.internship,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Nema dostupne slike',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          SizedBox(width: 8),
+                          LikeButton(
+                            itemId: widget.internship.id!,
+                            itemType: ItemType.internship,
+                          ),
+                          Spacer(),
+                          SizedBox(width: 8),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.star, color: Colors.amber),
+                                SizedBox(width: 4),
+                                Text(
+                                  _averageRating > 0
+                                      ? _averageRating.toStringAsFixed(1)
+                                      : "N/A",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.comment, color: Colors.blue),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CommentsScreen(
-                            postId: widget.internship.id!,
-                            postType: ItemType.internship,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(width: 8),
-                  LikeButton(
-                    itemId: widget.internship.id!,
-                    itemType: ItemType.internship,
-                  ),
-                  Spacer(),
-                  SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber),
-                        SizedBox(width: 4),
-                        Text(
-                          _averageRating > 0
-                              ? _averageRating.toStringAsFixed(1)
-                              : "N/A",
+                      SizedBox(height: 16),
+                      Text(
+                          '${widget.internship.idNavigation?.naslov ?? 'Nema naslova'}',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text('${widget.internship.naslov ?? 'Nema naslova'}',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('${widget.internship.opis ?? 'Nema opisa'}',
-                  style: TextStyle(fontSize: 16)),
-              SizedBox(height: 8),
-              Text('Rok prijave:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                  '${widget.internship.rokPrijave != null ? DateFormat('dd MM yyyy').format(widget.internship.rokPrijave) : 'Nema dostupnog datuma'}'),
-              SizedBox(height: 8),
-              Text('Pocetak prakse:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                  '${praksa?.pocetakPrakse != null ? DateFormat('dd MM yyyy').format(praksa!.pocetakPrakse!) : 'Nema dostupnog datuma'}'),
-              SizedBox(height: 8),
-              Text('Kraj prakse:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                  '${praksa?.krajPrakse != null ? DateFormat('dd MM yyyy').format(praksa!.krajPrakse!) : 'Nema dostupnog datuma'}'),
-              SizedBox(height: 8),
-              Text('Organizacija:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                  '${praksa?.organizacija?.naziv ?? 'Nema dostupnog naziva organizacije'}'),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Text('Placena:',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(width: 8),
-                  praksa?.placena == true
-                      ? Icon(Icons.check_circle, color: Colors.green, size: 24)
-                      : Icon(Icons.cancel, color: Colors.red, size: 24),
-                ],
-              ),
-              SizedBox(height: 8),
-              Text('Benefiti:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('${praksa?.benefiti ?? 'Nema benefita'}'),
-              SizedBox(height: 8),
-              Text('Kvalifikacije:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('${praksa?.kvalifikacije ?? 'Nema kvalifikacija'}'),
-              SizedBox(height: 16), 
-              Row(
-                children: [
-                  Expanded(
-                    child: StarRatingWidget(
-                      postId: widget.internship.id!,
-                      postType: ItemType.internship,
-                      onRatingChanged: _fetchAverageRatings,
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PrijavaPraksaFormScreen(
-                              internship: widget.internship,
+                              fontSize: 24, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 8),
+                      Text(
+                          '${widget.internship.idNavigation?.opis ?? 'Nema opisa'}',
+                          style: TextStyle(fontSize: 16)),
+                      SizedBox(height: 8),
+                      Text('Rok prijave:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${widget.internship.idNavigation?.rokPrijave != null ? DateFormat('dd MM yyyy').format(widget.internship.idNavigation!.rokPrijave) : 'Nema dostupnog datuma'}'),
+                      SizedBox(height: 8),
+                      Text('Pocetak prakse:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${praksa?.pocetakPrakse != null ? DateFormat('dd MM yyyy').format(praksa!.pocetakPrakse!) : 'Nema dostupnog datuma'}'),
+                      SizedBox(height: 8),
+                      Text('Kraj prakse:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${praksa?.krajPrakse != null ? DateFormat('dd MM yyyy').format(praksa!.krajPrakse!) : 'Nema dostupnog datuma'}'),
+                      SizedBox(height: 8),
+                      Text('Organizacija:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${praksa?.organizacija?.naziv ?? 'Nema dostupnog naziva organizacije'}'),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text('Placena:',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          SizedBox(width: 8),
+                          praksa?.placena == true
+                              ? Icon(Icons.check_circle,
+                                  color: Colors.green, size: 24)
+                              : Icon(Icons.cancel, color: Colors.red, size: 24),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text('Benefiti:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${praksa?.benefiti ?? 'Nema benefita'}'),
+                      SizedBox(height: 8),
+                      Text('Kvalifikacije:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${praksa?.kvalifikacije ?? 'Nema kvalifikacija'}'),
+                      SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StarRatingWidget(
+                              postId: widget.internship.id!,
+                              postType: ItemType.internship,
+                              onRatingChanged: _fetchAverageRatings,
                             ),
                           ),
-                        );
-                      },
-                      child: Text('Prijavi se'),
-                    ),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PrijavaPraksaFormScreen(
+                                      internship: widget.internship,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text('Prijavi se'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+      );
+    });
   }
 }

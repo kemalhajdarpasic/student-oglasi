@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
+import 'package:studentoglasi_mobile/models/Stipendija/stipendija.dart';
 import '../models/Oglas/oglas.dart';
 import '../providers/prijavestipendija_provider.dart';
 import '../screens/main_screen.dart';
 
 class PrijavaStipendijaFormScreen extends StatefulWidget {
-  final Oglas scholarship;
+  final Stipendije scholarship;
 
   const PrijavaStipendijaFormScreen({Key? key, required this.scholarship})
       : super(key: key);

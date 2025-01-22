@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:studentoglasi_mobile/models/Oglas/oglas.dart';
 import 'package:studentoglasi_mobile/models/Organizacije/organizacije.dart';
 import 'package:studentoglasi_mobile/models/PrijavaStipendija/prijave_stipendija.dart';
 import 'package:studentoglasi_mobile/models/PrijavePraksa/prijave_praksa.dart';
@@ -9,7 +8,6 @@ import 'package:studentoglasi_mobile/models/Smjestaj/smjestaj.dart';
 import 'package:studentoglasi_mobile/models/StatusOglas/statusoglasi.dart';
 import 'package:studentoglasi_mobile/models/StatusPrijave/statusprijave.dart';
 import 'package:studentoglasi_mobile/models/Student/student.dart';
-import 'package:studentoglasi_mobile/providers/oglasi_provider.dart';
 import 'package:studentoglasi_mobile/providers/prijavepraksa_provider.dart';
 import 'package:studentoglasi_mobile/providers/prijavestipendija_provider.dart';
 import 'package:studentoglasi_mobile/providers/rezervacije_provider.dart';
@@ -31,21 +29,14 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   late PrijavePraksaProvider _prijavePrakseProvider;
   late PrijaveStipendijaProvider _prijaveStipendijaProvider;
   late RezervacijeProvider _rezeracijeProvider;
-  late StatusPrijaveProvider _statusProvider;
   late StudentiProvider _studentProvider;
-  late OglasiProvider _oglasiProvider;
   late SmjestajiProvider _smjestajProvider;
-  Organizacije? selectedOrganizacije;
-  StatusOglasi? selectedStatusOglasi;
   Student? _currentStudent;
   bool _isLoading = true;
   bool _hasError = false;
   List<PrijavePraksa>? prijavePrakseResult;
   List<PrijaveStipendija>? prijaveStipendijaResult;
   List<Rezervacije>? rezeracijeResult;
-  SearchResult<StatusPrijave>? statusResult;
-  SearchResult<Oglas>? oglasiResult;
-  SearchResult<Smjestaj>? smjestajResult;
 
   @override
   void initState() {
@@ -54,36 +45,10 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     _prijaveStipendijaProvider = context.read<PrijaveStipendijaProvider>();
     _studentProvider = context.read<StudentiProvider>();
     _rezeracijeProvider = context.read<RezervacijeProvider>();
-    _statusProvider = context.read<StatusPrijaveProvider>();
-    _oglasiProvider = context.read<OglasiProvider>();
     _smjestajProvider = context.read<SmjestajiProvider>();
     _fetchData();
-    _fetchOglasi();
-    _fetchStatusPrijave();
     _fetchScholarshipData();
     _fetchReservationsData();
-    _fetchSmjestaj();
-  }
-
-  void _fetchStatusPrijave() async {
-    var statusData = await _statusProvider.get();
-    setState(() {
-      statusResult = statusData;
-    });
-  }
-
-  void _fetchOglasi() async {
-    var oglasiData = await _oglasiProvider.get();
-    setState(() {
-      oglasiResult = oglasiData;
-    });
-  }
-
-    void _fetchSmjestaj() async {
-    var smjestajData = await _smjestajProvider.get();
-    setState(() {
-      smjestajResult = smjestajData;
-    });
   }
 
   Future<void> _fetchData() async {
@@ -160,7 +125,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _hasError
               ? const Center(
-                  child: Text('Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
+                  child: Text(
+                      'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
               : prijavePrakseResult == null &&
                       prijaveStipendijaResult == null &&
                       rezeracijeResult == null
@@ -245,17 +211,22 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                 SizedBox(width: 8.0),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to OglasScreen with the ad's title
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => InternshipDetailsScreen(
-                          internship: oglasiResult!.result
-                              .firstWhere((s) => s.id == prijava.praksaId),
-                          averageRating:0 ,
+                    if (prijava.praksa != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InternshipDetailsScreen(
+                            internship: prijava.praksa!,
+                            averageRating: 0,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Detalji stipendije nisu dostupni.')),
+                      );
+                    }
                   },
                   child: Text('Pogledaj oglas'),
                 ),
@@ -314,16 +285,22 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                 SizedBox(width: 8.0),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ScholarshipDetailsScreen(
-                          scholarship: oglasiResult!.result
-                              .firstWhere((s) => s.id == prijava.stipendijaId),
-                          averageRating:0 ,
+                    if (prijava.stipendija != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScholarshipDetailsScreen(
+                            scholarship: prijava.stipendija!,
+                            averageRating: 0,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Detalji stipendije nisu dostupni.')),
+                      );
+                    }
                   },
                   child: Text('Pogledaj oglas'),
                 ),
@@ -385,20 +362,33 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                   },
                   child: Text('Otkaži'),
                 ),
-                  SizedBox(width: 8.0),
+                SizedBox(width: 8.0),
                 ElevatedButton(
-                  onPressed: () {
-                    // Navigate to OglasScreen with the ad's title
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AccommodationDetailsScreen(
-                          smjestaj: smjestajResult!.result
-                              .firstWhere((s) => s.id == rezervacija.smjestaj?.id),
-                          averageRating:0 ,
-                        ),
-                      ),
-                    );
+                  onPressed: () async {
+                    try {
+                      if (rezervacija.smjestaj?.id != null) {
+                        var smjestaj = await _smjestajProvider
+                            .getById(rezervacija.smjestaj!.id!);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AccommodationDetailsScreen(
+                              smjestaj: smjestaj,
+                              averageRating:
+                                  0,
+                            ),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Smještaj nije pronađen.')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Greška: ${e.toString()}')),
+                      );
+                    }
                   },
                   child: Text('Pogledaj oglas'),
                 ),

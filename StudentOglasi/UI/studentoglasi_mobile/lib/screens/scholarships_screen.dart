@@ -20,6 +20,7 @@ import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/mobile_nav_bar.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/scholarship/desktop_scholarships_layout.dart';
 import '../models/search_result.dart';
 import '../widgets/menu.dart';
 
@@ -155,8 +156,7 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
       MaterialPageRoute(
         builder: (context) => ScholarshipDetailsScreen(
           scholarship: _stipendije!.result
-              .firstWhere((s) => s.id == scholarshipId)
-              .idNavigation!,
+              .firstWhere((s) => s.id == scholarshipId),
           averageRating: averageRating,
         ),
       ),
@@ -192,7 +192,15 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
             automaticallyImplyLeading: !isDesktop,
           ),
           drawer: isDesktop ? null : DrawerMenu(),
-          body: Column(
+          body: isDesktop
+            ? DesktopScholarshipsLayout(
+                stipendije: filteredStipendije,
+                recommendedStipendije: recommendedStipendije.result,
+                averageRatings: _averageRatings,
+                onCardTap: _navigateToDetailsScreen,
+              )
+            :
+            Column(
             children: [
               if (!isDesktop)
                 Row(

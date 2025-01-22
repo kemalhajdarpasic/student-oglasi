@@ -63,6 +63,15 @@ namespace StudentOglasi.Services.Services
                     .ThenInclude(sj => sj.Slikes);
             return base.AddInclude(query, search);
         }
+        public override async Task<Model.Smjestaji> GetById(int id)
+        {
+            var query = _context.Set<Database.Smjestaji>().AsQueryable();
+            query = AddInclude(query);
+            var entity = await query.FirstOrDefaultAsync(s => s.Id == id);
+
+            return _mapper.Map<Model.Smjestaji>(entity);
+        }
+
         public override async Task BeforeDelete(Database.Smjestaji smjestaj)
         {
             var smjestajWithRelations = await _context.Smjestajis

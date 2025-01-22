@@ -113,8 +113,9 @@ class _ObjavaListScreenState extends State<ObjavaListScreen> {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: MobileHomepage(objave: _objave),
               ),
-        bottomNavigationBar:
-            MobileBottomNavigationBar(currentIndex: _currentTabIndex),
+        bottomNavigationBar: !isDesktop
+            ? MobileBottomNavigationBar(currentIndex: _currentTabIndex)
+            : null,
       );
     });
   }
