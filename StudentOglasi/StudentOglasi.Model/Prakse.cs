@@ -20,6 +20,8 @@ namespace StudentOglasi.Model
 
         public bool Placena { get; set; }
 
+        public bool? IsRecommended { get; set; }
+
         public virtual Oglasi IdNavigation { get; set; } = null!;
 
         public virtual Organizacije Organizacija { get; set; } = null!;

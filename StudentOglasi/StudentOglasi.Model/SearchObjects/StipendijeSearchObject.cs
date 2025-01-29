@@ -9,6 +9,9 @@ namespace StudentOglasi.Model.SearchObjects
     public class StipendijeSearchObject:BaseSearchObject
     {
         public string? Naslov { get; set; }
-        public int? Stipenditor { get; set; }
+        public int? StipenditorID { get; set; }
+        public int? GradID { get; set; }
+        public List<int>? ProsjecneOcjene { get; set; } = new List<int>();
+        public string? Sort { get; set; }
     }
 }

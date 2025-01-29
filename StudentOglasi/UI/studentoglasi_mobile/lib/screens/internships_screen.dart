@@ -45,7 +45,8 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
   SearchResult<Praksa>? _praksa;
   Map<int, double> _averageRatings = {};
   TextEditingController _naslovController = new TextEditingController();
-  SearchResult<Praksa> recommendedPrakse = SearchResult<Praksa>();
+  int currentPage = 1;
+  int pageSize = 10;
 
   @override
   void initState() {
@@ -55,11 +56,10 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
     _organizacijeProvider = context.read<OrganizacijeProvider>();
     _oglasiProvider = context.read<OglasiProvider>();
     _ocjeneProvider = context.read<OcjeneProvider>();
-    _fetchData();
+    _fetchData(null);
     _fetchOglasi();
     _fetchStatusOglasi();
     _fetchOrganizacije();
-    _fetchRecommendedPrakse();
   }
 
   void _fetchStatusOglasi() async {
@@ -83,30 +83,6 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
     });
   }
 
-  Future<void> _fetchRecommendedPrakse() async {
-    try {
-      var studentiProvider =
-          Provider.of<StudentiProvider>(context, listen: false);
-      var studentId = studentiProvider.currentStudent?.id;
-
-      if (studentId == null) {
-        var student = await studentiProvider.getCurrentStudent();
-        studentId = student.id;
-      }
-
-      if (studentId != null) {
-        recommendedPrakse =
-            await Provider.of<PraksaProvider>(context, listen: false)
-                .getRecommended(studentId);
-        setState(() {});
-      } else {
-        print("Student ID is not available");
-      }
-    } catch (error) {
-      print("Error fetching recommended internships: $error");
-    }
-  }
-
   Future<void> _fetchAverageRatings() async {
     try {
       for (var praksa in _praksa?.result ?? []) {
@@ -123,21 +99,50 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
     }
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchData(dynamic filter) async {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
     try {
-      var data = await _prakseProvider.get(filter: {
-        'naslov': _naslovController.text,
-        'organizacija': selectedOrganizacije?.id,
-      });
-      _averageRatings.clear();
-      setState(() {
-        _praksa = data;
-        _isLoading = false;
-      });
-      await _fetchAverageRatings();
-      print("Data fetched successfully: ${_praksa?.count} items.");
-    } catch (error) {
-      print("Error fetching data");
+      var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+      var studentId = studentiProvider.currentStudent?.id;
+
+      if (studentId == null) {
+        var student = await studentiProvider.getCurrentStudent();
+        studentId = student.id;
+      }
+
+      if (studentId != null) {
+        var finalFilter = {
+          'page': currentPage,
+          'pageSize': pageSize,
+          if (filter != null) ...filter,
+        };
+
+        var data = await _prakseProvider.getAllWithRecommendations(
+          studentId: studentId,
+          filter: finalFilter,
+        );
+        _praksa?.result.clear();
+        _averageRatings.clear();
+        setState(() {
+          _praksa = data;
+          _averageRatings.clear();
+
+          if (data.result.isEmpty) {
+            _praksa?.result.clear();
+          }
+          _isLoading = false;
+        });
+
+        await _fetchAverageRatings();
+      } else {
+        throw Exception("Student ID is not available");
+      }
+    } catch (e) {
       setState(() {
         _isLoading = false;
         _hasError = true;
@@ -149,7 +154,7 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
     setState(() {
       _isLoading = true;
     });
-    _fetchData();
+    _fetchData(null);
   }
 
   void _navigateToDetailsScreen(int internshipId, double averageRating) async {
@@ -157,8 +162,7 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => InternshipDetailsScreen(
-          internship: _praksa!.result
-              .firstWhere((p) => p.id == internshipId),
+          internship: _praksa!.result.firstWhere((p) => p.id == internshipId),
           averageRating: averageRating,
         ),
       ),
@@ -171,12 +175,6 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final recommendedIds = recommendedPrakse.result.map((p) => p.id).toSet();
-
-    final filteredPraksa =
-        _praksa?.result.where((p) => !recommendedIds.contains(p.id)).toList() ??
-            [];
-
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
       return Scaffold(
@@ -194,10 +192,11 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
         drawer: isDesktop ? null : DrawerMenu(),
         body: isDesktop
             ? DesktopInternshipsLayout(
-                praksa: filteredPraksa,
-                recommendedPrakse: recommendedPrakse.result,
+                prakse: _praksa?.result ?? [],
                 averageRatings: _averageRatings,
                 onCardTap: _navigateToDetailsScreen,
+                onFilterApplied: (filter) => _fetchData(filter),
+                totalItems: _praksa?.count ?? 0, 
               )
             : Column(
                 children: [
@@ -251,19 +250,14 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
                                 ? const Center(
                                     child: Text('Nema dostupnih podataka.'))
                                 : ListView.builder(
-                                    itemCount: recommendedPrakse.count +
-                                        filteredPraksa.length,
+                                    itemCount: _praksa?.result.length ?? 0,
                                     itemBuilder: (context, index) {
-                                      if (index < (recommendedPrakse.count)) {
-                                        final praksa =
-                                            recommendedPrakse.result[index];
-                                        return _buildPostCard(praksa,
-                                            isRecommended: true);
-                                      } else {
-                                        final praksa = filteredPraksa[
-                                            index - (recommendedPrakse.count)];
-                                        return _buildPostCard(praksa);
-                                      }
+                                      final smjestaj = _praksa!.result[index];
+                                      return _buildPostCard(
+                                        smjestaj,
+                                        isRecommended:
+                                            smjestaj.isRecommended ?? false,
+                                      );
                                     },
                                   ),
                   ),

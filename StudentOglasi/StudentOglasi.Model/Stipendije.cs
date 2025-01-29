@@ -24,6 +24,8 @@ namespace StudentOglasi.Model
 
         public int BrojStipendisata { get; set; }
 
+        public bool? IsRecommended { get; set; }
+
         public virtual Oglasi IdNavigation { get; set; } = null!;
 
         public virtual StatusOglasi Status { get; set; } = null!;

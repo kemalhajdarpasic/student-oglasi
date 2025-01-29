@@ -18,9 +18,19 @@ class Praksa {
   StatusOglasi? status;
   int? organizacijaId;
   Organizacije? organizacija;
+  bool? isRecommended;
 
-
-  Praksa(this.id, this.pocetakPrakse, this.krajPrakse,this.kvalifikacije,this.benefiti,this.placena,this.idNavigation,this.status,this.organizacija);
+  Praksa(
+      this.id,
+      this.pocetakPrakse,
+      this.krajPrakse,
+      this.kvalifikacije,
+      this.benefiti,
+      this.placena,
+      this.idNavigation,
+      this.status,
+      this.organizacija,
+      this.isRecommended);
   factory Praksa.fromJson(Map<String, dynamic> json) => _$PraksaFromJson(json);
 
   Map<String, dynamic> toJson() => _$PraksaToJson(this);

@@ -28,6 +28,8 @@ namespace StudentOglasi.Model
 
         public bool? UslugePrijevoza { get; set; }
 
+        public bool? IsRecommended { get; set; }
+
         public virtual Gradovi Grad { get; set; } = null!;
 
         public virtual TipSmjestaja? TipSmjestaja { get; set; }

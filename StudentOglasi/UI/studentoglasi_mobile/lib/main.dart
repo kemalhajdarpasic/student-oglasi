@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:studentoglasi_mobile/providers/gradovi_provider.dart';
 import 'package:studentoglasi_mobile/providers/komentari_provider.dart';
 import 'package:studentoglasi_mobile/providers/like_provider.dart';
 import 'package:studentoglasi_mobile/providers/obavijesti_provider.dart';
@@ -16,6 +17,7 @@ import 'package:studentoglasi_mobile/providers/statusoglasi_provider.dart';
 import 'package:studentoglasi_mobile/providers/statusprijave_provider.dart';
 import 'package:studentoglasi_mobile/providers/stipendije_provider.dart';
 import 'package:studentoglasi_mobile/providers/stipenditori_provider.dart';
+import 'package:studentoglasi_mobile/providers/tip_smjestaja_provider.dart';
 import 'package:studentoglasi_mobile/screens/accommodations_screen.dart';
 import 'package:studentoglasi_mobile/screens/applications_screen.dart';
 import 'package:studentoglasi_mobile/screens/internships_screen.dart';
@@ -76,6 +78,8 @@ void main() async {
             create: (context) => PrijaveStipendijaProvider()),
         ChangeNotifierProvider(create: (context) => PrijavePraksaProvider()),
         ChangeNotifierProvider(create: (context) => RezervacijeProvider()),
+        ChangeNotifierProvider(create: (context) => TipSmjestajaProvider()),
+        ChangeNotifierProvider(create: (context) => GradoviProvider()),
         Provider(create: (_) => PaymentProvider()),
       ],
       child: MyApp(),

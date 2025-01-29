@@ -6,6 +6,7 @@ using StudentOglasi.Model.SearchObjects;
 using StudentOglasi.Services.Database;
 using StudentOglasi.Services.Interfaces;
 using StudentOglasi.Services.StateMachines.PrakseStateMachine;
+using System.Collections.Concurrent;
 
 namespace StudentOglasi.Services.Services
 {
@@ -13,6 +14,7 @@ namespace StudentOglasi.Services.Services
     {
         private readonly RecommenderSystem _recommenderSystem;
         public readonly FileService _fileService;
+        private readonly ConcurrentDictionary<int, List<int>> _cachedRecommendations = new();
         public BasePrakseState _baseState { get; set; }
         public PrakseService(StudentoglasiContext context, IMapper mapper, FileService fileService, RecommenderSystem recommenderSystem, BasePrakseState baseState) : base(context, mapper)
         {
@@ -54,6 +56,29 @@ namespace StudentOglasi.Services.Services
             {
                 filteredQuery = filteredQuery.Where(x => x.StatusId == search.Status);
             }
+            if (search?.GradID != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Organizacija.GradId == search.GradID);
+            }
+            if (search?.OrganizacijaID != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.OrganizacijaId == search.OrganizacijaID);
+            }
+            if (search?.ProsjecneOcjene != null && search.ProsjecneOcjene.Any())
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    search.ProsjecneOcjene.Any(ocjena =>
+                        (ocjena == 5 &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "internship")
+                                         .Average(o => (decimal?)o.Ocjena) == 5) ||
+                        (ocjena < 5 &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "internship")
+                                         .Average(o => (decimal?)o.Ocjena) >= ocjena &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "internship")
+                                         .Average(o => (decimal?)o.Ocjena) < ocjena + 1)
+                    ));
+            }
+
             return filteredQuery;
         }
         public override IQueryable<Database.Prakse> AddInclude(IQueryable<Database.Prakse> query, PrakseSearchObject? search = null)
@@ -63,11 +88,93 @@ namespace StudentOglasi.Services.Services
             return base.AddInclude(query, search);
         }
 
+        private IQueryable<Database.Prakse> ApplySorting(IQueryable<Database.Prakse> query, string? sortOption)
+        {
+            if (string.IsNullOrWhiteSpace(sortOption))
+                return query;
+
+            return sortOption.ToLower() switch
+            {
+                "popularnost" => query
+                    .Select(s => new
+                    {
+                        Smjestaj = s,
+                        Popularnost = _context.Likes.Count(l => l.ItemId == s.Id && l.ItemType == "internship")
+                    })
+                    .OrderByDescending(x => x.Popularnost)
+                    .Select(x => x.Smjestaj),
+
+                "ocjena" => query
+                    .GroupJoin(
+                        _context.Ocjenes.Where(o => o.PostType == "internship"),
+                        smjestaj => smjestaj.Id,
+                        ocjena => ocjena.PostId,
+                        (smjestaj, ocjene) => new
+                        {
+                            Smjestaj = smjestaj,
+                            ProsjecnaOcjena = ocjene.Any() ? ocjene.Average(o => o.Ocjena) : 0
+                        }
+                    )
+                    .OrderByDescending(x => x.ProsjecnaOcjena)
+                    .Select(x => x.Smjestaj),
+
+                "naziv a-z" => query.OrderBy(s => s.IdNavigation.Naslov),
+                "naziv z-a" => query.OrderByDescending(s => s.IdNavigation.Naslov),
+                _ => query
+            };
+        }
+
         public override async Task<Model.Prakse> GetById(int id)
         {
             var entity = await _context.Set<Database.Prakse>().Include(p => p.Organizacija).Include(p => p.Status).FirstOrDefaultAsync(p => p.Id == id);
 
             return _mapper.Map<Model.Prakse>(entity);
+        }
+
+        public async Task<PagedResult<Model.Prakse>> GetPrakseWithRecommendations(PrakseSearchObject? search = null, int studentId = 0)
+        {
+            List<int> recommendedIds = new List<int>();
+            if (studentId > 0)
+            {
+                if (!_cachedRecommendations.TryGetValue(studentId, out recommendedIds))
+                {
+                    recommendedIds = await _recommenderSystem.GetRecommendedPostIds(studentId, "internship");
+                    _cachedRecommendations[studentId] = recommendedIds;
+                }
+            }
+            var query = _context.Prakses.AsQueryable();
+
+            query = AddFilter(query, search);
+            query = AddInclude(query, search);
+            query = ApplySorting(query, search?.Sort);
+
+            int totalCount = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                query = query.Skip((search.Page.Value - 1) * search.PageSize.Value)
+                             .Take(search.PageSize.Value);
+            }
+
+            var prakse = await query.ToListAsync();
+
+            var mappedPrakse = prakse.Select(s =>
+            {
+                var praksa = _mapper.Map<Model.Prakse>(s);
+                praksa.IsRecommended = recommendedIds.Contains(s.Id);
+                return praksa;
+            });
+
+            if (string.IsNullOrWhiteSpace(search?.Sort))
+            {
+                mappedPrakse = mappedPrakse.OrderByDescending(s => s.IsRecommended);
+            }
+
+            return new PagedResult<Model.Prakse>
+            {
+                Count = totalCount,
+                Result = mappedPrakse.ToList()
+            };
         }
 
         public override async Task Delete(int id)

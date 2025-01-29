@@ -30,6 +30,7 @@ Smjestaj _$SmjestajFromJson(Map<String, dynamic> json) => Smjestaj(
       (json['slikes'] as List<dynamic>?)
           ?.map((e) => Slike.fromJson(e as Map<String, dynamic>))
           .toList(),
+      json['isRecommended'] as bool?,
     );
 
 Map<String, dynamic> _$SmjestajToJson(Smjestaj instance) => <String, dynamic>{
@@ -48,4 +49,5 @@ Map<String, dynamic> _$SmjestajToJson(Smjestaj instance) => <String, dynamic>{
       'smjestajnaJedinicas': instance.smjestajnaJedinicas,
       'slike': instance.slike,
       'slikes': instance.slikes,
+      'isRecommended': instance.isRecommended,
     };

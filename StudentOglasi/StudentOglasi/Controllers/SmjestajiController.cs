@@ -31,6 +31,14 @@ namespace StudentOglasi.Controllers
             return Ok(smjestaji);
         }
 
+        [HttpGet("with-recommendations/{studentId}")]
+        public async Task<IActionResult> GetSmjestajiWithRecommendations([FromQuery] SmjestajiSearchObject? search, int studentId)
+        {
+            var smjestaji = await (_service as ISmjestajiService).GetSmjestajiWithRecommendations(search, studentId);
+
+            return Ok(smjestaji);
+        }
+
     }
 
 }

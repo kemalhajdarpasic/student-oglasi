@@ -6,7 +6,7 @@ import '../models/search_result.dart';
 
 class StipendijeProvider extends BaseProvider<Stipendije> {
   StipendijeProvider() : super('Stipendije');
- @override
+  @override
   Stipendije fromJson(data) {
     // TODO: implement fromJson
     return Stipendije.fromJson(data);
@@ -30,6 +30,36 @@ class StipendijeProvider extends BaseProvider<Stipendije> {
       return result;
     } else {
       throw Exception("Unknown error");
+    }
+  }
+
+  Future<SearchResult<Stipendije>> getAllWithRecommendations(
+      {int studentId = 0, dynamic filter}) async {
+    var url =
+        "${BaseProvider.baseUrl}${endPoint}/with-recommendations/$studentId";
+
+    if (filter != null) {
+      var queryString = getQueryString(filter);
+      url = "$url?$queryString";
+    }
+
+    var uri = Uri.parse(url);
+
+    var response = await httpClient.get(uri, headers: createHeaders());
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+
+      var result = SearchResult<Stipendije>();
+      result.count = data['count'];
+
+      for (var item in data['result']) {
+        result.result.add(fromJson(item));
+      }
+
+      return result;
+    } else {
+      throw Exception("Failed to fetch recommendations");
     }
   }
 }

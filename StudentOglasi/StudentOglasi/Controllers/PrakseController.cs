@@ -54,5 +54,12 @@ namespace StudentOglasi.Controllers
             return Ok(prakse);
         }
 
+        [HttpGet("with-recommendations/{studentId}")]
+        public async Task<IActionResult> GetPrakseWithRecommendations([FromQuery] PrakseSearchObject? search, int studentId)
+        {
+            var prakse = await (_service as IPrakseService).GetPrakseWithRecommendations(search, studentId);
+
+            return Ok(prakse);
+        }
     }
 }

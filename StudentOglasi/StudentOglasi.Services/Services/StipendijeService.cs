@@ -6,6 +6,7 @@ using StudentOglasi.Model.SearchObjects;
 using StudentOglasi.Services.Database;
 using StudentOglasi.Services.Interfaces;
 using StudentOglasi.Services.OglasiStateMachine;
+using System.Collections.Concurrent;
 
 namespace StudentOglasi.Services.Services
 {
@@ -13,6 +14,7 @@ namespace StudentOglasi.Services.Services
     {
         private readonly RecommenderSystem _recommenderSystem;
         public readonly FileService _fileService;
+        private readonly ConcurrentDictionary<int, List<int>> _cachedRecommendations = new();
         public BaseStipendijeState _baseState { get; set; }
         public StipendijeService(StudentoglasiContext context, IMapper mapper, FileService fileService, RecommenderSystem recommenderSystem, BaseStipendijeState baseState) : base(context, mapper)
         {
@@ -33,9 +35,27 @@ namespace StudentOglasi.Services.Services
             {
                 filteredQuery = filteredQuery.Where(x => x.IdNavigation.Naslov.Contains(search.Naslov));
             }
-            if (search?.Stipenditor != null)
+            if (search?.StipenditorID != null)
             {
-                filteredQuery = filteredQuery.Where(x => x.Stipenditor.Id == search.Stipenditor);
+                filteredQuery = filteredQuery.Where(x => x.Stipenditor.Id == search.StipenditorID);
+            }
+            if (search?.GradID != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Stipenditor.GradId == search.GradID);
+            }
+            if (search?.ProsjecneOcjene != null && search.ProsjecneOcjene.Any())
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    search.ProsjecneOcjene.Any(ocjena =>
+                        (ocjena == 5 &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "scholarship")
+                                         .Average(o => (decimal?)o.Ocjena) == 5) ||
+                        (ocjena < 5 &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "scholarship")
+                                         .Average(o => (decimal?)o.Ocjena) >= ocjena &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "scholarship")
+                                         .Average(o => (decimal?)o.Ocjena) < ocjena + 1)
+                    ));
             }
             return filteredQuery;
         }
@@ -45,12 +65,95 @@ namespace StudentOglasi.Services.Services
 
             return base.AddInclude(query, search);
         }
+
+        private IQueryable<Database.Stipendije> ApplySorting(IQueryable<Database.Stipendije> query, string? sortOption)
+        {
+            if (string.IsNullOrWhiteSpace(sortOption))
+                return query;
+
+            return sortOption.ToLower() switch
+            {
+                "popularnost" => query
+                    .Select(s => new
+                    {
+                        Smjestaj = s,
+                        Popularnost = _context.Likes.Count(l => l.ItemId == s.Id && l.ItemType == "scholarship")
+                    })
+                    .OrderByDescending(x => x.Popularnost)
+                    .Select(x => x.Smjestaj),
+
+                "ocjena" => query
+                    .GroupJoin(
+                        _context.Ocjenes.Where(o => o.PostType == "scholarship"),
+                        smjestaj => smjestaj.Id,
+                        ocjena => ocjena.PostId,
+                        (smjestaj, ocjene) => new
+                        {
+                            Smjestaj = smjestaj,
+                            ProsjecnaOcjena = ocjene.Any() ? ocjene.Average(o => o.Ocjena) : 0
+                        }
+                    )
+                    .OrderByDescending(x => x.ProsjecnaOcjena)
+                    .Select(x => x.Smjestaj),
+
+                "naziv a-z" => query.OrderBy(s => s.IdNavigation.Naslov),
+                "naziv z-a" => query.OrderByDescending(s => s.IdNavigation.Naslov),
+                _ => query
+            };
+        }
         public override async Task<Model.Stipendije> GetById(int id)
         {
             var entity = await _context.Set<Database.Stipendije>().Include(p => p.Stipenditor).Include(p => p.Status).FirstOrDefaultAsync(p => p.Id == id);
 
             return _mapper.Map<Model.Stipendije>(entity);
         }
+
+        public async Task<PagedResult<Model.Stipendije>> GetStipendijeWithRecommendations(StipendijeSearchObject? search = null, int studentId = 0)
+        {
+            List<int> recommendedIds = new List<int>();
+            if (studentId > 0)
+            {
+                if (!_cachedRecommendations.TryGetValue(studentId, out recommendedIds))
+                {
+                    recommendedIds = await _recommenderSystem.GetRecommendedPostIds(studentId, "scholarship");
+                    _cachedRecommendations[studentId] = recommendedIds;
+                }
+            }
+            var query = _context.Stipendijes.AsQueryable();
+
+            query = AddFilter(query, search);
+            query = AddInclude(query, search);
+            query = ApplySorting(query, search?.Sort);
+
+            int totalCount = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                query = query.Skip((search.Page.Value - 1) * search.PageSize.Value)
+                             .Take(search.PageSize.Value);
+            }
+
+            var stipendije = await query.ToListAsync();
+
+            var mappedStipendije = stipendije.Select(s =>
+            {
+                var stipendija = _mapper.Map<Model.Stipendije>(s);
+                stipendija.IsRecommended = recommendedIds.Contains(s.Id);
+                return stipendija;
+            });
+
+            if (string.IsNullOrWhiteSpace(search?.Sort))
+            {
+                mappedStipendije = mappedStipendije.OrderByDescending(s => s.IsRecommended);
+            }
+
+            return new PagedResult<Model.Stipendije>
+            {
+                Count = totalCount,
+                Result = mappedStipendije.ToList()
+            };
+        }
+
         public override async Task<Model.Stipendije> Update(int id, StipendijeUpdateRequest update)
         {
             var set = _context.Set<Database.Stipendije>();

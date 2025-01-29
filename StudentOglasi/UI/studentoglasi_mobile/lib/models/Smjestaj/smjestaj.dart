@@ -23,6 +23,7 @@ class Smjestaj {
   List<SmjestajnaJedinica>? smjestajnaJedinicas;
   List<String>? slike;
   List<Slike>? slikes;
+  bool? isRecommended;
 
   Smjestaj(
       this.id,
@@ -39,7 +40,8 @@ class Smjestaj {
       this.tipSmjestaja,
       this.smjestajnaJedinicas,
       this.slike,
-      this.slikes);
+      this.slikes,
+      this.isRecommended);
 
   factory Smjestaj.fromJson(Map<String, dynamic> json) =>
       _$SmjestajFromJson(json);

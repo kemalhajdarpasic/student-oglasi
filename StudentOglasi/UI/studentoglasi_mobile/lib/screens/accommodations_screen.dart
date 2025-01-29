@@ -33,33 +33,60 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
   Map<int, double> _averageRatings = {};
   bool _isLoading = false;
   bool _hasError = false;
-  SearchResult<Smjestaj> recommendedSmjestaji = SearchResult<Smjestaj>();
+  int currentPage = 1;
+  int pageSize = 10;
 
   @override
   void initState() {
     super.initState();
     _smjestajiProvider = context.read<SmjestajiProvider>();
     _ocjeneProvider = context.read<OcjeneProvider>();
-    _fetchData();
-    _fetchRecommendedSmjestaji();
+    _fetchData(null);
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchData(dynamic filter) async {
     setState(() {
       _isLoading = true;
       _hasError = false;
     });
 
     try {
-      var data = await _smjestajiProvider.get(filter: {
-        'naziv': _nazivController.text,
-      });
-      _averageRatings.clear();
-      setState(() {
-        smjestaji = data;
-        _isLoading = false;
-      });
-      await _fetchAverageRatings();
+      var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+      var studentId = studentiProvider.currentStudent?.id;
+
+      if (studentId == null) {
+        var student = await studentiProvider.getCurrentStudent();
+        studentId = student.id;
+      }
+
+      if (studentId != null) {
+        var finalFilter = {
+          'page': currentPage,
+          'pageSize': pageSize,
+          if (filter != null) ...filter,
+        };
+
+        var data = await _smjestajiProvider.getAllWithRecommendations(
+          studentId: studentId,
+          filter: finalFilter,
+        );
+        smjestaji?.result.clear();
+        _averageRatings.clear();
+        setState(() {
+          smjestaji = data;
+          _averageRatings.clear();
+
+          if (data.result.isEmpty) {
+            smjestaji?.result.clear();
+          }
+          _isLoading = false;
+        });
+
+        await _fetchAverageRatings();
+      } else {
+        throw Exception("Student ID is not available");
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -84,32 +111,8 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
     }
   }
 
-  Future<void> _fetchRecommendedSmjestaji() async {
-    try {
-      var studentiProvider =
-          Provider.of<StudentiProvider>(context, listen: false);
-      var studentId = studentiProvider.currentStudent?.id;
-
-      if (studentId == null) {
-        var student = await studentiProvider.getCurrentStudent();
-        studentId = student.id;
-      }
-
-      if (studentId != null) {
-        recommendedSmjestaji =
-            await Provider.of<SmjestajiProvider>(context, listen: false)
-                .getRecommended(studentId);
-        setState(() {});
-      } else {
-        print("Student ID is not available");
-      }
-    } catch (error) {
-      print("Error fetching recommended internships: $error");
-    }
-  }
-
   void _onSearchChanged() {
-    _fetchData();
+    _fetchData(null);
   }
 
   void _navigateToDetailsScreen(
@@ -132,13 +135,6 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final recommendedIds = recommendedSmjestaji.result.map((p) => p.id).toSet();
-
-    final filteredSmjestaji = smjestaji?.result
-            .where((p) => !recommendedIds.contains(p.id))
-            .toList() ??
-        [];
-
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
       return Scaffold(
@@ -154,84 +150,81 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
           automaticallyImplyLeading: !isDesktop,
         ),
         drawer: isDesktop ? null : DrawerMenu(),
-        body: isDesktop? DesktopAccommodationsLayout(
-                smjestaji: filteredSmjestaji,
-                recommendedSmjestaji: recommendedSmjestaji.result,
+        body: isDesktop
+            ? DesktopAccommodationsLayout(
+                smjestaji: smjestaji?.result ?? [],
                 averageRatings: _averageRatings,
                 onCardTap: _navigateToDetailsScreen,
-              ):
-        
-        Column(
-          children: [
-            if (!isDesktop)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                onFilterApplied: (filter) => _fetchData(filter),
+                totalItems: smjestaji?.count ?? 0, 
+              )
+            : Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ObjavaListScreen(),
+                  if (!isDesktop)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ObjavaListScreen(),
+                              ),
+                            );
+                          },
+                          child: Text('Početna'),
                         ),
-                      );
-                    },
-                    child: Text('Početna'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InternshipsScreen(),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => InternshipsScreen(),
+                              ),
+                            );
+                          },
+                          child: Text('Prakse'),
                         ),
-                      );
-                    },
-                    child: Text('Prakse'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScholarshipsScreen(),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ScholarshipsScreen(),
+                              ),
+                            );
+                          },
+                          child: Text('Stipendije'),
                         ),
-                      );
-                    },
-                    child: Text('Stipendije'),
+                      ],
+                    ),
+                  Expanded(
+                    child: _isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : _hasError
+                            ? Center(
+                                child: Text(
+                                  'Neuspješno učitavanje podataka.',
+                                ),
+                              )
+                            : smjestaji?.count == 0
+                                ? Center(
+                                    child: Text('Nema dostupnih podataka.'))
+                                : ListView.builder(
+                                    itemCount: smjestaji?.result.length ?? 0,
+                                    itemBuilder: (context, index) {
+                                      final smjestaj = smjestaji!.result[index];
+                                      return _buildPostCard(
+                                        smjestaj,
+                                        isRecommended:
+                                            smjestaj.isRecommended ?? false,
+                                      );
+                                    },
+                                  ),
                   ),
                 ],
               ),
-            Expanded(
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : _hasError
-                      ? Center(
-                          child: Text(
-                            'Neuspješno učitavanje podataka.',
-                          ),
-                        )
-                      : smjestaji?.count == 0
-                          ? Center(child: Text('Nema dostupnih podataka.'))
-                          : ListView.builder(
-                              itemCount: recommendedSmjestaji.count +
-                                  filteredSmjestaji.length,
-                              itemBuilder: (context, index) {
-                                if (index < (recommendedSmjestaji.count)) {
-                                  final praksa =
-                                      recommendedSmjestaji.result[index];
-                                  return _buildPostCard(praksa,
-                                      isRecommended: true);
-                                } else {
-                                  final praksa = filteredSmjestaji[
-                                      index - (recommendedSmjestaji.count)];
-                                  return _buildPostCard(praksa);
-                                }
-                              },
-                            ),
-            ),
-          ],
-        ),
       );
     });
   }

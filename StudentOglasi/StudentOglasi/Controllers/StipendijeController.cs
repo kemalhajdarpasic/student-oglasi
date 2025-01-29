@@ -52,6 +52,13 @@ namespace StudentOglasi.Controllers
             return Ok(stipendije);
         }
 
+        [HttpGet("with-recommendations/{studentId}")]
+        public async Task<IActionResult> GetStipendijeWithRecommendations([FromQuery] StipendijeSearchObject? search, int studentId)
+        {
+            var stipendije = await (_service as IStipendijeService).GetStipendijeWithRecommendations(search, studentId);
+
+            return Ok(stipendije);
+        }
     }
 
 }

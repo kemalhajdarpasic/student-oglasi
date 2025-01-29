@@ -6,6 +6,7 @@ using StudentOglasi.Model.SearchObjects;
 using StudentOglasi.Services.Database;
 using StudentOglasi.Services.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ namespace StudentOglasi.Services.Services
 
         public readonly ObavijestiService _obavijestiService;
         private readonly SmjestajnaJedinicaService _smjestajneJediniceService;
+        private readonly ConcurrentDictionary<int, List<int>> _cachedRecommendations = new();
         public SmjestajiService(StudentoglasiContext context, IMapper mapper, SlikeService slikeService, SmjestajnaJedinicaService smjestajneJediniceService, ObavijestiService obavijestiService, RecommenderSystem recommenderSystem) : base(context, mapper)
         {
             _obavijestiService = obavijestiService;
@@ -44,14 +46,57 @@ namespace StudentOglasi.Services.Services
             {
                 filteredQuery = filteredQuery.Where(x => x.Naziv.Contains(search.Naziv));
             }
+
             if (search?.GradID != null)
             {
                 filteredQuery = filteredQuery.Where(x => x.GradId == search.GradID);
             }
+
             if (search?.TipSmjestajaID != null)
             {
                 filteredQuery = filteredQuery.Where(x => x.TipSmjestajaId == search.TipSmjestajaID);
             }
+
+            if (search?.DodatneUsluge != null && search.DodatneUsluge.Any())
+            {
+                foreach (var usluga in search.DodatneUsluge)
+                {
+                    switch (usluga.ToLower())
+                    {
+                        case "wifi":
+                            filteredQuery = filteredQuery.Where(x => x.WiFi == true);
+                            break;
+                        case "parking":
+                            filteredQuery = filteredQuery.Where(x => x.Parking == true);
+                            break;
+                        case "fitness centar":
+                            filteredQuery = filteredQuery.Where(x => x.FitnessCentar == true);
+                            break;
+                        case "restoran":
+                            filteredQuery = filteredQuery.Where(x => x.Restoran == true);
+                            break;
+                        case "usluge prijevoza":
+                            filteredQuery = filteredQuery.Where(x => x.UslugePrijevoza == true);
+                            break;
+                    }
+                }
+            }
+
+            if (search?.ProsjecneOcjene != null && search.ProsjecneOcjene.Any())
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    search.ProsjecneOcjene.Any(ocjena =>
+                        (ocjena == 5 &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "accommodation")
+                                         .Average(o => (decimal?)o.Ocjena) == 5) ||
+                        (ocjena < 5 &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "accommodation")
+                                         .Average(o => (decimal?)o.Ocjena) >= ocjena &&
+                         _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "accommodation")
+                                         .Average(o => (decimal?)o.Ocjena) < ocjena + 1)
+                    ));
+            }
+
             return filteredQuery;
         }
         public override IQueryable<Database.Smjestaji> AddInclude(IQueryable<Database.Smjestaji> query, SmjestajiSearchObject? search = null)
@@ -63,6 +108,43 @@ namespace StudentOglasi.Services.Services
                     .ThenInclude(sj => sj.Slikes);
             return base.AddInclude(query, search);
         }
+
+        private IQueryable<Database.Smjestaji> ApplySorting(IQueryable<Database.Smjestaji> query, string? sortOption)
+        {
+            if (string.IsNullOrWhiteSpace(sortOption))
+                return query;
+
+            return sortOption.ToLower() switch
+            {
+                "popularnost" => query
+                    .Select(s => new
+                    {
+                        Smjestaj = s,
+                        Popularnost = _context.Likes.Count(l => l.ItemId == s.Id && l.ItemType == "accommodation")
+                    })
+                    .OrderByDescending(x => x.Popularnost)
+                    .Select(x => x.Smjestaj),
+
+                "ocjena" => query
+                    .GroupJoin(
+                        _context.Ocjenes.Where(o => o.PostType == "accommodation"),
+                        smjestaj => smjestaj.Id,
+                        ocjena => ocjena.PostId,
+                        (smjestaj, ocjene) => new
+                        {
+                            Smjestaj = smjestaj,
+                            ProsjecnaOcjena = ocjene.Any() ? ocjene.Average(o => o.Ocjena) : 0
+                        }
+                    )
+                    .OrderByDescending(x => x.ProsjecnaOcjena)
+                    .Select(x => x.Smjestaj),
+
+                "naziv a-z" => query.OrderBy(s => s.Naziv),
+                "naziv z-a" => query.OrderByDescending(s => s.Naziv),
+                _ => query
+            };
+        }
+
         public override async Task<Model.Smjestaji> GetById(int id)
         {
             var query = _context.Set<Database.Smjestaji>().AsQueryable();
@@ -119,6 +201,52 @@ namespace StudentOglasi.Services.Services
                 .ToListAsync();
 
             return _mapper.Map<List<Model.Smjestaji>>(recommendedSmjestaji);
+        }
+
+        public async Task<PagedResult<Model.Smjestaji>> GetSmjestajiWithRecommendations(SmjestajiSearchObject? search = null, int studentId = 0)
+        {
+            List<int> recommendedIds = new List<int>();
+            if (studentId > 0)
+            {
+                if (!_cachedRecommendations.TryGetValue(studentId, out recommendedIds))
+                {
+                    recommendedIds = await _recommenderSystem.GetRecommendedPostIds(studentId, "accommodation");
+                    _cachedRecommendations[studentId] = recommendedIds;
+                }
+            }
+            var query = _context.Smjestajis.AsQueryable();
+
+            query = AddFilter(query, search);
+            query = AddInclude(query, search);
+            query = ApplySorting(query, search?.Sort);
+
+            int totalCount = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                query = query.Skip((search.Page.Value - 1) * search.PageSize.Value)
+                             .Take(search.PageSize.Value);
+            }
+
+            var smjestaji = await query.ToListAsync();
+
+            var mappedSmjestaji = smjestaji.Select(s =>
+            {
+                var smjestaj = _mapper.Map<Model.Smjestaji>(s);
+                smjestaj.IsRecommended = recommendedIds.Contains(s.Id);
+                return smjestaj;
+            });
+
+            if (string.IsNullOrWhiteSpace(search?.Sort))
+            {
+                mappedSmjestaji = mappedSmjestaji.OrderByDescending(s => s.IsRecommended);
+            }
+
+            return new PagedResult<Model.Smjestaji>
+            {
+                Count = totalCount,
+                Result = mappedSmjestaji.ToList()
+            };
         }
     }
 }

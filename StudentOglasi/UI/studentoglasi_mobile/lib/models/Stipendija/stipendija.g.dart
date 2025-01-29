@@ -24,6 +24,7 @@ Stipendije _$StipendijeFromJson(Map<String, dynamic> json) => Stipendije(
       json['stipenditor'] == null
           ? null
           : Stipenditor.fromJson(json['stipenditor'] as Map<String, dynamic>),
+      json['isRecommended'] as bool?,
     );
 
 Map<String, dynamic> _$StipendijeToJson(Stipendije instance) =>
@@ -39,4 +40,5 @@ Map<String, dynamic> _$StipendijeToJson(Stipendije instance) =>
       'idNavigation': instance.idNavigation,
       'status': instance.status,
       'stipenditor': instance.stipenditor,
+      'isRecommended': instance.isRecommended,
     };

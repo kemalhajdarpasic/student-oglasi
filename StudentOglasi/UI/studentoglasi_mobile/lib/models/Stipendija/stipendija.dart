@@ -19,9 +19,23 @@ class Stipendije {
   Oglas? idNavigation;
   StatusOglasi? status;
   Stipenditor? stipenditor;
+  bool? isRecommended;
 
-  Stipendije(this.id, this.uslovi, this.iznos,this.kriterij,this.potrebnaDokumentacija, this.izvor,this.nivoObrazovanja,this.brojStipendisata,this.idNavigation,this.status,this.stipenditor);
-  factory Stipendije.fromJson(Map<String, dynamic> json) => _$StipendijeFromJson(json);
+  Stipendije(
+      this.id,
+      this.uslovi,
+      this.iznos,
+      this.kriterij,
+      this.potrebnaDokumentacija,
+      this.izvor,
+      this.nivoObrazovanja,
+      this.brojStipendisata,
+      this.idNavigation,
+      this.status,
+      this.stipenditor,
+      this.isRecommended);
+  factory Stipendije.fromJson(Map<String, dynamic> json) =>
+      _$StipendijeFromJson(json);
 
   Map<String, dynamic> toJson() => _$StipendijeToJson(this);
 }

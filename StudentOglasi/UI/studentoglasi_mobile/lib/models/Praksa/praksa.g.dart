@@ -24,6 +24,7 @@ Praksa _$PraksaFromJson(Map<String, dynamic> json) => Praksa(
       json['organizacija'] == null
           ? null
           : Organizacije.fromJson(json['organizacija'] as Map<String, dynamic>),
+      json['isRecommended'] as bool?,
     )
       ..statusId = (json['statusId'] as num?)?.toInt()
       ..organizacijaId = (json['organizacijaId'] as num?)?.toInt();
@@ -40,4 +41,5 @@ Map<String, dynamic> _$PraksaToJson(Praksa instance) => <String, dynamic>{
       'status': instance.status,
       'organizacijaId': instance.organizacijaId,
       'organizacija': instance.organizacija,
+      'isRecommended': instance.isRecommended,
     };

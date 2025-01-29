@@ -14,5 +14,6 @@ namespace StudentOglasi.Services.Interfaces
         Task<Model.Prakse> Hide(int id);
         Task<List<string>> AllowedActions(int id);
         Task<List<Model.Prakse>> GetRecommendedPrakse(int studentId);
+        Task<PagedResult<Model.Prakse>> GetPrakseWithRecommendations(PrakseSearchObject? search, int studentId);
     }
 }
