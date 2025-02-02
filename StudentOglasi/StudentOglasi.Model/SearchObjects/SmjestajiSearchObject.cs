@@ -13,6 +13,7 @@ namespace StudentOglasi.Model.SearchObjects
         public int? TipSmjestajaID { get; set; }
         public List<string>? DodatneUsluge { get; set; } = new List<string>();
         public List<int>? ProsjecneOcjene { get; set; } = new List<int>();
+        public double MinimalnaOcjena { get; set; }
         public string? Sort { get; set; }
     }
 }

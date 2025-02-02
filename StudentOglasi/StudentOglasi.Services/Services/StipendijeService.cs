@@ -57,6 +57,12 @@ namespace StudentOglasi.Services.Services
                                          .Average(o => (decimal?)o.Ocjena) < ocjena + 1)
                     ));
             }
+            if (search?.MinimalnaOcjena != null)
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "scholarship")
+                                    .Average(o => (double?)o.Ocjena) >= search.MinimalnaOcjena);
+            }
             return filteredQuery;
         }
         public override IQueryable<Database.Stipendije> AddInclude(IQueryable<Database.Stipendije> query, StipendijeSearchObject? search = null)
@@ -76,28 +82,31 @@ namespace StudentOglasi.Services.Services
                 "popularnost" => query
                     .Select(s => new
                     {
-                        Smjestaj = s,
+                        Stipendija = s,
                         Popularnost = _context.Likes.Count(l => l.ItemId == s.Id && l.ItemType == "scholarship")
                     })
                     .OrderByDescending(x => x.Popularnost)
-                    .Select(x => x.Smjestaj),
+                    .Select(x => x.Stipendija),
 
                 "ocjena" => query
                     .GroupJoin(
                         _context.Ocjenes.Where(o => o.PostType == "scholarship"),
-                        smjestaj => smjestaj.Id,
+                        stipendija => stipendija.Id,
                         ocjena => ocjena.PostId,
-                        (smjestaj, ocjene) => new
+                        (stipendija, ocjene) => new
                         {
-                            Smjestaj = smjestaj,
+                            Stipendija = stipendija,
                             ProsjecnaOcjena = ocjene.Any() ? ocjene.Average(o => o.Ocjena) : 0
                         }
                     )
                     .OrderByDescending(x => x.ProsjecnaOcjena)
-                    .Select(x => x.Smjestaj),
+                    .Select(x => x.Stipendija),
 
                 "naziv a-z" => query.OrderBy(s => s.IdNavigation.Naslov),
                 "naziv z-a" => query.OrderByDescending(s => s.IdNavigation.Naslov),
+
+                "najnovije" => query.OrderByDescending(s => s.IdNavigation.VrijemeObjave),
+                "najstarije" => query.OrderBy(s => s.IdNavigation.VrijemeObjave),
                 _ => query
             };
         }

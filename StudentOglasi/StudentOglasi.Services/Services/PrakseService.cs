@@ -78,7 +78,12 @@ namespace StudentOglasi.Services.Services
                                          .Average(o => (decimal?)o.Ocjena) < ocjena + 1)
                     ));
             }
-
+            if (search?.MinimalnaOcjena != null)
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "internship")
+                                    .Average(o => (double?)o.Ocjena) >= search.MinimalnaOcjena);
+            }
             return filteredQuery;
         }
         public override IQueryable<Database.Prakse> AddInclude(IQueryable<Database.Prakse> query, PrakseSearchObject? search = null)
@@ -96,30 +101,33 @@ namespace StudentOglasi.Services.Services
             return sortOption.ToLower() switch
             {
                 "popularnost" => query
-                    .Select(s => new
+                    .Select(p => new
                     {
-                        Smjestaj = s,
-                        Popularnost = _context.Likes.Count(l => l.ItemId == s.Id && l.ItemType == "internship")
+                        Praksa = p,
+                        Popularnost = _context.Likes.Count(l => l.ItemId == p.Id && l.ItemType == "internship")
                     })
                     .OrderByDescending(x => x.Popularnost)
-                    .Select(x => x.Smjestaj),
+                    .Select(x => x.Praksa),
 
                 "ocjena" => query
                     .GroupJoin(
                         _context.Ocjenes.Where(o => o.PostType == "internship"),
-                        smjestaj => smjestaj.Id,
+                        praksa => praksa.Id,
                         ocjena => ocjena.PostId,
-                        (smjestaj, ocjene) => new
+                        (praksa, ocjene) => new
                         {
-                            Smjestaj = smjestaj,
+                            Praksa = praksa,
                             ProsjecnaOcjena = ocjene.Any() ? ocjene.Average(o => o.Ocjena) : 0
                         }
                     )
                     .OrderByDescending(x => x.ProsjecnaOcjena)
-                    .Select(x => x.Smjestaj),
+                    .Select(x => x.Praksa),
 
-                "naziv a-z" => query.OrderBy(s => s.IdNavigation.Naslov),
-                "naziv z-a" => query.OrderByDescending(s => s.IdNavigation.Naslov),
+                "naziv a-z" => query.OrderBy(p => p.IdNavigation.Naslov),
+                "naziv z-a" => query.OrderByDescending(p => p.IdNavigation.Naslov),
+
+                "najnovije" => query.OrderByDescending(p => p.IdNavigation.VrijemeObjave),
+                "najstarije" => query.OrderBy(p => p.IdNavigation.VrijemeObjave),
                 _ => query
             };
         }

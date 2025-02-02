@@ -97,6 +97,12 @@ namespace StudentOglasi.Services.Services
                     ));
             }
 
+            if (search?.MinimalnaOcjena != null)
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    _context.Ocjenes.Where(o => o.PostId == x.Id && o.PostType == "accommodation")
+                                    .Average(o => (double?)o.Ocjena) >= search.MinimalnaOcjena);
+            }
             return filteredQuery;
         }
         public override IQueryable<Database.Smjestaji> AddInclude(IQueryable<Database.Smjestaji> query, SmjestajiSearchObject? search = null)

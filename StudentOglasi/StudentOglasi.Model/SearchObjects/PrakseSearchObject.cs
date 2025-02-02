@@ -14,6 +14,7 @@ namespace StudentOglasi.Model.SearchObjects
         public int? GradID { get; set; }
         public int? OrganizacijaID { get; set; }
         public List<int>? ProsjecneOcjene { get; set; } = new List<int>();
+        public double MinimalnaOcjena { get; set; }
         public string? Sort { get; set; }
     }
 }
