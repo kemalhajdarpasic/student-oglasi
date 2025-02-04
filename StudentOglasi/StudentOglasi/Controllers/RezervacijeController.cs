@@ -13,13 +13,18 @@ namespace StudentOglasi.Controllers
     {
         public RezervacijeController(ILogger<BaseController<Rezervacije, RezervacijeSearchObject>> logger, IRezervacijeService rezervacijeService) : base(logger, rezervacijeService)
         {
-
         }
 
         [HttpPost]
         public async Task<Model.Rezervacije> Insert([FromBody] RezervacijaInsertRequest request)
         {
             return await (_service as IRezervacijeService).Insert(request);
+        }
+
+        [HttpGet("booked-dates/{smjestajnaJedinicaId}")]
+        public async Task<List<ZauzetiTermin>> GetZauzetiTermini(int smjestajnaJedinicaId)
+        {
+            return await (_service as IRezervacijeService).GetBooked(smjestajnaJedinicaId);
         }
 
         [HttpPut("{studentId}/{smjestajnaJedinicaId}/approve")]

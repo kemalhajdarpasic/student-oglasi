@@ -15,6 +15,7 @@ namespace StudentOglasi.Services.Interfaces
         Task<Model.Rezervacije> Cancel(int studentId, int smjestajnaJedinicaId);
         Task<List<string>> AllowedActions(int studentId, int smjestajnaJedinicaId);
         Task<List<Rezervacije>> GetByStudentIdAsync(int studentId);
+        Task<List<ZauzetiTermin>> GetBooked(int smjestajnaJedinicaId);
         Task<Model.Rezervacije> Insert(RezervacijaInsertRequest request);
         byte[] GeneratePDFReport(List<Rezervacije> prijave, Model.Smjestaji smjestaj, int? smjestajnaJedinicaId, DateTime? pocetniDatum, DateTime? krajnjiDatum);
         Task<byte[]> DownloadReportAsync(int smjestajId, int? smjestajnaJedinicaId, DateTime? pocetniDatum, DateTime? krajnjiDatum);

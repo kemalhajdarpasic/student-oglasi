@@ -94,6 +94,20 @@ namespace StudentOglasi.Services.Services
             result.Result = tmp;
             return result;
         }
+        public async Task<List<ZauzetiTermin>> GetBooked(int smjestajnaJedinicaId)
+        {
+            var zauzetiTermini = await _context.Rezervacijes
+                .Where(r => r.SmjestajnaJedinicaId == smjestajnaJedinicaId && (r.StatusId == 1 || r.StatusId == 2))
+                .Select(r => new ZauzetiTermin
+                {
+                    DatumPrijave = r.DatumPrijave,
+                    DatumOdjave = r.DatumOdjave
+                })
+                .ToListAsync();
+
+            return zauzetiTermini;
+        }
+
         public async Task<Model.Rezervacije> Cancel(int studentId, int smjestajnaJedinicaId)
         {
             var set = _context.Set<Database.Rezervacije>();
