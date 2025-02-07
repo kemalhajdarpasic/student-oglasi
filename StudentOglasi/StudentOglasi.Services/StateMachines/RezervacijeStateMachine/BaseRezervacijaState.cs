@@ -23,7 +23,7 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
         {
             throw new UserException("Action is not allowed!");
         }
-        public virtual Task<Model.Rezervacije> Cancel(int studentId, int smjestajnaJedinicaId)
+        public virtual Task<Model.Rezervacije> Cancel(int rezervacijaId)
         {
             throw new UserException("Action is not allowed!");
         }

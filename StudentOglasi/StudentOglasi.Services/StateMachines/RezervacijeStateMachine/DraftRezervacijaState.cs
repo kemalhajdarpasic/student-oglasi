@@ -43,11 +43,11 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
             return _mapper.Map<Model.Rezervacije>(entity);
         }
 
-        public override async Task<Model.Rezervacije> Cancel(int studentId, int smjestajnaJedinicaId)
+        public override async Task<Model.Rezervacije> Cancel(int rezervacijaId)
         {
             var set = _context.Set<Database.Rezervacije>().Include(p => p.Student.IdNavigation).Include(p => p.SmjestajnaJedinica);
 
-            var entity = await set.FirstOrDefaultAsync(e => e.StudentId == studentId && e.SmjestajnaJedinicaId == smjestajnaJedinicaId);
+            var entity = await set.FirstOrDefaultAsync(e => e.Id == rezervacijaId);
 
             if (entity == null)
             {

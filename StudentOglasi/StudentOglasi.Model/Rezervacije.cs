@@ -8,6 +8,7 @@ namespace StudentOglasi.Model
 {
     public partial class Rezervacije
     {
+        public int Id { get; set; }
         public int SmjestajnaJedinicaId { get; set; }
 
         public int StudentId { get; set; }

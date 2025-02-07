@@ -8,6 +8,7 @@ import 'package:studentoglasi_mobile/providers/smjestaji_provider.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/accommodation_details_screen.dart';
 import 'package:studentoglasi_mobile/widgets/menu.dart';
+import 'package:studentoglasi_mobile/widgets/reservation_details_dialog.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
 
 class MyReservationsScreen extends StatefulWidget {
@@ -42,9 +43,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
       var data = await _rezeracijeProvider
           .getRezervacijeByStudentId(_currentStudent!.id!);
       setState(() {
-        rezeracijeResult = data
-            .where((rezervacija) => rezervacija.status?.naziv != 'Otkazana')
-            .toList();
+        rezeracijeResult = data;
         _isLoading = false;
       });
       print("Reservation data fetched");
@@ -67,7 +66,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
           appBar: AppBar(
             title: isDesktop ? NavbarDesktop() : Text('Moje rezervacije'),
           ),
-          drawer: isDesktop ? null : DrawerMenu(), 
+          drawer: isDesktop ? null : DrawerMenu(),
           body: Center(
             child: ConstrainedBox(
               constraints:
@@ -150,9 +149,30 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  rezervacija.smjestajnaJedinica?.naziv ?? 'No title',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                InkWell(
+                  onTap: () async {
+                    if (rezervacija.smjestaj?.id != null) {
+                      var smjestaj = await _smjestajProvider
+                          .getById(rezervacija.smjestaj!.id!);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AccommodationDetailsScreen(
+                            smjestaj: smjestaj,
+                            averageRating: 0,
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Smještaj nije pronađen.')),
+                      );
+                    }
+                  },
+                  child: Text(
+                    rezervacija.smjestajnaJedinica?.naziv ?? 'No title',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 SizedBox(height: 8.0),
                 if (rezervacija.smjestaj?.naziv != null)
@@ -164,7 +184,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
                 if (rezervacija.datumPrijave != null &&
                     rezervacija.datumOdjave != null)
                   Text(
-                    "Rezervacija za dane: ${DateFormat('dd MM yyyy').format(rezervacija.datumPrijave!)} - ${DateFormat('dd MM yyyy').format(rezervacija.datumOdjave!)}",
+                    "Rezervacija za dane: ${DateFormat('dd.MM.yyyy').format(rezervacija.datumPrijave!)} - ${DateFormat('dd.MM.yyyy').format(rezervacija.datumOdjave!)}",
                     style: TextStyle(fontSize: 14),
                   ),
                 SizedBox(height: 16.0),
@@ -180,59 +200,70 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
                     ),
                     Row(
                       children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            bool? confirm =
-                                await _showConfirmationDialog(context);
-                            if (confirm == true) {
-                              try {
-                                bool isCancelled =
-                                    await _rezeracijeProvider.cancel(
-                                  rezervacija.studentId,
-                                  entityId: rezervacija.smjestaj?.id,
-                                );
-
-                                if (isCancelled) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Rezervacija uspješno otkazana.')),
+                        if (rezervacija.status?.naziv?.toLowerCase() ==
+                            'na cekanju')
+                          ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm =
+                                  await _showConfirmationDialog(context);
+                              if (confirm == true) {
+                                try {
+                                  bool isCancelled =
+                                      await _rezeracijeProvider.cancel(
+                                    rezervacija.id
                                   );
-                                  _fetchData();
-                                } else {
+
+                                  if (isCancelled) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Rezervacija uspješno otkazana.')),
+                                    );
+                                    _fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Rezervacija nije otkazana.')),
+                                    );
+                                  }
+                                } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content:
-                                            Text('Rezervacija nije otkazana.')),
+                                            Text('Error: ${e.toString()}')),
                                   );
                                 }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Error: ${e.toString()}')),
-                                );
                               }
-                            }
-                          },
-                          child: Text('Otkaži'),
-                        ),
+                            },
+                            child: Text('Otkaži rezervaciju'),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.red[300] ?? Colors.red),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                  TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         SizedBox(width: 8.0),
                         ElevatedButton(
                           onPressed: () async {
                             try {
                               if (rezervacija.smjestaj?.id != null) {
-                                var smjestaj = await _smjestajProvider
-                                    .getById(rezervacija.smjestaj!.id!);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AccommodationDetailsScreen(
-                                      smjestaj: smjestaj,
-                                      averageRating: 0,
-                                    ),
-                                  ),
-                                );
+                                 showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    ReservationDetailsDialog(
+                                  rezervacija: rezervacija,
+                                  rezervacijeProvider: _rezeracijeProvider,
+                                  smjestajiProvider: _smjestajProvider,
+                                  onRezervacijaCancelled: () {
+                                    setState(() {
+                                      _fetchData();
+                                    });
+                                  },
+                                ),);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

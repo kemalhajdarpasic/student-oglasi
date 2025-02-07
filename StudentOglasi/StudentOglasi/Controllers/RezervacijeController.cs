@@ -33,10 +33,10 @@ namespace StudentOglasi.Controllers
             return await (_service as IRezervacijeService).Approve(studentId, smjestajnaJedinicaId);
         }
 
-        [HttpPut("{studentId}/{smjestajnaJedinicaId}/cancel")]
-        public virtual async Task<Model.Rezervacije> Cancel(int studentId, int smjestajnaJedinicaId)
+        [HttpPut("{rezervacijaId}/cancel")]
+        public virtual async Task<Model.Rezervacije> Cancel(int rezervacijaId)
         {
-            return await (_service as IRezervacijeService).Cancel(studentId, smjestajnaJedinicaId);
+            return await (_service as IRezervacijeService).Cancel(rezervacijaId);
         }
 
         [HttpGet("{studentId}/{smjestajnaJedinicaId}/allowedActions")]

@@ -7,6 +7,7 @@ part of 'rezervacije.dart';
 // **************************************************************************
 
 Rezervacije _$RezervacijeFromJson(Map<String, dynamic> json) => Rezervacije(
+      (json['id'] as num?)?.toInt(),
       (json['studentId'] as num?)?.toInt(),
       (json['smjestajnaJedinicaId'] as num?)?.toInt(),
       json['datumPrijave'] == null
@@ -39,6 +40,7 @@ Rezervacije _$RezervacijeFromJson(Map<String, dynamic> json) => Rezervacije(
 
 Map<String, dynamic> _$RezervacijeToJson(Rezervacije instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'studentId': instance.studentId,
       'smjestajnaJedinicaId': instance.smjestajnaJedinicaId,
       'datumPrijave': instance.datumPrijave?.toIso8601String(),

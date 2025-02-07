@@ -108,15 +108,15 @@ namespace StudentOglasi.Services.Services
             return zauzetiTermini;
         }
 
-        public async Task<Model.Rezervacije> Cancel(int studentId, int smjestajnaJedinicaId)
+        public async Task<Model.Rezervacije> Cancel(int rezervacijaId)
         {
             var set = _context.Set<Database.Rezervacije>();
 
-            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.SmjestajnaJedinicaId == smjestajnaJedinicaId);
+            var entity = await set.FirstOrDefaultAsync(p => p.Id == rezervacijaId);
             entity.Status = await _context.StatusPrijaves.FindAsync(entity.StatusId);
             var state = _baseState.CreateState(entity.Status.Naziv);
 
-            return await state.Cancel(studentId, smjestajnaJedinicaId);
+            return await state.Cancel(rezervacijaId);
         }
 
         public async Task<Model.Rezervacije> Approve(int studentId, int smjestajnaJedinicaId)

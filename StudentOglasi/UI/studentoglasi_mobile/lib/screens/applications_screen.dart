@@ -9,6 +9,8 @@ import 'package:studentoglasi_mobile/providers/prijavestipendija_provider.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_details_screen.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/internship_details_screen.dart';
+import 'package:studentoglasi_mobile/widgets/applications/internship_application_details_dialog.dart';
+import 'package:studentoglasi_mobile/widgets/applications/scholarship_application_details_dialog.dart';
 import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
 import '../widgets/menu.dart';
 
@@ -222,9 +224,24 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  prijava.praksa?.idNavigation?.naslov ?? 'No title',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                InkWell(
+                  onTap: () {
+                    if (prijava.praksa != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InternshipDetailsScreen(
+                            internship: prijava.praksa!,
+                            averageRating: 0,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(
+                    prijava.praksa?.idNavigation?.naslov ?? 'No title',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 SizedBox(height: 8.0),
                 if (prijava.praksa?.organizacija?.naziv != null)
@@ -236,7 +253,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                 if (prijava.praksa?.pocetakPrakse != null &&
                     prijava.praksa?.krajPrakse != null)
                   Text(
-                    "Trajanje: ${DateFormat('dd MM yyyy').format(prijava.praksa!.pocetakPrakse!)} - ${DateFormat('dd MM yyyy').format(prijava.praksa!.krajPrakse)}",
+                    "Trajanje: ${DateFormat('dd.MM.yyyy').format(prijava.praksa!.pocetakPrakse!)} - ${DateFormat('dd.MM.yyyy').format(prijava.praksa!.krajPrakse)}",
                     style: TextStyle(fontSize: 14),
                   ),
                 SizedBox(height: 16.0),
@@ -252,46 +269,65 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                     ),
                     Row(
                       children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            bool? confirm =
-                                await _showConfirmationDialog(context);
-                            if (confirm == true) {
-                              try {
-                                bool isCancelled =
-                                    await _prijavePrakseProvider.cancel(
-                                  prijava.studentId,
-                                  entityId: prijava.praksaId,
-                                );
+                        if (prijava.status?.naziv?.toLowerCase() ==
+                            'na cekanju')
+                          ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm =
+                                  await _showConfirmationDialog(context);
+                              if (confirm == true) {
+                                try {
+                                  bool isCancelled =
+                                      await _prijavePrakseProvider.cancel(
+                                    prijava.studentId,
+                                    entityId: prijava.praksaId,
+                                  );
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(isCancelled
-                                        ? 'Prijava uspješno otkazana.'
-                                        : 'Prijava nije otkazana.'),
-                                  ),
-                                );
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Error: ${e.toString()}')),
-                                );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(isCancelled
+                                          ? 'Prijava uspješno otkazana.'
+                                          : 'Prijava nije otkazana.'),
+                                    ),
+                                  );
+                                  if (isCancelled) {
+                                    await _fetchData();
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Error: ${e.toString()}')),
+                                  );
+                                }
                               }
-                            }
-                          },
-                          child: Text('Otkaži'),
-                        ),
+                            },
+                            child: Text('Otkaži prijavu'),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.red[300] ?? Colors.red),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                  TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         SizedBox(width: 8.0),
                         ElevatedButton(
                           onPressed: () {
                             if (prijava.praksa != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => InternshipDetailsScreen(
-                                    internship: prijava.praksa!,
-                                    averageRating: 0,
-                                  ),
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    InternshipApplicationDetailsDialog(
+                                  prijava: prijava,
+                                  prijavePrakseProvider: _prijavePrakseProvider,
+                                  onPrijavaCancelled: () {
+                                    print("onPrijavaCancelled pozvan");
+                                    setState(() {
+                                      _fetchData();
+                                    });
+                                  },
                                 ),
                               );
                             } else {
@@ -359,9 +395,24 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  prijava.stipendija?.idNavigation?.naslov ?? 'No title',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                InkWell(
+                  onTap: () {
+                    if (prijava.stipendija != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScholarshipDetailsScreen(
+                            scholarship: prijava.stipendija!,
+                            averageRating: 0,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(
+                    prijava.stipendija?.idNavigation?.naslov ?? 'No title',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 SizedBox(height: 8.0),
                 if (prijava.stipendija?.stipenditor?.naziv != null)
@@ -382,59 +433,73 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                     ),
                     Row(
                       children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            bool? confirm =
-                                await _showConfirmationDialog(context);
-                            if (confirm == true) {
-                              try {
-                                bool isCancelled =
-                                    await _prijaveStipendijaProvider.cancel(
-                                        prijava.studentId,
-                                        entityId: prijava.stipendijaId);
+                        if (prijava.status?.naziv?.toLowerCase() ==
+                            'na cekanju')
+                          ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm =
+                                  await _showConfirmationDialog(context);
+                              if (confirm == true) {
+                                try {
+                                  bool isCancelled =
+                                      await _prijaveStipendijaProvider.cancel(
+                                          prijava.studentId,
+                                          entityId: prijava.stipendijaId);
 
-                                if (isCancelled) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content:
-                                            Text('Prijava uspješno otkazana.')),
+                                      content: Text(isCancelled
+                                          ? 'Prijava uspješno otkazana.'
+                                          : 'Prijava nije otkazana.'),
+                                    ),
                                   );
-                                } else {
+                                  if (isCancelled) {
+                                    await _fetchData();
+                                  }
+                                } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content:
-                                            Text('Prijava nije otkazana.')),
+                                            Text('Error: ${e.toString()}')),
                                   );
                                 }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Error: ${e.toString()}')),
-                                );
                               }
-                            }
-                          },
-                          child: Text('Otkaži'),
-                        ),
+                            },
+                            child: Text('Otkaži prijavu'),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.red[300] ?? Colors.red),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                  TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         SizedBox(width: 8.0),
                         ElevatedButton(
                           onPressed: () {
                             if (prijava.stipendija != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ScholarshipDetailsScreen(
-                                    scholarship: prijava.stipendija!,
-                                    averageRating: 0,
-                                  ),
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    ScholarshipApplicationDetailsDialog(
+                                  prijava: prijava,
+                                  prijaveStipendijaProvider:
+                                      _prijaveStipendijaProvider,
+                                  onPrijavaCancelled: () {
+                                    print("onPrijavaCancelled pozvan");
+                                    setState(() {
+                                      _fetchData();
+                                    });
+                                  },
                                 ),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text(
-                                        'Detalji stipendije nisu dostupni.')),
+                                  content:
+                                      Text('Detalji prakse nisu dostupni.'),
+                                ),
                               );
                             }
                           },
