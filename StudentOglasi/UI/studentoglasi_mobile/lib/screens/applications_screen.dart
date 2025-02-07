@@ -1,23 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:studentoglasi_mobile/models/Organizacije/organizacije.dart';
 import 'package:studentoglasi_mobile/models/PrijavaStipendija/prijave_stipendija.dart';
 import 'package:studentoglasi_mobile/models/PrijavePraksa/prijave_praksa.dart';
-import 'package:studentoglasi_mobile/models/Rezervacije/rezervacije.dart';
-import 'package:studentoglasi_mobile/models/Smjestaj/smjestaj.dart';
-import 'package:studentoglasi_mobile/models/StatusOglas/statusoglasi.dart';
-import 'package:studentoglasi_mobile/models/StatusPrijave/statusprijave.dart';
 import 'package:studentoglasi_mobile/models/Student/student.dart';
 import 'package:studentoglasi_mobile/providers/prijavepraksa_provider.dart';
 import 'package:studentoglasi_mobile/providers/prijavestipendija_provider.dart';
-import 'package:studentoglasi_mobile/providers/rezervacije_provider.dart';
-import 'package:studentoglasi_mobile/providers/smjestaji_provider.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_details_screen.dart';
-import 'package:studentoglasi_mobile/providers/statusprijave_provider.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/internship_details_screen.dart';
-import 'package:studentoglasi_mobile/screens/accommodation_details_screen.dart';
-import '../models/search_result.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/nav_bar/desktop_nav_bar.dart';
 import '../widgets/menu.dart';
 
 class ApplicationsScreen extends StatefulWidget {
@@ -25,18 +17,16 @@ class ApplicationsScreen extends StatefulWidget {
   _ApplicationsScreenState createState() => _ApplicationsScreenState();
 }
 
-class _ApplicationsScreenState extends State<ApplicationsScreen> {
+class _ApplicationsScreenState extends State<ApplicationsScreen>
+    with SingleTickerProviderStateMixin {
   late PrijavePraksaProvider _prijavePrakseProvider;
   late PrijaveStipendijaProvider _prijaveStipendijaProvider;
-  late RezervacijeProvider _rezeracijeProvider;
   late StudentiProvider _studentProvider;
-  late SmjestajiProvider _smjestajProvider;
   Student? _currentStudent;
   bool _isLoading = true;
   bool _hasError = false;
   List<PrijavePraksa>? prijavePrakseResult;
   List<PrijaveStipendija>? prijaveStipendijaResult;
-  List<Rezervacije>? rezeracijeResult;
 
   @override
   void initState() {
@@ -44,22 +34,19 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     _prijavePrakseProvider = context.read<PrijavePraksaProvider>();
     _prijaveStipendijaProvider = context.read<PrijaveStipendijaProvider>();
     _studentProvider = context.read<StudentiProvider>();
-    _rezeracijeProvider = context.read<RezervacijeProvider>();
-    _smjestajProvider = context.read<SmjestajiProvider>();
     _fetchData();
-    _fetchScholarshipData();
-    _fetchReservationsData();
   }
 
   Future<void> _fetchData() async {
     _currentStudent = await _studentProvider.getCurrentStudent();
     try {
-      var data = await _prijavePrakseProvider
+      var prakseData = await _prijavePrakseProvider
           .getPrijavePraksaByStudentId(_currentStudent!.id!);
+      var stipendijeData = await _prijaveStipendijaProvider
+          .getPrijaveStipendijaByStudentId(_currentStudent!.id!);
       setState(() {
-        prijavePrakseResult = data
-            .where((prijava) => prijava.status?.naziv != 'Otkazana')
-            .toList();
+        prijavePrakseResult = prakseData;
+        prijaveStipendijaResult = stipendijeData;
         _isLoading = false;
       });
       print("Internship data fetched");
@@ -72,94 +59,155 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     }
   }
 
-  Future<void> _fetchScholarshipData() async {
-    _currentStudent = await _studentProvider.getCurrentStudent();
-    try {
-      var data = await _prijaveStipendijaProvider
-          .getPrijaveStipendijaByStudentId(_currentStudent!.id!);
-      setState(() {
-        prijaveStipendijaResult = data
-            .where((prijava) => prijava.status?.naziv != 'Otkazana')
-            .toList();
-        _isLoading = false;
-      });
-      print("Scholarship data fetched");
-    } catch (e) {
-      print("Failed to load scholarship data: $e");
-      setState(() {
-        _hasError = true;
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fetchReservationsData() async {
-    _currentStudent = await _studentProvider.getCurrentStudent();
-    try {
-      var data = await _rezeracijeProvider
-          .getRezervacijeByStudentId(_currentStudent!.id!);
-      setState(() {
-        rezeracijeResult = data
-            .where((rezervacija) => rezervacija.status?.naziv != 'Otkazana')
-            .toList();
-        _isLoading = false;
-      });
-      print("Reservation data fetched");
-    } catch (e) {
-      print("Failed to load reservation data: $e");
-      setState(() {
-        _hasError = true;
-        _isLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Moje prijave'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isDesktop = constraints.maxWidth > 800;
+
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              title: isDesktop ? NavbarDesktop() : Text('Moje prijave'),
+              bottom: TabBar(
+                tabs: [
+                  Tab(text: "Prakse"),
+                  Tab(text: "Stipendije"),
+                ],
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: Colors.white,
+              ),
+            ),
+            drawer: isDesktop ? null : DrawerMenu(),
+            body: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxWidth: isDesktop ? 1200 : double.infinity),
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _hasError
+                        ? const Center(
+                            child: Text(
+                                'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
+                        : TabBarView(
+                            children: [
+                              _buildPrakseTab(),
+                              _buildStipendijeTab(),
+                            ],
+                          ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPrakseTab() {
+    return DefaultTabController(
+      length: 4,
+      child: Column(
+        children: [
+          TabBar(
+            tabs: [
+              Tab(text: "Sve"),
+              Tab(text: "Odobrene"),
+              Tab(text: "Na čekanju"),
+              Tab(text: "Otkazane"),
+            ],
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Colors.blue,
+            indicatorSize: TabBarIndicatorSize.tab,
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildPrakseList(null),
+                _buildPrakseList("odobrena"),
+                _buildPrakseList("na cekanju"),
+                _buildPrakseList("otkazana"),
+              ],
+            ),
+          ),
+        ],
       ),
-      drawer: DrawerMenu(),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _hasError
-              ? const Center(
-                  child: Text(
-                      'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
-              : prijavePrakseResult == null &&
-                      prijaveStipendijaResult == null &&
-                      rezeracijeResult == null
-                  ? const Center(child: Text('Trenutno nema prijava.'))
-                  : ListView.builder(
-                      itemCount: (prijavePrakseResult?.length ?? 0) +
-                          (prijaveStipendijaResult?.length ?? 0) +
-                          (rezeracijeResult?.length ?? 0),
-                      itemBuilder: (context, index) {
-                        if (index < (prijavePrakseResult?.length ?? 0)) {
-                          // Internship applications
-                          final prijava = prijavePrakseResult![index];
-                          return _buildPraksaCard(prijava);
-                        } else if (index <
-                            (prijavePrakseResult?.length ?? 0) +
-                                (prijaveStipendijaResult?.length ?? 0)) {
-                          // Scholarship applications
-                          final scholarshipIndex =
-                              index - (prijavePrakseResult?.length ?? 0);
-                          final prijava =
-                              prijaveStipendijaResult![scholarshipIndex];
-                          return _buildScholarshipCard(prijava);
-                        } else {
-                          // Reservations
-                          final reservationIndex = index -
-                              (prijavePrakseResult?.length ?? 0) -
-                              (prijaveStipendijaResult?.length ?? 0);
-                          final rezervacija =
-                              rezeracijeResult![reservationIndex];
-                          return _buildReservationCard(rezervacija);
-                        }
-                      },
-                    ),
+    );
+  }
+
+  Widget _buildStipendijeTab() {
+    return DefaultTabController(
+      length: 4,
+      child: Column(
+        children: [
+          TabBar(
+            tabs: [
+              Tab(text: "Sve"),
+              Tab(text: "Odobrene"),
+              Tab(text: "Na čekanju"),
+              Tab(text: "Otkazane"),
+            ],
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Colors.blue,
+            indicatorSize: TabBarIndicatorSize.tab,
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildStipendijeList(null),
+                _buildStipendijeList("odobrena"),
+                _buildStipendijeList("na cekanju"),
+                _buildStipendijeList("otkazana"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrakseList(String? status) {
+    List<PrijavePraksa> filteredList = prijavePrakseResult ?? [];
+
+    if (status != null) {
+      filteredList = filteredList
+          .where((prijava) => prijava.status?.naziv?.toLowerCase() == status)
+          .toList();
+    }
+
+    if (filteredList.isEmpty) {
+      return const Center(child: Text('Nema prijava.'));
+    }
+
+    return ListView.builder(
+      itemCount: filteredList.length,
+      itemBuilder: (context, index) {
+        return _buildPraksaCard(filteredList[index]);
+      },
+    );
+  }
+
+  Widget _buildStipendijeList(String? status) {
+    List<PrijaveStipendija> filteredList = prijaveStipendijaResult ?? [];
+
+    if (status != null) {
+      filteredList = filteredList
+          .where((prijava) => prijava.status?.naziv?.toLowerCase() == status)
+          .toList();
+    }
+
+    if (filteredList.isEmpty) {
+      return const Center(child: Text('Nema prijava.'));
+    }
+
+    return ListView.builder(
+      itemCount: filteredList.length,
+      itemBuilder: (context, index) {
+        return _buildStipendijaCard(filteredList[index]);
+      },
     );
   }
 
@@ -167,235 +215,257 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     return Card(
       margin: EdgeInsets.all(8.0),
       elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Naziv oglasa za praksu: \n${prijava.praksa?.idNavigation?.naslov ?? 'No title'}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16.0),
-            Row(
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    bool? confirm = await _showConfirmationDialog(context);
-                    if (confirm == true) {
-                      try {
-                        bool isCancelled = await _prijavePrakseProvider.cancel(
-                          prijava.studentId,
-                          entityId: prijava.praksaId,
-                        );
-
-                        if (isCancelled) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Prijava uspješno otkazana.')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Prijava nije otkazana.')),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${e.toString()}')),
-                        );
-                      }
-                    }
-                  },
-                  child: Text('Otkaži'),
+                Text(
+                  prijava.praksa?.idNavigation?.naslov ?? 'No title',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(width: 8.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (prijava.praksa != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InternshipDetailsScreen(
-                            internship: prijava.praksa!,
-                            averageRating: 0,
-                          ),
+                SizedBox(height: 8.0),
+                if (prijava.praksa?.organizacija?.naziv != null)
+                  Text(
+                    prijava.praksa!.organizacija!.naziv!,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                SizedBox(height: 4.0),
+                if (prijava.praksa?.pocetakPrakse != null &&
+                    prijava.praksa?.krajPrakse != null)
+                  Text(
+                    "Trajanje: ${DateFormat('dd MM yyyy').format(prijava.praksa!.pocetakPrakse!)} - ${DateFormat('dd MM yyyy').format(prijava.praksa!.krajPrakse)}",
+                    style: TextStyle(fontSize: 14),
+                  ),
+                SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      prijava.vrijemePrijave != null
+                          ? "Datum prijave: ${DateFormat('dd.MM.yyyy').format(prijava.vrijemePrijave!)}"
+                          : "Datum nepoznat",
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            bool? confirm =
+                                await _showConfirmationDialog(context);
+                            if (confirm == true) {
+                              try {
+                                bool isCancelled =
+                                    await _prijavePrakseProvider.cancel(
+                                  prijava.studentId,
+                                  entityId: prijava.praksaId,
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(isCancelled
+                                        ? 'Prijava uspješno otkazana.'
+                                        : 'Prijava nije otkazana.'),
+                                  ),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Error: ${e.toString()}')),
+                                );
+                              }
+                            }
+                          },
+                          child: Text('Otkaži'),
                         ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text('Detalji stipendije nisu dostupni.')),
-                      );
-                    }
-                  },
-                  child: Text('Pogledaj oglas'),
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (prijava.praksa != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => InternshipDetailsScreen(
+                                    internship: prijava.praksa!,
+                                    averageRating: 0,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Detalji prakse nisu dostupni.'),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text('Detalji'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: _getStatusColor(prijava.status?.naziv),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                prijava.status?.naziv ?? 'Nepoznato',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildScholarshipCard(PrijaveStipendija prijava) {
-    return Card(
-      margin: EdgeInsets.all(8.0),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Naziv oglasa za stipendiju: \n${prijava.stipendija?.idNavigation?.naslov ?? 'No title'}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    bool? confirm = await _showConfirmationDialog(context);
-                    if (confirm == true) {
-                      try {
-                        bool isCancelled = await _prijaveStipendijaProvider
-                            .cancel(prijava.studentId,
-                                entityId: prijava.stipendijaId);
-
-                        if (isCancelled) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Prijava uspješno otkazana.')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Prijava nije otkazana.')),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${e.toString()}')),
-                        );
-                      }
-                    }
-                  },
-                  child: Text('Otkaži'),
-                ),
-                SizedBox(width: 8.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (prijava.stipendija != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScholarshipDetailsScreen(
-                            scholarship: prijava.stipendija!,
-                            averageRating: 0,
-                          ),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text('Detalji stipendije nisu dostupni.')),
-                      );
-                    }
-                  },
-                  child: Text('Pogledaj oglas'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  Color _getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'odobrena':
+        return Colors.green.shade400.withOpacity(0.8);
+      case 'na cekanju':
+        return Colors.orange.shade400.withOpacity(0.8);
+      case 'otkazana':
+        return Colors.red.shade400.withOpacity(0.8);
+      default:
+        return Colors.blue.shade200.withOpacity(0.8);
+    }
   }
 
-  Widget _buildReservationCard(Rezervacije rezervacija) {
+  Widget _buildStipendijaCard(PrijaveStipendija prijava) {
     return Card(
       margin: EdgeInsets.all(8.0),
       elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Naziv oglasa za smještaj: \n${rezervacija.smjestaj?.naziv ?? 'No title'}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16.0),
-            Row(
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    bool? confirm = await _showConfirmationDialog(context);
-                    if (confirm == true) {
-                      try {
-                        bool isCancelled = await _rezeracijeProvider.cancel(
-                          rezervacija.studentId,
-                          entityId: rezervacija.smjestaj?.id,
-                        );
-
-                        if (isCancelled) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Rezervacija uspješno otkazana.')),
-                          );
-                          _fetchData();
-                          _fetchReservationsData();
-                          _fetchScholarshipData();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Rezervacija nije otkazana.')),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${e.toString()}')),
-                        );
-                      }
-                    }
-                  },
-                  child: Text('Otkaži'),
+                Text(
+                  prijava.stipendija?.idNavigation?.naslov ?? 'No title',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(width: 8.0),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      if (rezervacija.smjestaj?.id != null) {
-                        var smjestaj = await _smjestajProvider
-                            .getById(rezervacija.smjestaj!.id!);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AccommodationDetailsScreen(
-                              smjestaj: smjestaj,
-                              averageRating:
-                                  0,
-                            ),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Smještaj nije pronađen.')),
-                        );
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Greška: ${e.toString()}')),
-                      );
-                    }
-                  },
-                  child: Text('Pogledaj oglas'),
+                SizedBox(height: 8.0),
+                if (prijava.stipendija?.stipenditor?.naziv != null)
+                  Text(
+                    prijava.stipendija!.stipenditor!.naziv!,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                SizedBox(height: 4.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      prijava.vrijemePrijave != null
+                          ? "Datum prijave: ${DateFormat('dd.MM.yyyy').format(prijava.vrijemePrijave!)}"
+                          : "Datum nepoznat",
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            bool? confirm =
+                                await _showConfirmationDialog(context);
+                            if (confirm == true) {
+                              try {
+                                bool isCancelled =
+                                    await _prijaveStipendijaProvider.cancel(
+                                        prijava.studentId,
+                                        entityId: prijava.stipendijaId);
+
+                                if (isCancelled) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Prijava uspješno otkazana.')),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Prijava nije otkazana.')),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Error: ${e.toString()}')),
+                                );
+                              }
+                            }
+                          },
+                          child: Text('Otkaži'),
+                        ),
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (prijava.stipendija != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ScholarshipDetailsScreen(
+                                    scholarship: prijava.stipendija!,
+                                    averageRating: 0,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        'Detalji stipendije nisu dostupni.')),
+                              );
+                            }
+                          },
+                          child: Text('Detalji'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: _getStatusColor(prijava.status?.naziv),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                prijava.status?.naziv ?? 'Nepoznato',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -20,6 +20,7 @@ class Rezervacije {
   Smjestaj? smjestaj;
   StatusPrijave? status;
   Student? student;
+  DateTime? vrijemeKreiranja;
 
   Rezervacije(
       this.studentId,
@@ -33,7 +34,8 @@ class Rezervacije {
       this.smjestajnaJedinica,
       this.status,
       this.student,
-      this.smjestaj);
+      this.smjestaj,
+      this.vrijemeKreiranja);
   factory Rezervacije.fromJson(Map<String, dynamic> json) =>
       _$RezervacijeFromJson(json);
 

@@ -18,6 +18,8 @@ namespace StudentOglasi.Model
 
         public decimal ProsjekOcjena { get; set; }
 
+        public DateTime? VrijemePrijave { get; set; }
+
         public int StatusId { get; set; }
 
         public virtual StatusPrijave Status { get; set; } = null!;

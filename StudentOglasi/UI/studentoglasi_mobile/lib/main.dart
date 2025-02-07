@@ -22,6 +22,7 @@ import 'package:studentoglasi_mobile/screens/accommodations_screen.dart';
 import 'package:studentoglasi_mobile/screens/applications_screen.dart';
 import 'package:studentoglasi_mobile/screens/internships_screen.dart';
 import 'package:studentoglasi_mobile/screens/notifications_screen.dart';
+import 'package:studentoglasi_mobile/screens/reservations_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarships_screen.dart';
 import 'package:studentoglasi_mobile/screens/users_list_screen.dart';
 import 'package:studentoglasi_mobile/screens/login_screen.dart';
@@ -159,6 +160,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfileScreen(),
         '/logout': (context) => LoginScreen(),
         '/prijave': (context) => ApplicationsScreen(),
+        '/rezervacije': (context) => MyReservationsScreen(),
         '/chat': (context) => UsersListScreen(),
         '/obavijesti': (context) => NotificationScreen(),
       },

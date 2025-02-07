@@ -21,6 +21,8 @@ public partial class Rezervacije
 
     public string? Napomena { get; set; }
 
+    public DateTime? VrijemeKreiranja { get; set; }
+
     public int? StatusId { get; set; }
 
     public virtual SmjestajnaJedinica SmjestajnaJedinica { get; set; } = null!;

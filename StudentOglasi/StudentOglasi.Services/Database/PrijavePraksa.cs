@@ -15,6 +15,8 @@ public partial class PrijavePraksa
 
     public string? Certifikati { get; set; }
 
+    public DateTime? VrijemePrijave { get; set; }
+
     public int StatusId { get; set; }
 
     public virtual Prakse Praksa { get; set; } = null!;

@@ -16,6 +16,8 @@ namespace StudentOglasi.Model
 
         public DateTime DatumOdjave { get; set; }
 
+        public DateTime? VrijemeKreiranja { get; set; }
+
         public int? BrojOsoba { get; set; }
 
         public string? Napomena { get; set; }

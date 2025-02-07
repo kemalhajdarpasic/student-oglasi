@@ -47,6 +47,7 @@ namespace StudentOglasi.Services.StateMachines.PrijavePrakseStateMachine
                 }
                 entity.Student = student;
                 entity.StudentId = entity.Student.Id;
+                entity.VrijemePrijave = DateTime.Now;
                 set.Add(entity);
 
                 await _context.SaveChangesAsync();

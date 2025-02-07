@@ -302,7 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ChangePasswordScreen(userId: _currentStudent?.id)),
               );
             },
-            icon: Icon(Icons.lock),
+            icon: Icon(Icons.lock, color: Colors.white,),
             label: Text('Promijeni šifru'),
           ),
           SizedBox(height: 16),

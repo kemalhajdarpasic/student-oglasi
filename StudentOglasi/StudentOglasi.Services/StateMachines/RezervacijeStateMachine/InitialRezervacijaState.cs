@@ -26,7 +26,8 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
                 DatumOdjave = request.DatumOdjave,
                 BrojOsoba= request.BrojOsoba,
                 Napomena=request.Napomena,
-                Cijena=request.Cijena
+                Cijena=request.Cijena,
+                VrijemeKreiranja =DateTime.Now,
             };
 
             var onHoldStatus = await _context.StatusPrijaves

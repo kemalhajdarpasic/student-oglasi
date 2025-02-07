@@ -1,4 +1,3 @@
-
 import 'package:json_annotation/json_annotation.dart';
 
 import '../StatusPrijave/statusprijave.dart';
@@ -17,9 +16,19 @@ class PrijaveStipendija {
   StatusPrijave? status;
   Stipendije? stipendija;
   Student? student;
+  DateTime? vrijemePrijave;
 
-
-  PrijaveStipendija(this.studentId, this.stipendijaId, this.dokumentacija,this.cv,this.prosjekOcjena,this.status,this.stipendija,this.student);
-  factory PrijaveStipendija.fromJson(Map<String, dynamic> json) => _$PrijaveStipendijaFromJson(json);
+  PrijaveStipendija(
+      this.studentId,
+      this.stipendijaId,
+      this.dokumentacija,
+      this.cv,
+      this.prosjekOcjena,
+      this.status,
+      this.stipendija,
+      this.student,
+      this.vrijemePrijave);
+  factory PrijaveStipendija.fromJson(Map<String, dynamic> json) =>
+      _$PrijaveStipendijaFromJson(json);
   Map<String, dynamic> toJson() => _$PrijaveStipendijaToJson(this);
 }

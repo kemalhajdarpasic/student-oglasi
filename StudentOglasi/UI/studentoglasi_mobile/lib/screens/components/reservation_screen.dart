@@ -522,7 +522,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   Widget _buildFormSection(bool isDesktop) {
     return SizedBox(
-      height: isDesktop ? 450 : 200,
+      height: isDesktop ? 447 : 200,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

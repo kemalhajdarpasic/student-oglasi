@@ -30,25 +30,26 @@ namespace StudentOglasi.Services.StateMachines.PrijaveStipendijaStateMachine
             try
             {
                 var user = _httpContextAccessor.HttpContext.User;
-            var username = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var set = _context.Set<PrijaveStipendija>();
-            var entity = _mapper.Map<PrijaveStipendija>(request);
+                var username = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var set = _context.Set<PrijaveStipendija>();
+                var entity = _mapper.Map<PrijaveStipendija>(request);
 
-            entity.Dokumentacija = await UploadFileAsync(request.Dokumentacija);
-            entity.Cv = await UploadFileAsync(request.Cv);
+                entity.Dokumentacija = await UploadFileAsync(request.Dokumentacija);
+                entity.Cv = await UploadFileAsync(request.Cv);
 
-            entity.Status = await _context.StatusPrijaves.FirstOrDefaultAsync(e => e.Naziv.Contains("Na cekanju"));
-            entity.StatusId = entity.Status.Id;
-            entity.Stipendija = await _context.Stipendijes.FirstOrDefaultAsync(e => e.Id == request.StipendijaId);
-            entity.StipendijaId = entity.Stipendija.Id;
-            var student = await GetStudentByUsername(username);
-            if (student == null)
-            {
-                throw new Exception("Student not found");
-            }
+                entity.Status = await _context.StatusPrijaves.FirstOrDefaultAsync(e => e.Naziv.Contains("Na cekanju"));
+                entity.StatusId = entity.Status.Id;
+                entity.Stipendija = await _context.Stipendijes.FirstOrDefaultAsync(e => e.Id == request.StipendijaId);
+                entity.StipendijaId = entity.Stipendija.Id;
+                var student = await GetStudentByUsername(username);
+                if (student == null)
+                {
+                    throw new Exception("Student not found");
+                }
                 entity.Student = student;
-            entity.StudentId = entity.Student.Id;  
-            set.Add(entity);
+                entity.StudentId = entity.Student.Id;  
+                entity.VrijemePrijave = DateTime.Now;
+                set.Add(entity);
 
             await _context.SaveChangesAsync();
             return _mapper.Map<Model.PrijaveStipendija>(entity);

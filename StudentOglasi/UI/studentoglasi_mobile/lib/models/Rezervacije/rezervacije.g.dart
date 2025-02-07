@@ -32,6 +32,9 @@ Rezervacije _$RezervacijeFromJson(Map<String, dynamic> json) => Rezervacije(
       json['smjestaj'] == null
           ? null
           : Smjestaj.fromJson(json['smjestaj'] as Map<String, dynamic>),
+      json['vrijemeKreiranja'] == null
+          ? null
+          : DateTime.parse(json['vrijemeKreiranja'] as String),
     );
 
 Map<String, dynamic> _$RezervacijeToJson(Rezervacije instance) =>
@@ -48,4 +51,5 @@ Map<String, dynamic> _$RezervacijeToJson(Rezervacije instance) =>
       'smjestaj': instance.smjestaj,
       'status': instance.status,
       'student': instance.student,
+      'vrijemeKreiranja': instance.vrijemeKreiranja?.toIso8601String(),
     };

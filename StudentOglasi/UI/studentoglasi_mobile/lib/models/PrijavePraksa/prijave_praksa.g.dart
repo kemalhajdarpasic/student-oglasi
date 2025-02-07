@@ -23,6 +23,9 @@ PrijavePraksa _$PrijavePraksaFromJson(Map<String, dynamic> json) =>
       json['student'] == null
           ? null
           : Student.fromJson(json['student'] as Map<String, dynamic>),
+      json['vrijemePrijave'] == null
+          ? null
+          : DateTime.parse(json['vrijemePrijave'] as String),
     );
 
 Map<String, dynamic> _$PrijavePraksaToJson(PrijavePraksa instance) =>
@@ -36,4 +39,5 @@ Map<String, dynamic> _$PrijavePraksaToJson(PrijavePraksa instance) =>
       'praksa': instance.praksa,
       'status': instance.status,
       'student': instance.student,
+      'vrijemePrijave': instance.vrijemePrijave?.toIso8601String(),
     };

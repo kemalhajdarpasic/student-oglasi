@@ -8,7 +8,7 @@ class DrawerMenu extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           Container(
-            height: 100, 
+            height: 100,
             child: const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,
@@ -49,6 +49,12 @@ class DrawerMenu extends StatelessWidget {
           ),
           _buildListTile(
             context,
+            Icons.hotel_outlined,
+            'Moje rezervacije',
+            '/rezervacije',
+          ),
+          _buildListTile(
+            context,
             Icons.chat_bubble_outline,
             'Chat',
             '/chat',
@@ -70,7 +76,8 @@ class DrawerMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(BuildContext context, IconData icon, String title, String route) {
+  Widget _buildListTile(
+      BuildContext context, IconData icon, String title, String route) {
     return InkWell(
       onTap: () {
         Navigator.pop(context);

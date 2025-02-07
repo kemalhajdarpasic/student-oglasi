@@ -17,6 +17,7 @@ namespace StudentOglasi.Model
         public string? Cv { get; set; }
 
         public string? Certifikati { get; set; }
+        public DateTime? VrijemePrijave { get; set; }
 
         public int StatusId { get; set; }
 

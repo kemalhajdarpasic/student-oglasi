@@ -386,7 +386,8 @@ class _StudentDetailsDialogState extends State<StudentInsertDialog> {
                                         errorText:
                                             'Šifra može imati najviše 15 znakova.'),
                                     FormBuilderValidators.match(
-                                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$',
+                                        RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$'),
+
                                       errorText:
                                           'Šifra mora sadržavati barem jedno veliko slovo, jedno malo slovo i jednu znamenku.',
                                     ),
