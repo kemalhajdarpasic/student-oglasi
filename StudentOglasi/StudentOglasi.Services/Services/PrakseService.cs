@@ -150,7 +150,10 @@ namespace StudentOglasi.Services.Services
                     _cachedRecommendations[studentId] = recommendedIds;
                 }
             }
-            var query = _context.Prakses.AsQueryable();
+            var query = _context.Prakses
+               .Include(p => p.Status)
+               .Where(p => p.Status.Naziv == "Aktivan")
+               .AsQueryable();
 
             query = AddFilter(query, search);
             query = AddInclude(query, search);
@@ -244,6 +247,31 @@ namespace StudentOglasi.Services.Services
             entity.Status = await _context.StatusOglasis.FindAsync(entity.StatusId);
             var state = _baseState.CreateState(entity.Status.Naziv??"Initial");
             return await state.AllowedActions();
+        }
+
+        public async Task MarkExpiredPrakse()
+        {
+            var expiredStatus = await _context.StatusOglasis
+                .FirstOrDefaultAsync(e => e.Naziv == "Istekao");
+
+            if (expiredStatus == null)
+            {
+                return;
+            }
+
+            var expiredPrakse = await _context.Prakses
+                .Include(p => p.Status)
+                .Where(p => p.IdNavigation.RokPrijave < DateTime.UtcNow && p.Status.Naziv != "Istekao")
+                .ToListAsync();
+
+            if (expiredPrakse.Any())
+            {
+                foreach (var praksa in expiredPrakse)
+                {
+                    praksa.Status = expiredStatus;
+                }
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

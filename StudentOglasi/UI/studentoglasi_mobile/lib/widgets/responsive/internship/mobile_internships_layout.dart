@@ -161,7 +161,7 @@ class _MobileInternshipsLayoutState extends State<MobileInternshipsLayout> {
                       child: Text(
                           'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
                   : widget.prakse.isEmpty
-                      ? Center(child: Text('Nema dostupnih podataka.'))
+                      ? Center(child: Text('Trenutno nema dostupnih praksi.'))
                       : ListView.builder(
                           itemCount: widget.prakse.length,
                           itemBuilder: (context, index) {

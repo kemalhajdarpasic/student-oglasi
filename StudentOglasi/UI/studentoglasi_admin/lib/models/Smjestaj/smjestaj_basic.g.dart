@@ -8,7 +8,7 @@ part of 'smjestaj_basic.dart';
 
 SmjestajBasic _$SmjestajBasicFromJson(Map<String, dynamic> json) =>
     SmjestajBasic(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['adresa'] as String?,
       json['opis'] as String?,

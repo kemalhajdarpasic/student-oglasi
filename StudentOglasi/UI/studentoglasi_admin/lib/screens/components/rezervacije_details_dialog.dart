@@ -73,22 +73,20 @@ class _RezervacijeDetailsDialogState extends State<RezervacijeDetailsDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.title ?? ''),
-          SizedBox(
-              height: 8.0), 
+          SizedBox(height: 8.0),
           Text(
             'Naziv smještaja: ${widget.rezervacija?.smjestaj?.naziv}',
             style: TextStyle(
-              fontSize: 18.0, 
+              fontSize: 18.0,
               color: Colors.blue,
             ),
           ),
-          SizedBox(
-              height: 8.0), 
+          SizedBox(height: 8.0),
           Text(
             'Smještajna jedinica: ${widget.rezervacija?.smjestajnaJedinica?.naziv}',
             style: TextStyle(
-              fontSize: 18.0, 
-              color: Colors.blue, 
+              fontSize: 18.0,
+              color: Colors.blue,
             ),
           ),
         ],
@@ -246,13 +244,13 @@ class _RezervacijeDetailsDialogState extends State<RezervacijeDetailsDialog> {
                       child: FormBuilderTextField(
                         name: 'cijena',
                         decoration: InputDecoration(
-                          labelText: 'Cijena',
-                          labelStyle: TextStyle(color: Colors.blue),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          suffixText: 'KM'
-                        ),
+                            labelText: 'Cijena',
+                            labelStyle: TextStyle(color: Colors.blue),
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            suffixText: 'KM'),
                         enabled: false,
                         style: TextStyle(color: Colors.black),
                       ),
@@ -285,9 +283,7 @@ class _RezervacijeDetailsDialogState extends State<RezervacijeDetailsDialog> {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  await _RezervacijeProvider.cancel(
-                      widget.rezervacija?.studentId,
-                      entityId: widget.rezervacija?.smjestajnaJedinicaId);
+                  await _RezervacijeProvider.cancel(widget.rezervacija?.id);
                   Navigator.pop(context, true);
                 },
                 child: Text('Otkaži'),
@@ -302,8 +298,7 @@ class _RezervacijeDetailsDialogState extends State<RezervacijeDetailsDialog> {
             ]),
         ElevatedButton(
           onPressed: () async {
-            await _RezervacijeProvider.approve(widget.rezervacija?.studentId,
-                entityId: widget.rezervacija?.smjestajnaJedinicaId);
+            await _RezervacijeProvider.approve(widget.rezervacija?.id);
             Navigator.pop(context, true);
           },
           child: Text('Odobri'),

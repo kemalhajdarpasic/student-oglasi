@@ -163,6 +163,12 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<StudentoglasiContext>();
     dbContext.Database.Migrate();
+
+    var prakseService = scope.ServiceProvider.GetRequiredService<IPrakseService>();
+    await prakseService.MarkExpiredPrakse();
+
+    var stipendijeService = scope.ServiceProvider.GetRequiredService<IStipendijeService>();
+    await stipendijeService.MarkExpiredStipendije();
 }
 
 app.MapControllers();

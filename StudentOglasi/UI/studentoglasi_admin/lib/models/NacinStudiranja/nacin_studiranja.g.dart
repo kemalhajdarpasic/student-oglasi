@@ -8,7 +8,7 @@ part of 'nacin_studiranja.dart';
 
 NacinStudiranja _$NacinStudiranjaFromJson(Map<String, dynamic> json) =>
     NacinStudiranja(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['opis'] as String?,
     );

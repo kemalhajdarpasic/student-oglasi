@@ -7,13 +7,13 @@ part of 'stipenditor.dart';
 // **************************************************************************
 
 Stipenditor _$StipenditorFromJson(Map<String, dynamic> json) => Stipenditor(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['telefon'] as String?,
       json['email'] as String?,
       json['adresa'] as String?,
       json['link'] as String?,
-      json['gradId'] as int?,
+      (json['gradId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$StipenditorToJson(Stipenditor instance) =>

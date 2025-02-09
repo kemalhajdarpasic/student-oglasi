@@ -7,12 +7,12 @@ part of 'fakultet.dart';
 // **************************************************************************
 
 Fakultet _$FakultetFromJson(Map<String, dynamic> json) => Fakultet(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       (json['smjerovi'] as List<dynamic>?)
           ?.map((e) => Smjer.fromJson(e as Map<String, dynamic>))
           .toList(),
-    )..univerzitetId = json['univerzitetId'] as int?;
+    )..univerzitetId = (json['univerzitetId'] as num?)?.toInt();
 
 Map<String, dynamic> _$FakultetToJson(Fakultet instance) => <String, dynamic>{
       'id': instance.id,

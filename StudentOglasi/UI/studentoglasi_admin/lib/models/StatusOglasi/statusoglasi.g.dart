@@ -7,7 +7,7 @@ part of 'statusoglasi.dart';
 // **************************************************************************
 
 StatusOglasi _$StatusOglasiFromJson(Map<String, dynamic> json) => StatusOglasi(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['opis'] as String?,
     );

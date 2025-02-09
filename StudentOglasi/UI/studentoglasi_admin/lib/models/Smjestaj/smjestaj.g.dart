@@ -7,7 +7,7 @@ part of 'smjestaj.dart';
 // **************************************************************************
 
 Smjestaj _$SmjestajFromJson(Map<String, dynamic> json) => Smjestaj(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['dodatneUsluge'] as String?,
       json['naziv'] as String?,
       json['adresa'] as String?,

@@ -8,17 +8,17 @@ part of 'smjestajna_jedinica.dart';
 
 SmjestajnaJedinica _$SmjestajnaJedinicaFromJson(Map<String, dynamic> json) =>
     SmjestajnaJedinica(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       (json['cijena'] as num?)?.toDouble(),
-      json['kapacitet'] as int?,
+      (json['kapacitet'] as num?)?.toInt(),
       json['opis'] as String?,
       json['kuhinja'] as bool?,
       json['tv'] as bool?,
       json['klimaUredjaj'] as bool?,
       json['terasa'] as bool?,
       json['dodatneUsluge'] as String?,
-      json['smjestajId'] as int?,
+      (json['smjestajId'] as num?)?.toInt(),
       (json['slike'] as List<dynamic>?)?.map((e) => e as String).toList(),
       (json['slikes'] as List<dynamic>?)
           ?.map((e) => Slike.fromJson(e as Map<String, dynamic>))

@@ -27,10 +27,10 @@ namespace StudentOglasi.Controllers
             return await (_service as IRezervacijeService).GetBooked(smjestajnaJedinicaId);
         }
 
-        [HttpPut("{studentId}/{smjestajnaJedinicaId}/approve")]
-        public virtual async Task<Model.Rezervacije> Approve(int studentId, int smjestajnaJedinicaId)
+        [HttpPut("{rezervacijaId}/approve")]
+        public virtual async Task<Model.Rezervacije> Approve(int rezervacijaId)
         {
-            return await (_service as IRezervacijeService).Approve(studentId, smjestajnaJedinicaId);
+            return await (_service as IRezervacijeService).Approve(rezervacijaId);
         }
 
         [HttpPut("{rezervacijaId}/cancel")]

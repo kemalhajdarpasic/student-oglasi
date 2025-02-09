@@ -19,7 +19,7 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
             _serviceProvider = serviceProvider;
         }
 
-        public virtual Task<Model.Rezervacije> Approve(int studentId, int smjestajnaJedinicaId)
+        public virtual Task<Model.Rezervacije> Approve(int rezervacijaId)
         {
             throw new UserException("Action is not allowed!");
         }

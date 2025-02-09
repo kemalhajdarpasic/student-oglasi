@@ -7,7 +7,7 @@ part of 'korisnik.dart';
 // **************************************************************************
 
 Korisnik _$KorisnikFromJson(Map<String, dynamic> json) => Korisnik(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['ime'] as String?,
       json['prezime'] as String?,
       json['korisnickoIme'] as String?,

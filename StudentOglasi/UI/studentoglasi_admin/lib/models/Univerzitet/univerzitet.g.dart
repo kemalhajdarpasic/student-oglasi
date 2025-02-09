@@ -7,7 +7,7 @@ part of 'univerzitet.dart';
 // **************************************************************************
 
 Univerzitet _$UniverzitetFromJson(Map<String, dynamic> json) => Univerzitet(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       (json['fakultetis'] as List<dynamic>?)
           ?.map((e) => Fakultet.fromJson(e as Map<String, dynamic>))

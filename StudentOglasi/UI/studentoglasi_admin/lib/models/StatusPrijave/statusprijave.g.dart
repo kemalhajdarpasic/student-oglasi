@@ -8,7 +8,7 @@ part of 'statusprijave.dart';
 
 StatusPrijave _$StatusPrijaveFromJson(Map<String, dynamic> json) =>
     StatusPrijave(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['opis'] as String?,
     );

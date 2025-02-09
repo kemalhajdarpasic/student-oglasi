@@ -41,16 +41,12 @@ namespace StudentOglasi.Services.StateMachines.PrakseStateMachine
                 case "Kreiran":
                 case null:
                     return _serviceProvider.GetService<InitialPraksaState>();
-                    break;
                 case "Skica":
                     return _serviceProvider.GetService<DraftPrakseState>();
-                    break;
                 case "Aktivan":
                     return _serviceProvider.GetService<ActivePrakseState>();
-                    break;
                 case "Istekao":
                     return _serviceProvider.GetService<InactivePrakseState>();
-                    break;
                 default:
                     throw new UserException("Action is not allowed!");
             }

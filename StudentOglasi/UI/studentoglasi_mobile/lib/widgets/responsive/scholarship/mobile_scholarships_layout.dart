@@ -160,7 +160,7 @@ class _MobileScholarshipsLayoutState extends State<MobileScholarshipsLayout> {
                       child: Text(
                           'Neuspješno učitavanje podataka. Molimo pokušajte opet.'))
                   : widget.stipendije.isEmpty
-                      ? Center(child: Text('Nema dostupnih podataka.'))
+                      ? Center(child: Text('Trenutno nema dostupnih stipendija.'))
                       : ListView.builder(
                           itemCount: widget.stipendije.length,
                           itemBuilder: (context, index) {

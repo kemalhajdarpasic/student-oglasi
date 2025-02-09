@@ -7,14 +7,14 @@ part of 'stipendija.dart';
 // **************************************************************************
 
 Stipendije _$StipendijeFromJson(Map<String, dynamic> json) => Stipendije(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['uslovi'] as String?,
       (json['iznos'] as num?)?.toDouble(),
       json['kriterij'] as String?,
       json['potrebnaDokumentacija'] as String?,
       json['izvor'] as String?,
       json['nivoObrazovanja'] as String?,
-      json['brojStipendisata'] as int?,
+      (json['brojStipendisata'] as num?)?.toInt(),
       json['idNavigation'] == null
           ? null
           : Oglas.fromJson(json['idNavigation'] as Map<String, dynamic>),

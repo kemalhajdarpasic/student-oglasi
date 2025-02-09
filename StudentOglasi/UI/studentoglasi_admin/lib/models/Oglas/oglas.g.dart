@@ -7,7 +7,7 @@ part of 'oglas.dart';
 // **************************************************************************
 
 Oglas _$OglasFromJson(Map<String, dynamic> json) => Oglas(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naslov'] as String?,
       DateTime.parse(json['rokPrijave'] as String),
       json['opis'] as String?,

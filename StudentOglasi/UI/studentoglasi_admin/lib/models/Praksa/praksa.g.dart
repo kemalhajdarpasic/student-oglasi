@@ -7,7 +7,7 @@ part of 'praksa.dart';
 // **************************************************************************
 
 Praksa _$PraksaFromJson(Map<String, dynamic> json) => Praksa(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['pocetakPrakse'] == null
           ? null
           : DateTime.parse(json['pocetakPrakse'] as String),
@@ -25,8 +25,8 @@ Praksa _$PraksaFromJson(Map<String, dynamic> json) => Praksa(
           ? null
           : Organizacije.fromJson(json['organizacija'] as Map<String, dynamic>),
     )
-      ..statusId = json['statusId'] as int?
-      ..organizacijaId = json['organizacijaId'] as int?;
+      ..statusId = (json['statusId'] as num?)?.toInt()
+      ..organizacijaId = (json['organizacijaId'] as num?)?.toInt();
 
 Map<String, dynamic> _$PraksaToJson(Praksa instance) => <String, dynamic>{
       'id': instance.id,

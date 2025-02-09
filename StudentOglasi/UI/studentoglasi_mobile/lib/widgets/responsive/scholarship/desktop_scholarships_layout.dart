@@ -98,7 +98,7 @@ class _DesktopScholarshipsLayoutState extends State<DesktopScholarshipsLayout> {
           height: MediaQuery.of(context).size.height * 0.6,
           child: Center(
             child: Text(
-              'Nema dostupnih stipendija.',
+              'Trenutno nema dostupnih stipendija.',
               style: TextStyle(fontSize: 20),
             ),
           ),

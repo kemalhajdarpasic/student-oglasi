@@ -15,11 +15,11 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
         public CanceledRezervacijaState(IServiceProvider serviceProvider, StudentoglasiContext context, IMapper mapper) : base(serviceProvider, context, mapper)
         {
         }
-        public override async Task<Model.Rezervacije> Approve(int studentId, int smjestajnaJedinicaId)
+        public override async Task<Model.Rezervacije> Approve(int rezervacijaId)
         {
             var set = _context.Set<Database.Rezervacije>();
 
-            var entity = await set.FirstOrDefaultAsync(e => e.StudentId == studentId && e.SmjestajnaJedinicaId == smjestajnaJedinicaId);
+            var entity = await set.FirstOrDefaultAsync(e => e.Id == rezervacijaId);
 
             if (entity == null)
             {

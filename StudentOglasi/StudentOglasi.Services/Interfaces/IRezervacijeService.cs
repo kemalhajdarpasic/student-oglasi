@@ -11,7 +11,7 @@ namespace StudentOglasi.Services.Interfaces
 {
     public interface IRezervacijeService : IService<Rezervacije, RezervacijeSearchObject>
     {
-        Task<Model.Rezervacije> Approve(int studentId, int smjestajnaJedinicaId);
+        Task<Model.Rezervacije> Approve(int rezervacijaId);
         Task<Model.Rezervacije> Cancel(int rezervacijaId);
         Task<List<string>> AllowedActions(int studentId, int smjestajnaJedinicaId);
         Task<List<Rezervacije>> GetByStudentIdAsync(int studentId);

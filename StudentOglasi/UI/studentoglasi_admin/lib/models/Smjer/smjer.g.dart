@@ -7,7 +7,7 @@ part of 'smjer.dart';
 // **************************************************************************
 
 Smjer _$SmjerFromJson(Map<String, dynamic> json) => Smjer(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['opis'] as String?,
     );

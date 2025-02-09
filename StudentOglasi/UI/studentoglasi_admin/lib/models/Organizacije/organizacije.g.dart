@@ -7,7 +7,7 @@ part of 'organizacije.dart';
 // **************************************************************************
 
 Organizacije _$OrganizacijeFromJson(Map<String, dynamic> json) => Organizacije(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naziv'] as String?,
       json['telefon'] as String?,
       json['email'] as String?,

@@ -8,12 +8,12 @@ part of 'prijave_praksa.dart';
 
 PrijavePraksa _$PrijavePraksaFromJson(Map<String, dynamic> json) =>
     PrijavePraksa(
-      json['studentId'] as int?,
-      json['praksaId'] as int?,
+      (json['studentId'] as num?)?.toInt(),
+      (json['praksaId'] as num?)?.toInt(),
       json['propratnoPismo'] as String?,
       json['cv'] as String?,
       json['certifikati'] as String?,
-      json['statusId'] as int?,
+      (json['statusId'] as num?)?.toInt(),
       json['praksa'] == null
           ? null
           : Praksa.fromJson(json['praksa'] as Map<String, dynamic>),

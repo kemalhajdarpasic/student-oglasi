@@ -7,7 +7,7 @@ part of 'objava.dart';
 // **************************************************************************
 
 Objava _$ObjavaFromJson(Map<String, dynamic> json) => Objava(
-      json['id'] as int?,
+      (json['id'] as num?)?.toInt(),
       json['naslov'] as String?,
       json['sadrzaj'] as String?,
       json['slika'] as String?,
@@ -17,7 +17,7 @@ Objava _$ObjavaFromJson(Map<String, dynamic> json) => Objava(
       json['kategorija'] == null
           ? null
           : Kategorija.fromJson(json['kategorija'] as Map<String, dynamic>),
-    )..kategorijaId = json['kategorijaId'] as int?;
+    )..kategorijaId = (json['kategorijaId'] as num?)?.toInt();
 
 Map<String, dynamic> _$ObjavaToJson(Objava instance) => <String, dynamic>{
       'id': instance.id,

@@ -15,5 +15,6 @@ namespace StudentOglasi.Services.Interfaces
         Task<List<string>> AllowedActions(int id);
         Task<List<Model.Prakse>> GetRecommendedPrakse(int studentId);
         Task<PagedResult<Model.Prakse>> GetPrakseWithRecommendations(PrakseSearchObject? search, int studentId);
+        Task MarkExpiredPrakse();
     }
 }

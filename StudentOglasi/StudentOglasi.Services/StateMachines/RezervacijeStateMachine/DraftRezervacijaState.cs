@@ -19,11 +19,11 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
         {
             _service = service;
         }
-        public override async Task<Model.Rezervacije> Approve(int studentId, int smjestajnaJedinicaId)
+        public override async Task<Model.Rezervacije> Approve(int rezervacijaId)
         {
             var set = _context.Set<Database.Rezervacije>().Include(p => p.Student.IdNavigation).Include(p => p.SmjestajnaJedinica);
 
-            var entity = await set.FirstOrDefaultAsync(e => e.StudentId == studentId && e.SmjestajnaJedinicaId == smjestajnaJedinicaId);
+            var entity = await set.FirstOrDefaultAsync(e => e.Id == rezervacijaId);
 
             if (entity == null)
             {
@@ -63,7 +63,7 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
                 tema = "Rezervacija smještaja: " + entity.SmjestajnaJedinica.Naziv,
                 poruka = "Vaša rezervacija za " + entity.SmjestajnaJedinica.Naziv + " je odbijena/otkazana."
             };
-            await _service.startConnection(emailObj);
+            //await _service.startConnection(emailObj);
             return _mapper.Map<Model.Rezervacije>(entity);
         }
         public override async Task<List<string>> AllowedActions()

@@ -8,6 +8,7 @@ part 'rezervacije.g.dart';
 
 @JsonSerializable()
 class Rezervacije {
+  int? id;
   int? studentId;
   int? smjestajnaJedinicaId;
   DateTime? datumPrijave;
@@ -22,6 +23,7 @@ class Rezervacije {
   Student? student;
 
   Rezervacije(
+      this.id,
       this.studentId,
       this.smjestajnaJedinicaId,
       this.datumPrijave,

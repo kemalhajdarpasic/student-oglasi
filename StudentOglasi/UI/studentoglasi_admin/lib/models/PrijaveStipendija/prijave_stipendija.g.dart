@@ -8,8 +8,8 @@ part of 'prijave_stipendija.dart';
 
 PrijaveStipendija _$PrijaveStipendijaFromJson(Map<String, dynamic> json) =>
     PrijaveStipendija(
-      json['studentId'] as int?,
-      json['stipendijaId'] as int?,
+      (json['studentId'] as num?)?.toInt(),
+      (json['stipendijaId'] as num?)?.toInt(),
       json['dokumentacija'] as String?,
       json['cv'] as String?,
       (json['prosjekOcjena'] as num?)?.toDouble(),

@@ -128,7 +128,10 @@ namespace StudentOglasi.Services.Services
                     _cachedRecommendations[studentId] = recommendedIds;
                 }
             }
-            var query = _context.Stipendijes.AsQueryable();
+            var query = _context.Stipendijes
+               .Include(p => p.Status)
+               .Where(p => p.Status.Naziv == "Aktivan")
+               .AsQueryable();
 
             query = AddFilter(query, search);
             query = AddInclude(query, search);
@@ -230,6 +233,31 @@ namespace StudentOglasi.Services.Services
                 .ToListAsync();
 
             return _mapper.Map<List<Model.Stipendije>>(recommendedStipendije);
+        }
+
+        public async Task MarkExpiredStipendije()
+        {
+            var expiredStatus = await _context.StatusOglasis
+                .FirstOrDefaultAsync(e => e.Naziv == "Istekao");
+
+            if (expiredStatus == null)
+            {
+                return;
+            }
+
+            var expiredStipendije = await _context.Stipendijes
+                .Include(p => p.Status)
+                .Where(p => p.IdNavigation.RokPrijave < DateTime.UtcNow && p.Status.Naziv != "Istekao")
+                .ToListAsync();
+
+            if (expiredStipendije.Any())
+            {
+                foreach (var stipendija in expiredStipendije)
+                {
+                    stipendija.Status = expiredStatus;
+                }
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

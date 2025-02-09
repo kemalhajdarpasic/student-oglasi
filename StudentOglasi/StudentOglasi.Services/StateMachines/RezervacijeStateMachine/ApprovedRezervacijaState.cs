@@ -39,7 +39,7 @@ namespace StudentOglasi.Services.StateMachines.RezervacijeStateMachine
                 tema = "Rezervacija smještaja: " + entity.SmjestajnaJedinica.Naziv,
                 poruka = "Vaša rezervacija za " + entity.SmjestajnaJedinica.Naziv + " je odbijena/otkazana."
             };
-            await _service.startConnection(emailObj);
+            //await _service.startConnection(emailObj);
             return _mapper.Map<Model.Rezervacije>(entity);
         }
         public override async Task<List<string>> AllowedActions()
