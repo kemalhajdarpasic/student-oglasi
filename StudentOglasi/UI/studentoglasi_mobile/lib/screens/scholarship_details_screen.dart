@@ -73,6 +73,7 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
                 child: DesktopScholarshipDetailsLayout(
                   stipendija: widget.scholarship,
                   averageRating: _averageRating,
+                  onRatingUpdated: _fetchAverageRatings,
                 ),
               )
             : SingleChildScrollView(

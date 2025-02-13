@@ -31,5 +31,13 @@ namespace StudentOglasi.Controllers
             var comments = await _komentariService.GetCommentsByPost(postId, postType);
             return Ok(comments);
         }
+
+        [HttpGet("count/{postId}/{postType}")]
+        public async Task<ActionResult<int>> GetCommentCount(int postId, string postType)
+        {
+            var count = await _komentariService.GetCommentCount(postId, postType);
+            return Ok(count);
+        }
+
     }
 }

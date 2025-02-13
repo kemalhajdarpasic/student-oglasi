@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:studentoglasi_mobile/models/Smjestaj/smjestaj.dart';
 import 'package:studentoglasi_mobile/screens/components/accommodation_unit_card.dart';
+import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/star_rating.dart';
 
 class DesktopAccommodationDetailsLayout extends StatelessWidget {
   final Smjestaj smjestaj;
   final double averageRating;
+  final VoidCallback onRatingUpdated;
 
-  const DesktopAccommodationDetailsLayout(
-      {Key? key, required this.smjestaj, required this.averageRating})
-      : super(key: key);
+  const DesktopAccommodationDetailsLayout({
+    Key? key,
+    required this.smjestaj,
+    required this.averageRating,
+    required this.onRatingUpdated,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +28,81 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  smjestaj.naziv ?? 'Naziv nije dostupan',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
                 Row(
-                  children: List.generate(5, (index) {
-                    return Icon(
-                      Icons.star,
-                      color: index < averageRating.round()
-                          ? Colors.black
-                          : Colors.grey,
-                    );
-                  }),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        smjestaj.naziv ?? 'Naziv nije dostupan',
+                        style: TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow
+                            .ellipsis, // Sprječava prelamanje teksta
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                              'Ocijenite smještaj',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                StarRatingWidget(
+                                  postId: smjestaj.id!,
+                                  postType: ItemType.accommodation,
+                                  onRatingChanged: () {
+                                    Navigator.pop(context);
+                                    onRatingUpdated();
+                                  },
+                                  iconSize: 50,
+                                ),
+                                SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Loše',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                    Text('Odlično',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.star_rate, color: Colors.white),
+                      label: Text(
+                        'Ocijeni',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 5,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 8),
                 Text(
                   smjestaj.adresa != null && smjestaj.grad != null
                       ? '${smjestaj.adresa} - ${smjestaj.grad?.naziv}'
@@ -58,8 +123,8 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                 child: smjestaj.slikes != null &&
                                         smjestaj.slikes!.isNotEmpty
                                     ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                            16.0), 
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
                                         child: Image.network(
                                           FilePathManager.constructUrl(
                                               smjestaj.slikes!.first.naziv!),
@@ -247,8 +312,7 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 25, fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(
-                                  height: 10), 
+                              SizedBox(height: 10),
                               Text(
                                 smjestaj.opis ?? 'Nema opisa za smještaj.',
                                 style: TextStyle(fontSize: 16),
@@ -267,8 +331,7 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 25, fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(
-                                  height: 10),
+                              SizedBox(height: 10),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 23.0, vertical: 23.0),
@@ -293,12 +356,9 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(
-                        height:
-                            24), 
+                    SizedBox(height: 24),
                   ],
                 ),
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -376,35 +436,34 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 SizedBox(height: 16),
                 Text(
                   'Smještajne jedinice',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 smjestaj.smjestajnaJedinicas != null &&
-                      smjestaj.smjestajnaJedinicas!.isNotEmpty
-                  ? LayoutBuilder(
-                      builder: (context, constraints) {
-                        final double itemWidth =
-                            (constraints.maxWidth - 16 * 2) / 3;
+                        smjestaj.smjestajnaJedinicas!.isNotEmpty
+                    ? LayoutBuilder(
+                        builder: (context, constraints) {
+                          final double itemWidth =
+                              (constraints.maxWidth - 16 * 2) / 3;
 
-                        return Wrap(
-                          spacing: 16.0,
-                          runSpacing: 16.0,
-                          children: smjestaj.smjestajnaJedinicas!
-                              .map((jedinica) => SizedBox(
-                                    width: itemWidth,
-                                    child: AccommodationUnitCard(
-                                        jedinica: jedinica),
-                                  ))
-                              .toList(),
-                        );
-                      },
-                    )
-                  : Center(
-                      child: Text('Nema dostupnih smještajnih jedinica.'),
-                    ),
+                          return Wrap(
+                            spacing: 16.0,
+                            runSpacing: 16.0,
+                            children: smjestaj.smjestajnaJedinicas!
+                                .map((jedinica) => SizedBox(
+                                      width: itemWidth,
+                                      child: AccommodationUnitCard(
+                                          jedinica: jedinica),
+                                    ))
+                                .toList(),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text('Nema dostupnih smještajnih jedinica.'),
+                      ),
               ],
             ),
           ),

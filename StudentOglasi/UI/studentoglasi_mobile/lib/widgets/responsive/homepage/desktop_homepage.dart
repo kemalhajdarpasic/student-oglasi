@@ -17,8 +17,7 @@ class DesktopHomepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-            maxWidth: 1200),
+        constraints: BoxConstraints(maxWidth: 1200),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
@@ -70,14 +69,18 @@ class DesktopHomepage extends StatelessWidget {
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 16.0),
-                                          child: Text(
-                                            objave!.result[0].naslov ??
-                                                "Naslov nedostupan",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                objave!.result[0].naslov ??
+                                                    "Naslov nedostupan",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         SizedBox(height: 8),
@@ -91,8 +94,8 @@ class DesktopHomepage extends StatelessWidget {
                                               Row(
                                                 children: [
                                                   IconButton(
-                                                    icon: Icon(Icons.comment,
-                                                        color: Colors.blue),
+                                                    icon: Icon(Icons.comment_outlined,
+                                                        color: Colors.white),
                                                     onPressed: () {
                                                       Navigator.push(
                                                         context,
@@ -108,11 +111,23 @@ class DesktopHomepage extends StatelessWidget {
                                                       );
                                                     },
                                                   ),
+                                                  Text(
+                                                    objave!
+                                                        .result[0].brojKomentara
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
                                                   SizedBox(width: 16),
                                                   LikeButton(
                                                     itemId:
                                                         objave!.result[0].id!,
                                                     itemType: ItemType.news,
+                                                    color: Colors.white,
                                                   ),
                                                 ],
                                               ),
@@ -224,9 +239,9 @@ class DesktopHomepage extends StatelessWidget {
                                                       children: [
                                                         IconButton(
                                                           icon: Icon(
-                                                              Icons.comment,
+                                                              Icons.comment_outlined,
                                                               color:
-                                                                  Colors.blue),
+                                                                  Colors.white),
                                                           onPressed: () {
                                                             Navigator.push(
                                                               context,
@@ -245,12 +260,24 @@ class DesktopHomepage extends StatelessWidget {
                                                             );
                                                           },
                                                         ),
+                                                        Text(
+                                                          objave!.result[1]
+                                                              .brojKomentara
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
                                                         SizedBox(width: 16),
                                                         LikeButton(
                                                           itemId: objave!
                                                               .result[1].id!,
                                                           itemType:
                                                               ItemType.news,
+                                                          color: Colors.white,
                                                         ),
                                                       ],
                                                     ),
@@ -357,9 +384,9 @@ class DesktopHomepage extends StatelessWidget {
                                                       children: [
                                                         IconButton(
                                                           icon: Icon(
-                                                              Icons.comment,
+                                                              Icons.comment_outlined,
                                                               color:
-                                                                  Colors.blue),
+                                                                  Colors.white),
                                                           onPressed: () {
                                                             Navigator.push(
                                                               context,
@@ -378,12 +405,24 @@ class DesktopHomepage extends StatelessWidget {
                                                             );
                                                           },
                                                         ),
+                                                        Text(
+                                                          objave!.result[2]
+                                                              .brojKomentara
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
                                                         SizedBox(width: 16),
                                                         LikeButton(
                                                           itemId: objave!
                                                               .result[2].id!,
                                                           itemType:
                                                               ItemType.news,
+                                                          color: Colors.white,
                                                         ),
                                                       ],
                                                     ),

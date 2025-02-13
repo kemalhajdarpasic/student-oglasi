@@ -15,5 +15,6 @@ namespace StudentOglasi.Model
         public string? Slika { get; set; }
         public int KategorijaId { get; set; }
         public virtual Kategorija Kategorija { get; set; } = null!;
+        public int BrojKomentara { get; set; }
     }
 }

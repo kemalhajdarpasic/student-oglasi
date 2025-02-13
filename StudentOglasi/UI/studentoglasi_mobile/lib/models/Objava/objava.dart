@@ -12,9 +12,10 @@ class Objava {
   DateTime? vrijemeObjave;
   int? kategorijaId;
   Kategorija? kategorija;
+  int? brojKomentara;
 
   Objava(
-      this.id, this.naslov, this.sadrzaj,this.slika, this.vrijemeObjave, this.kategorija);
+      this.id, this.naslov, this.sadrzaj,this.slika, this.vrijemeObjave, this.kategorija, this.brojKomentara);
 
   factory Objava.fromJson(Map<String, dynamic> json) => _$ObjavaFromJson(json);
 

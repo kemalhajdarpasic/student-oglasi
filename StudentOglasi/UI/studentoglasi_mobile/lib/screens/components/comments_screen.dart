@@ -66,7 +66,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
       await _komentariProvider.insertComment(newComment);
       _commentController.clear();
-      _loadComments();
+      await _loadComments();
+
+      if (parentKomentarId != null) {
+        setState(() {
+          _showReplies[parentKomentarId] = true;
+        });
+      }
     } catch (e) {
       print("Failed to add comment: $e");
     }
@@ -102,15 +108,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 },
                 child: Text(_showReplies[komentar.id]!
                     ? 'Sakrij odgovore'
-                    : 'Odgovori'),
+                    : 'Odgovori (${komentar.odgovori.length})'),
               ),
               if (_showReplies[komentar.id]! && komentar.odgovori.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: komentar.odgovori.map((reply) {
                     var replyFormattedTime = reply.vrijemeObjave != null
-                      ? DateFormat('dd.MM.yyyy HH:mm').format(reply.vrijemeObjave!)
-                      : 'N/A';
+                        ? DateFormat('dd.MM.yyyy HH:mm')
+                            .format(reply.vrijemeObjave!)
+                        : 'N/A';
 
                     return Padding(
                       padding: const EdgeInsets.only(left: 16.0, top: 8.0),
@@ -139,33 +146,87 @@ class _CommentsScreenState extends State<CommentsScreen> {
               if (_showReplies[komentar.id]!)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: TextField(
-                            controller: _replyControllers[komentar.id],
-                            decoration: InputDecoration(
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 12.0),
-                              hintText: 'Unesite svoj odgovor',
-                              border: InputBorder.none,
+                  child: MediaQuery.of(context).size.width > 800
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            TextField(
+                              controller: _replyControllers[komentar.id],
+                              maxLines: null,
+                              keyboardType: TextInputType.multiline,
+                              decoration: InputDecoration(
+                                hintText: "Unesite svoj odgovor",
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 16.0),
+                              ),
                             ),
-                          ),
+                            SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    _replyControllers[komentar.id]?.clear();
+                                  },
+                                  child: Text("Otkaži"),
+                                ),
+                                SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _addComment(
+                                        _replyControllers[komentar.id]!.text,
+                                        parentKomentarId: komentar.id);
+                                  },
+                                  child: Text("Pošalji"),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _replyControllers[komentar.id],
+                                maxLines: null,
+                                keyboardType: TextInputType.multiline,
+                                decoration: InputDecoration(
+                                  hintText: "Unesite svoj odgovor",
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 16.0),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.send),
+                              onPressed: () {
+                                _addComment(
+                                    _replyControllers[komentar.id]!.text,
+                                    parentKomentarId: komentar.id);
+                              },
+                            ),
+                          ],
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () {
-                          _addComment(_replyControllers[komentar.id]!.text,
-                              parentKomentarId: komentar.id);
-                        },
-                      ),
-                    ],
-                  ),
                 ),
             ],
           ),
@@ -180,37 +241,104 @@ class _CommentsScreenState extends State<CommentsScreen> {
       appBar: AppBar(
         title: Text('Komentari'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: _komentari.length,
-              itemBuilder: (context, index) {
-                return _buildComment(_komentari[index]);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _commentController,
-                    decoration:
-                        InputDecoration(hintText: 'Unesite svoj komentar'),
-                  ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double maxWidth = constraints.maxWidth > 800 ? 1000 : double.infinity;
+
+          return Center(
+            child: SizedBox(
+              width: maxWidth,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _komentari.length,
+                        itemBuilder: (context, index) {
+                          return _buildComment(_komentari[index]);
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: MediaQuery.of(context).size.width > 800
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                TextField(
+                                  controller: _commentController,
+                                  maxLines: null,
+                                  keyboardType: TextInputType.multiline,
+                                  decoration: InputDecoration(
+                                    hintText: "Unesite svoj komentar",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 16.0),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        _commentController.clear();
+                                      },
+                                      child: Text("Otkaži"),
+                                    ),
+                                    SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _addComment(_commentController.text);
+                                      },
+                                      child: Text("Pošalji"),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _commentController,
+                                    maxLines: null,
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: InputDecoration(
+                                      hintText: "Unesite svoj komentar",
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 10.0, horizontal: 16.0),
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.send),
+                                  onPressed: () {
+                                    _addComment(_commentController.text);
+                                  },
+                                ),
+                              ],
+                            ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    _addComment(_commentController.text);
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

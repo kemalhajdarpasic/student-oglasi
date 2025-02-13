@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:studentoglasi_mobile/models/Oglas/oglas.dart';
 import 'package:studentoglasi_mobile/models/Praksa/praksa.dart';
 import 'package:studentoglasi_mobile/providers/prakse_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
@@ -89,6 +88,7 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
                 child: DesktopInternshipDetailsLayout(
                   praksa: widget.internship,
                   averageRating: _averageRating,
+                  onRatingUpdated: _fetchAverageRatings,
                 ),
               )
             : Padding(

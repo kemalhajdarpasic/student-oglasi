@@ -38,7 +38,38 @@ namespace StudentOglasi.Services.Services
                 }
             }
         }
-        
+
+        public override async Task<PagedResult<Model.Objave>> Get(ObjaveSearchObject? search = null)
+        {
+            var query = _context.Objaves.AsQueryable();
+
+            query = AddFilter(query, search);
+            query = AddInclude(query, search);
+
+            PagedResult<Model.Objave> result = new PagedResult<Model.Objave>
+            {
+                Count = await query.CountAsync()
+            };
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                query = query.Skip((search.Page.Value - 1) * search.PageSize.Value).Take(search.PageSize.Value);
+            }
+
+            var list = await query.ToListAsync();
+            var tmp = _mapper.Map<List<Model.Objave>>(list);
+
+            foreach (var objava in tmp)
+            {
+                objava.BrojKomentara = await _context.Komentaris
+                    .CountAsync(k => k.PostId == objava.Id && k.PostType == "news");
+            }
+
+            result.Result = tmp;
+            return result;
+        }
+
+
         public override async Task<Model.Objave> Insert(ObjaveInsertRequest insert)
         {
             var entity = await base.Insert(insert);

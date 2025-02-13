@@ -70,7 +70,8 @@ class _AccommodationDetailsScreenState
                 padding: const EdgeInsets.only(top: 20.0),
                 child: DesktopAccommodationDetailsLayout(
                     smjestaj: widget.smjestaj,
-                    averageRating: _averageRating,),
+                    averageRating: _averageRating,
+                    onRatingUpdated: _fetchAverageRatings,),
               )
             : SingleChildScrollView(
                 child: Padding(

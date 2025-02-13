@@ -25,6 +25,19 @@ class KomentariProvider extends BaseProvider<Komentar> {
     }
   }
 
+  Future<int> fetchCommentCount(int postId, String postType) async {
+    var url = "${BaseProvider.baseUrl}$endPoint/count/$postId/$postType";
+    var uri = Uri.parse(url);
+
+    var response = await httpClient.get(uri, headers: createHeaders());
+
+    if (response.statusCode == 200) {
+      return int.parse(response.body);
+    } else {
+      throw Exception("Failed to load comment count");
+    }
+  }
+
   Future<Komentar> insertComment(KomentarInsert komentar) async {
     return await insertJsonData(komentar.toJson());
   }

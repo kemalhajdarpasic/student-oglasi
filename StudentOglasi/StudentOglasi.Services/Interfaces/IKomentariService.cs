@@ -13,5 +13,6 @@ namespace StudentOglasi.Services.Interfaces
     {
         Task<Komentari> Insert(KomentarInsertRequest dto);
         Task<List<Komentari>> GetCommentsByPost(int postId, string postType);
+        Task<int> GetCommentCount(int postId, string postType);
     }
 }

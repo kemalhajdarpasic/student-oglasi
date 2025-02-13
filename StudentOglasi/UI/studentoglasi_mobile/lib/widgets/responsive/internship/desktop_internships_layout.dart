@@ -99,7 +99,7 @@ class _DesktopInternshipsLayoutState extends State<DesktopInternshipsLayout> {
           height: MediaQuery.of(context).size.height * 0.6,
           child: Center(
             child: Text(
-              'Trenutno nema aktivnih praksi',
+              'Trenutno nema dostupnih praksi.',
               style: TextStyle(fontSize: 20),
             ),
           ),

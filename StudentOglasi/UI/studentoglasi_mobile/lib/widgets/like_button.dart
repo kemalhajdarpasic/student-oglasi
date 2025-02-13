@@ -8,11 +8,13 @@ import 'package:studentoglasi_mobile/utils/item_type.dart';
 class LikeButton extends StatefulWidget {
   final int itemId;
   final ItemType itemType;
+  final Color color;
 
   const LikeButton({
     Key? key,
     required this.itemId,
     required this.itemType,
+    this.color = Colors.blue,
   }) : super(key: key);
 
   @override
@@ -67,7 +69,7 @@ class _LikeButtonState extends State<LikeButton> {
         IconButton(
           icon: Icon(
             isLiked ? Icons.favorite : Icons.favorite_border,
-            color: Colors.blue,
+            color: widget.color,
           ),
           onPressed: currentStudent != null
               ? () => _toggleLike(currentStudent.id!)
@@ -76,7 +78,9 @@ class _LikeButtonState extends State<LikeButton> {
         Text(
           '$likesCount',
           style: TextStyle(
-            color: Colors.blue,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: widget.color,
           ),
         ),
       ],

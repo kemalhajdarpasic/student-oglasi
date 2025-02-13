@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:studentoglasi_mobile/models/Stipendija/stipendija.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_form_screen.dart';
@@ -10,10 +11,14 @@ import 'package:studentoglasi_mobile/widgets/star_rating.dart';
 class DesktopScholarshipDetailsLayout extends StatelessWidget {
   final Stipendije stipendija;
   final double averageRating;
+  final VoidCallback onRatingUpdated;
 
-  const DesktopScholarshipDetailsLayout(
-      {Key? key, required this.stipendija, required this.averageRating})
-      : super(key: key);
+  const DesktopScholarshipDetailsLayout({
+    Key? key,
+    required this.stipendija,
+    required this.averageRating,
+    required this.onRatingUpdated,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -81,16 +86,14 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Row(
-                          mainAxisSize:
-                              MainAxisSize.min, 
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.star,
                               color: Colors.amber,
                               size: 40,
                             ),
-                            SizedBox(
-                                width: 4),
+                            SizedBox(width: 4),
                             Text(
                               averageRating == 0.0
                                   ? 'N/A'
@@ -109,26 +112,90 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.comment, color: Colors.blue),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.comment, color: Colors.blue),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CommentsScreen(
+                                  postId: stipendija.id!,
+                                  postType: ItemType.scholarship,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(width: 8),
+                        LikeButton(
+                          itemId: stipendija.id!,
+                          itemType: ItemType.scholarship,
+                        ),
+                      ],
+                    ),
+                    ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CommentsScreen(
-                              postId: stipendija.id!,
-                              postType: ItemType.scholarship,
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                              'Ocijenite stipendiju',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                StarRatingWidget(
+                                  postId: stipendija.id!,
+                                  postType: ItemType.scholarship,
+                                  onRatingChanged: () {
+                                    Navigator.pop(context);
+                                    onRatingUpdated();
+                                  },
+                                  iconSize: 50,
+                                ),
+                                SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Loše',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                    Text('Odlično',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         );
                       },
-                    ),
-                    SizedBox(width: 8),
-                    LikeButton(
-                      itemId: stipendija.id!,
-                      itemType: ItemType.scholarship,
+                      icon: Icon(Icons.star_rate, color: Colors.white),
+                      label: Text(
+                        'Ocijeni',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 5,
+                      ),
                     ),
                   ],
                 ),
@@ -166,6 +233,15 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
+                  'Nivo obrazovanja',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  stipendija.nivoObrazovanja ?? 'N/A',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 8),
+                Text(
                   'Izvor',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
@@ -178,19 +254,22 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildInfoBox(
-                      title: 'Broj stipendista',
-                      value: stipendija.brojStipendisata != null
-                          ? stipendija.brojStipendisata.toString()
-                          : 'N/A',
-                    ),
-                    _buildInfoBox(
-                      title: 'Nivo obrazovanja',
-                      value: stipendija.nivoObrazovanja ?? 'N/A',
+                      title: 'Rok prijave',
+                      value: stipendija.idNavigation?.rokPrijave != null
+                          ? DateFormat('dd.MM.yyyy')
+                              .format(stipendija.idNavigation!.rokPrijave)
+                          : 'Nema datuma',
                     ),
                     _buildInfoBox(
                       title: 'Iznos',
                       value: stipendija.iznos != null
                           ? '${stipendija.iznos} KM'
+                          : 'N/A',
+                    ),
+                    _buildInfoBox(
+                      title: 'Broj stipendista',
+                      value: stipendija.brojStipendisata != null
+                          ? stipendija.brojStipendisata.toString()
                           : 'N/A',
                     ),
                   ],
@@ -211,16 +290,14 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                     child: Text('Prijavi se'),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(8.0), 
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16), 
-                      minimumSize: Size(150, 40), 
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      minimumSize: Size(150, 40),
                       textStyle: TextStyle(
-                        fontSize: 16, 
-                        fontWeight:
-                            FontWeight.bold, 
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

@@ -17,6 +17,7 @@ Objava _$ObjavaFromJson(Map<String, dynamic> json) => Objava(
       json['kategorija'] == null
           ? null
           : Kategorija.fromJson(json['kategorija'] as Map<String, dynamic>),
+      (json['brojKomentara'] as num?)?.toInt(),
     )..kategorijaId = (json['kategorijaId'] as num?)?.toInt();
 
 Map<String, dynamic> _$ObjavaToJson(Objava instance) => <String, dynamic>{
@@ -27,4 +28,5 @@ Map<String, dynamic> _$ObjavaToJson(Objava instance) => <String, dynamic>{
       'vrijemeObjave': instance.vrijemeObjave?.toIso8601String(),
       'kategorijaId': instance.kategorijaId,
       'kategorija': instance.kategorija,
+      'brojKomentara': instance.brojKomentara,
     };

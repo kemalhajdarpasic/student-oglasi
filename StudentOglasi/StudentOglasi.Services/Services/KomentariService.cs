@@ -49,5 +49,11 @@ namespace StudentOglasi.Services.Services
 
             return _mapper.Map<List<Model.Komentari>>(rootKomentari);
         }
+        public async Task<int> GetCommentCount(int postId, string postType)
+        {
+            return await _context.Komentaris
+                .Where(k => k.PostId == postId && k.PostType == postType)
+                .CountAsync();
+        }
     }
 }
