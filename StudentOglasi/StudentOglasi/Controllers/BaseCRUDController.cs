@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using StudentOglasi.Model;
 using StudentOglasi.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudentOglasi.Controllers
 {
@@ -20,6 +21,7 @@ namespace StudentOglasi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public virtual async Task<IActionResult> Insert([FromBody] TInsert insert)
         {            
             if (!ModelState.IsValid)
@@ -32,6 +34,7 @@ namespace StudentOglasi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public virtual async Task<IActionResult> Update(int id, [FromBody] TUpdate update)
         {
             if (!ModelState.IsValid)
@@ -44,6 +47,7 @@ namespace StudentOglasi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public virtual async Task Delete(int id)
         {
            await _service.Delete(id);

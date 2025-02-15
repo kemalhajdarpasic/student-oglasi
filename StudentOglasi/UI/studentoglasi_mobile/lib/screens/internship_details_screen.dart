@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:studentoglasi_mobile/models/Praksa/praksa.dart';
 import 'package:studentoglasi_mobile/providers/prakse_provider.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
 import 'package:studentoglasi_mobile/widgets/like_button.dart';
@@ -69,6 +70,9 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+     var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+          
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
       return Scaffold(
@@ -235,6 +239,10 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
                             alignment: Alignment.bottomRight,
                             child: ElevatedButton(
                               onPressed: () {
+                                if (!studentiProvider.isLoggedIn) {
+                                  Navigator.of(context).pushNamed('/login');
+                                  return;
+                                }
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

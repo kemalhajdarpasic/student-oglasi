@@ -64,13 +64,8 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
       var studentiProvider =
           Provider.of<StudentiProvider>(context, listen: false);
       var studentId = studentiProvider.currentStudent?.id;
+      bool isLoggedIn = studentId != null;
 
-      if (studentId == null) {
-        var student = await studentiProvider.getCurrentStudent();
-        studentId = student.id;
-      }
-
-      if (studentId != null) {
         var finalFilter = {
           'page': currentPage,
           'pageSize': pageSize,
@@ -78,10 +73,11 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
           if (filter != null) ...filter,
         };
 
-        var data = await _prakseProvider.getAllWithRecommendations(
+        var data = isLoggedIn ? await _prakseProvider.getAllWithRecommendations(
           studentId: studentId,
           filter: finalFilter,
-        );
+        ) : await _prakseProvider.get(filter: finalFilter);
+
         _praksa?.result.clear();
         _averageRatings.clear();
         setState(() {
@@ -95,9 +91,6 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
         });
 
         await _fetchAverageRatings();
-      } else {
-        throw Exception("Student ID is not available");
-      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -133,6 +126,10 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
+      var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+      final bool isLoggedIn = studentiProvider.isLoggedIn;
+
       return Scaffold(
         appBar: AppBar(
           title: isDesktop
@@ -143,9 +140,9 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
                 ),
           backgroundColor: Colors.blue,
           iconTheme: IconThemeData(color: Colors.white),
-          automaticallyImplyLeading: !isDesktop,
+          automaticallyImplyLeading: !isDesktop && isLoggedIn,
         ),
-        drawer: isDesktop ? null : DrawerMenu(),
+        drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
         body: isDesktop
             ? DesktopInternshipsLayout(
                 prakse: _praksa?.result ?? [],

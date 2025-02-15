@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/Stipendija/stipendija.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_form_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
@@ -22,6 +24,9 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var studentiProvider =
+        Provider.of<StudentiProvider>(context, listen: false);
+
     return SingleChildScrollView(
       child: Center(
         child: ConstrainedBox(
@@ -139,6 +144,10 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
+                        if (!studentiProvider.isLoggedIn) {
+                          Navigator.of(context).pushNamed('/login');
+                          return;
+                        }
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -278,6 +287,10 @@ class DesktopScholarshipDetailsLayout extends StatelessWidget {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
+                      if (!studentiProvider.isLoggedIn) {
+                        Navigator.of(context).pushNamed('/login');
+                        return;
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(

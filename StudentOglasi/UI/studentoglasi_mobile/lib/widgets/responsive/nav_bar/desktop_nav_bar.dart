@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 
 class NavbarDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var studentiProvider = Provider.of<StudentiProvider>(context);
+    
     return Container(
       color: Colors.blue,
       padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -11,7 +15,9 @@ class NavbarDesktop extends StatelessWidget {
         children: [
           _buildLogo(),
           _buildCenteredNavItems(context),
-          _buildProfileMenu(context),
+          studentiProvider.isLoggedIn 
+              ? _buildProfileMenu(context) 
+              : _buildLoginButton(context),
         ],
       ),
     );
@@ -54,6 +60,19 @@ class NavbarDesktop extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+
+   Widget _buildLoginButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.of(context).pushNamed('/login');
+      },
+      style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.blue,
+    ),
+      child: Text("Prijavi se"),
     );
   }
 

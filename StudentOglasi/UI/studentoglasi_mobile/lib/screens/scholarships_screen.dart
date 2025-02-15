@@ -66,40 +66,35 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
       var studentiProvider =
           Provider.of<StudentiProvider>(context, listen: false);
       var studentId = studentiProvider.currentStudent?.id;
+      bool isLoggedIn = studentId != null;
 
-      if (studentId == null) {
-        var student = await studentiProvider.getCurrentStudent();
-        studentId = student.id;
-      }
+      var finalFilter = {
+        'page': currentPage,
+        'pageSize': pageSize,
+        if (_naslovController.text.isNotEmpty) 'naslov': _naslovController.text,
+        if (filter != null) ...filter,
+      };
 
-      if (studentId != null) {
-        var finalFilter = {
-          'page': currentPage,
-          'pageSize': pageSize,
-          if (_naslovController.text.isNotEmpty) 'naslov': _naslovController.text,
-          if (filter != null) ...filter,
-        };
+      var data = isLoggedIn
+          ? await _stipendijeProvider.getAllWithRecommendations(
+              studentId: studentId,
+              filter: finalFilter,
+            )
+          : await _stipendijeProvider.get(filter: finalFilter);
 
-        var data = await _stipendijeProvider.getAllWithRecommendations(
-          studentId: studentId,
-          filter: finalFilter,
-        );
-        _stipendije?.result.clear();
+      _stipendije?.result.clear();
+      _averageRatings.clear();
+      setState(() {
+        _stipendije = data;
         _averageRatings.clear();
-        setState(() {
-          _stipendije = data;
-          _averageRatings.clear();
 
-          if (data.result.isEmpty) {
-            _stipendije?.result.clear();
-          }
-          _isLoading = false;
-        });
+        if (data.result.isEmpty) {
+          _stipendije?.result.clear();
+        }
+        _isLoading = false;
+      });
 
-        await _fetchAverageRatings();
-      } else {
-        throw Exception("Student ID is not available");
-      }
+      await _fetchAverageRatings();
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -137,6 +132,10 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isDesktop = constraints.maxWidth > 900;
+        var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+      final bool isLoggedIn = studentiProvider.isLoggedIn;
+
         return Scaffold(
           appBar: AppBar(
             title: isDesktop
@@ -147,9 +146,9 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
                   ),
             backgroundColor: Colors.blue,
             iconTheme: IconThemeData(color: Colors.white),
-            automaticallyImplyLeading: !isDesktop,
+            automaticallyImplyLeading: !isDesktop && isLoggedIn,
           ),
-          drawer: isDesktop ? null : DrawerMenu(),
+          drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
           body: isDesktop
               ? DesktopScholarshipsLayout(
                   stipendije: _stipendije?.result ?? [],
@@ -166,9 +165,8 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
                   onCardTap: _navigateToDetailsScreen,
                   onFilterApplied: (filter) => _fetchData(filter),
                 ),
-          bottomNavigationBar: !isDesktop
-            ? MobileBottomNavigationBar(currentIndex: 1)
-            : null,
+          bottomNavigationBar:
+              !isDesktop ? MobileBottomNavigationBar(currentIndex: 1) : null,
         );
       },
     );

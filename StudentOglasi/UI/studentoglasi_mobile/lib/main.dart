@@ -50,7 +50,8 @@ void main() async {
   getIt.registerLazySingleton<MediaService>(() => MediaService());
   getIt.registerLazySingleton<StorageService>(() => StorageService());
 
-  const String stripePublishableKey = 'pk_test_51PvkhfP3JU9VUaXuXwaJkIdILZyMLDhghKZNrwKc7BaVdFISQ8xyaLeGOLmjnrlN5FYVjuXX2IqHgu41xj8pvDig00v487U8Iz';
+  const String stripePublishableKey =
+      'pk_test_51PvkhfP3JU9VUaXuXwaJkIdILZyMLDhghKZNrwKc7BaVdFISQ8xyaLeGOLmjnrlN5FYVjuXX2IqHgu41xj8pvDig00v487U8Iz';
   initializeStripe(stripePublishableKey);
 
   await setup();
@@ -152,7 +153,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       navigatorKey: navigatorKey,
       routes: {
-        '/': (context) => LoginScreen(),
+        '/': (context) => ObjavaListScreen(),
+        '/login': (context) => LoginScreen(),
         '/home': (context) => ObjavaListScreen(),
         '/scholarships': (context) => ScholarshipsScreen(),
         '/internships': (context) => InternshipsScreen(),

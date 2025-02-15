@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/SmjestajnaJedinica/smjestajna_jedinica.dart';
 import 'package:studentoglasi_mobile/providers/ocjene_provider.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
 import 'package:studentoglasi_mobile/screens/components/reservation_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
@@ -42,6 +43,8 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
 
   @override
   Widget build(BuildContext context) {
+    var studentiProvider =
+        Provider.of<StudentiProvider>(context, listen: false);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Card(
@@ -66,12 +69,13 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.image, size: 100, color: Colors.grey),
+                                Icon(Icons.image,
+                                    size: 100, color: Colors.grey),
                                 SizedBox(height: 20),
                                 Text(
                                   'Nema dostupne slike',
-                                  style:
-                                      TextStyle(fontSize: 18, color: Colors.grey),
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -146,7 +150,8 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               TextSpan(
-                                text: '${widget.jedinica.kapacitet ?? 'N/A'} osobe',
+                                text:
+                                    '${widget.jedinica.kapacitet ?? 'N/A'} osobe',
                               ),
                             ],
                           ),
@@ -158,11 +163,12 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                       builder: (context, constraints) {
                         List<Widget> availableServices = [];
                         if (widget.jedinica.kuhinja == true) {
-                          availableServices.add(
-                              _buildServiceIcon(Icons.kitchen_outlined, 'Kuhinja'));
+                          availableServices.add(_buildServiceIcon(
+                              Icons.kitchen_outlined, 'Kuhinja'));
                         }
                         if (widget.jedinica.tv == true) {
-                          availableServices.add(_buildServiceIcon(Icons.tv, 'TV'));
+                          availableServices
+                              .add(_buildServiceIcon(Icons.tv, 'TV'));
                         }
                         if (widget.jedinica.klimaUredjaj == true) {
                           availableServices.add(
@@ -175,8 +181,8 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                         if (widget.jedinica.dodatneUsluge != null) {
                           for (var usluga
                               in widget.jedinica.dodatneUsluge!.split(',')) {
-                            availableServices.add(
-                                _buildServiceIcon(Icons.more_horiz, usluga.trim()));
+                            availableServices.add(_buildServiceIcon(
+                                Icons.more_horiz, usluga.trim()));
                           }
                         }
                         int half = (availableServices.length / 2).ceil();
@@ -184,7 +190,7 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                             availableServices.take(3).toList();
                         List<Widget> rightColumn =
                             availableServices.skip(3).take(3).toList();
-            
+
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -206,7 +212,8 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                     SizedBox(height: 8),
                     Text(
                       '${widget.jedinica.cijena?.toStringAsFixed(2) ?? 'N/A'} BAM',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     Row(
@@ -214,6 +221,10 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
+                            if (!studentiProvider.isLoggedIn) {
+                              Navigator.of(context).pushNamed('/login');
+                              return;
+                            }
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -232,33 +243,33 @@ class _AccommodationUnitCardState extends State<AccommodationUnitCard> {
               ),
             ]),
             Positioned(
-            top: 8,
-            right: 8,
-            child: Row(
-              children: [
-                Icon(Icons.star, color: Colors.amber),
-                SizedBox(width: 4),
-                FutureBuilder<double>(
-                  future: _averageRating,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator(strokeWidth: 2);
-                    } else if (snapshot.hasError) {
-                      return Text("N/A");
-                    } else {
-                      return Text(
-                        snapshot.data != null && snapshot.data! > 0
-                            ? snapshot.data!.toStringAsFixed(1)
-                            : "N/A",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      );
-                    }
-                  },
-                ),
-              ],
+              top: 8,
+              right: 8,
+              child: Row(
+                children: [
+                  Icon(Icons.star, color: Colors.amber),
+                  SizedBox(width: 4),
+                  FutureBuilder<double>(
+                    future: _averageRating,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator(strokeWidth: 2);
+                      } else if (snapshot.hasError) {
+                        return Text("N/A");
+                      } else {
+                        return Text(
+                          snapshot.data != null && snapshot.data! > 0
+                              ? snapshot.data!.toStringAsFixed(1)
+                              : "N/A",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
           ],
         ),
       ),

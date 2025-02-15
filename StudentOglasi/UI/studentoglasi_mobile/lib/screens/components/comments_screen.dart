@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,7 @@ import 'package:studentoglasi_mobile/models/Komenatar/komentar.dart';
 import 'package:studentoglasi_mobile/models/Komenatar/komentar_insert.dart';
 import 'package:studentoglasi_mobile/providers/komentari_provider.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
+import 'package:studentoglasi_mobile/screens/login_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 
 class CommentsScreen extends StatefulWidget {
@@ -78,7 +80,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
     }
   }
 
-  Widget _buildComment(Komentar komentar, {int depth = 0}) {
+  Widget _buildComment(Komentar komentar, bool isLoggedIn, {int depth = 0}) {
     var formattedTime = komentar.vrijemeObjave != null
         ? DateFormat('dd.MM.yyyy HH:mm').format(komentar.vrijemeObjave!)
         : 'N/A';
@@ -146,86 +148,120 @@ class _CommentsScreenState extends State<CommentsScreen> {
               if (_showReplies[komentar.id]!)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: MediaQuery.of(context).size.width > 800
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            TextField(
-                              controller: _replyControllers[komentar.id],
-                              maxLines: null,
-                              keyboardType: TextInputType.multiline,
-                              decoration: InputDecoration(
-                                hintText: "Unesite svoj odgovor",
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 16.0),
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                  child: isLoggedIn
+                      ? MediaQuery.of(context).size.width > 800
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                TextButton(
-                                  onPressed: () {
-                                    _replyControllers[komentar.id]?.clear();
-                                  },
-                                  child: Text("Otkaži"),
+                                TextField(
+                                  controller: _replyControllers[komentar.id],
+                                  maxLines: null,
+                                  keyboardType: TextInputType.multiline,
+                                  decoration: InputDecoration(
+                                    hintText: "Unesite svoj odgovor",
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 16.0),
+                                  ),
                                 ),
-                                SizedBox(width: 8),
-                                ElevatedButton(
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        _replyControllers[komentar.id]?.clear();
+                                      },
+                                      child: Text("Otkaži"),
+                                    ),
+                                    SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _addComment(
+                                            _replyControllers[komentar.id]!
+                                                .text,
+                                            parentKomentarId: komentar.id);
+                                      },
+                                      child: Text("Pošalji"),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _replyControllers[komentar.id],
+                                    maxLines: null,
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: InputDecoration(
+                                      hintText: "Unesite svoj odgovor",
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 10.0, horizontal: 16.0),
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.send),
                                   onPressed: () {
                                     _addComment(
                                         _replyControllers[komentar.id]!.text,
                                         parentKomentarId: komentar.id);
                                   },
-                                  child: Text("Pošalji"),
+                                ),
+                              ],
+                            )
+                      : Center(
+                          child: RichText(
+                            text: TextSpan(
+                              text:
+                                  "Morate biti prijavljeni kako biste dodali odgovor. ",
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 14.0),
+                              children: [
+                                TextSpan(
+                                  text: "Prijavi se",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                LoginScreen()),
+                                      );
+                                    },
                                 ),
                               ],
                             ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _replyControllers[komentar.id],
-                                maxLines: null,
-                                keyboardType: TextInputType.multiline,
-                                decoration: InputDecoration(
-                                  hintText: "Unesite svoj odgovor",
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide.none,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide.none,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 16.0),
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.send),
-                              onPressed: () {
-                                _addComment(
-                                    _replyControllers[komentar.id]!.text,
-                                    parentKomentarId: komentar.id);
-                              },
-                            ),
-                          ],
+                          ),
                         ),
                 ),
             ],
@@ -237,6 +273,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var studentiProvider = Provider.of<StudentiProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Komentari'),
@@ -256,83 +294,43 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       child: ListView.builder(
                         itemCount: _komentari.length,
                         itemBuilder: (context, index) {
-                          return _buildComment(_komentari[index]);
+                          return _buildComment(
+                              _komentari[index], studentiProvider.isLoggedIn);
                         },
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: MediaQuery.of(context).size.width > 800
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                TextField(
-                                  controller: _commentController,
-                                  maxLines: null,
-                                  keyboardType: TextInputType.multiline,
-                                  decoration: InputDecoration(
-                                    hintText: "Unesite svoj komentar",
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 16.0),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    TextButton(
-                                      onPressed: () {
-                                        _commentController.clear();
-                                      },
-                                      child: Text("Otkaži"),
-                                    ),
-                                    SizedBox(width: 8),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        _addComment(_commentController.text);
-                                      },
-                                      child: Text("Pošalji"),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _commentController,
-                                    maxLines: null,
-                                    keyboardType: TextInputType.multiline,
-                                    decoration: InputDecoration(
-                                      hintText: "Unesite svoj komentar",
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
+                        padding: const EdgeInsets.all(8.0),
+                        child: studentiProvider.isLoggedIn
+                            ? _buildCommentInput()
+                            : Center(
+                                child: RichText(
+                                  text: TextSpan(
+                                    text:
+                                        "Morate biti prijavljeni kako biste dodali komentar. ",
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 16.0),
+                                    children: [
+                                      TextSpan(
+                                        text: "Prijavi se",
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      LoginScreen()),
+                                            );
+                                          },
                                       ),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 10.0, horizontal: 16.0),
-                                    ),
+                                    ],
                                   ),
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.send),
-                                  onPressed: () {
-                                    _addComment(_commentController.text);
-                                  },
-                                ),
-                              ],
-                            ),
-                    ),
+                              )),
                   ],
                 ),
               ),
@@ -341,5 +339,76 @@ class _CommentsScreenState extends State<CommentsScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildCommentInput() {
+    return MediaQuery.of(context).size.width > 800
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TextField(
+                controller: _commentController,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  hintText: "Unesite svoj komentar",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 16.0),
+                ),
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      _commentController.clear();
+                    },
+                    child: Text("Otkaži"),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      _addComment(_commentController.text);
+                    },
+                    child: Text("Pošalji"),
+                  ),
+                ],
+              ),
+            ],
+          )
+        : Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _commentController,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                    hintText: "Unesite svoj komentar",
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 16.0),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () {
+                  _addComment(_commentController.text);
+                },
+              ),
+            ],
+          );
   }
 }

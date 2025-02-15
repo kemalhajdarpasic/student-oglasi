@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/Smjestaj/smjestaj.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/accommodation_unit_card.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
@@ -19,6 +21,9 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var studentiProvider =
+        Provider.of<StudentiProvider>(context, listen: false);
+        
     return SingleChildScrollView(
       child: Center(
         child: ConstrainedBox(
@@ -37,11 +42,15 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 28, fontWeight: FontWeight.bold),
                         overflow: TextOverflow
-                            .ellipsis, // Sprječava prelamanje teksta
+                            .ellipsis, 
                       ),
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
+                        if (!studentiProvider.isLoggedIn) {
+                        Navigator.of(context).pushNamed('/login');
+                        return;
+                      }
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:studentoglasi_mobile/models/Oglas/oglas.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
 import 'package:studentoglasi_mobile/widgets/like_button.dart';
 import 'package:studentoglasi_mobile/screens/scholarship_form_screen.dart';
@@ -55,11 +56,15 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+          
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
       return Scaffold(
         appBar: AppBar(
-          title: Text(widget.scholarship.idNavigation?.naslov ?? 'Detalji stipendija'),
+          title: Text(
+              widget.scholarship.idNavigation?.naslov ?? 'Detalji stipendija'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -158,7 +163,8 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
                       ),
                       SizedBox(height: 16),
                       Text(
-                        widget.scholarship.idNavigation?.naslov ?? 'Nema naziva',
+                        widget.scholarship.idNavigation?.naslov ??
+                            'Nema naziva',
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold),
                       ),
@@ -168,40 +174,41 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
                         style: TextStyle(fontSize: 16),
                       ),
                       SizedBox(height: 16),
-                        Text('Uslovi:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${widget.scholarship.uslovi ?? 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Iznos:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                            '${widget.scholarship.iznos != null ? widget.scholarship.iznos.toString() : 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Kriterij:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${widget.scholarship.kriterij ?? 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Potrebna dokumentacija:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${widget.scholarship.potrebnaDokumentacija ?? 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Izvor:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${widget.scholarship.izvor ?? 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Nivo obrazovanja:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${widget.scholarship.brojStipendisata ?? 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Broj stipendista:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                            '${widget.scholarship.brojStipendisata != null ? widget.scholarship.brojStipendisata.toString() : 'N/A'}'),
-                        SizedBox(height: 8),
-                        Text('Stipenditor:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${widget.scholarship.stipenditor?.naziv ?? 'N/A'}'),
-                      SizedBox(height: 16), 
+                      Text('Uslovi:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${widget.scholarship.uslovi ?? 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Iznos:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${widget.scholarship.iznos != null ? widget.scholarship.iznos.toString() : 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Kriterij:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${widget.scholarship.kriterij ?? 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Potrebna dokumentacija:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${widget.scholarship.potrebnaDokumentacija ?? 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Izvor:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${widget.scholarship.izvor ?? 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Nivo obrazovanja:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${widget.scholarship.brojStipendisata ?? 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Broj stipendista:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                          '${widget.scholarship.brojStipendisata != null ? widget.scholarship.brojStipendisata.toString() : 'N/A'}'),
+                      SizedBox(height: 8),
+                      Text('Stipenditor:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${widget.scholarship.stipenditor?.naziv ?? 'N/A'}'),
+                      SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
@@ -215,6 +222,10 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
                             alignment: Alignment.bottomRight,
                             child: ElevatedButton(
                               onPressed: () {
+                                if (!studentiProvider.isLoggedIn) {
+                                  Navigator.of(context).pushNamed('/login');
+                                  return;
+                                }
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

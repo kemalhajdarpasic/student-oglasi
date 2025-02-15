@@ -83,7 +83,6 @@ class _DesktopInternshipsLayoutState extends State<DesktopInternshipsLayout> {
     return selectedGradId != null ||
         selectedOrganizacijaId != null ||
         selectedRatings.isNotEmpty ||
-        (searchQuery != null && searchQuery!.isNotEmpty) ||
         selectedSortOption != null;
   }
 

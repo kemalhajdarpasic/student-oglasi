@@ -94,7 +94,6 @@ class _DesktopAccommodationsLayoutState
         selectedTipSmjestajaId != null ||
         selectedRatings.isNotEmpty ||
         selectedServices.isNotEmpty ||
-        (searchQuery != null && searchQuery!.isNotEmpty) ||
         selectedSortOption != null;
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/providers/like_provider.dart';
 import 'package:studentoglasi_mobile/providers/objave_provider.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/accommodations_screen.dart';
 import 'package:studentoglasi_mobile/screens/internships_screen.dart';
 import 'package:studentoglasi_mobile/screens/news_details_screen.dart';
@@ -90,6 +91,9 @@ class _ObjavaListScreenState extends State<ObjavaListScreen> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
+      var studentiProvider =
+          Provider.of<StudentiProvider>(context, listen: false);
+      final bool isLoggedIn = studentiProvider.isLoggedIn;
 
       return Scaffold(
         appBar: AppBar(
@@ -101,9 +105,9 @@ class _ObjavaListScreenState extends State<ObjavaListScreen> {
                 ),
           backgroundColor: Colors.blue,
           iconTheme: IconThemeData(color: Colors.white),
-          automaticallyImplyLeading: !isDesktop,
+          automaticallyImplyLeading: !isDesktop && isLoggedIn,
         ),
-        drawer: isDesktop ? null : DrawerMenu(),
+        drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
         body: isDesktop
             ? Padding(
                 padding: const EdgeInsets.only(top: 20.0),

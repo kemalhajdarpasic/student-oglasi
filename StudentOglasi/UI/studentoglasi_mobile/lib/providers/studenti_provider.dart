@@ -7,6 +7,7 @@ class StudentiProvider extends BaseProvider<Student> {
 
   Student? _currentStudent;
   Student? get currentStudent => _currentStudent;
+  bool get isLoggedIn => _currentStudent != null;
 
   @override
   Student fromJson(data) {

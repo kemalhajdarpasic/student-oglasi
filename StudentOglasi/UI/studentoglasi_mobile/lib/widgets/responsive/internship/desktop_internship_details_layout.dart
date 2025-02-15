@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/Praksa/praksa.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
 import 'package:studentoglasi_mobile/screens/internship_form_screen.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
@@ -22,6 +24,9 @@ class DesktopInternshipDetailsLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var studentiProvider =
+        Provider.of<StudentiProvider>(context, listen: false);
+
     return SingleChildScrollView(
       child: Center(
         child: ConstrainedBox(
@@ -139,6 +144,10 @@ class DesktopInternshipDetailsLayout extends StatelessWidget {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
+                        if (!studentiProvider.isLoggedIn) {
+                          Navigator.of(context).pushNamed('/login');
+                          return;
+                        }
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -247,6 +256,10 @@ class DesktopInternshipDetailsLayout extends StatelessWidget {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
+                      if (!studentiProvider.isLoggedIn) {
+                        Navigator.of(context).pushNamed('/login');
+                        return;
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(

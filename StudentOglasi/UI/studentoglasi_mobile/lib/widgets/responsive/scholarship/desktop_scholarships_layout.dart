@@ -82,7 +82,6 @@ class _DesktopScholarshipsLayoutState extends State<DesktopScholarshipsLayout> {
     return selectedGradId != null ||
         selectedStipenditorId != null ||
         selectedRatings.isNotEmpty ||
-        (searchQuery != null && searchQuery!.isNotEmpty) ||
         selectedSortOption != null;
   }
 
