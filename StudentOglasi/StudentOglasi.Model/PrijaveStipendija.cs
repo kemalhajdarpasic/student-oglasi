@@ -12,13 +12,12 @@ namespace StudentOglasi.Model
 
         public int StipendijaId { get; set; }
 
-        public string? Dokumentacija { get; set; } 
-
         public string? Cv { get; set; }
 
         public decimal ProsjekOcjena { get; set; }
 
         public DateTime? VrijemePrijave { get; set; }
+        public List<PrijavaDokumenti> Dokumenti { get; set; } = new List<PrijavaDokumenti>();
 
         public int StatusId { get; set; }
 

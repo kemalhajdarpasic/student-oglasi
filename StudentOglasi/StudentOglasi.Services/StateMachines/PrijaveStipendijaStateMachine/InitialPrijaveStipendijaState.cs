@@ -34,13 +34,36 @@ namespace StudentOglasi.Services.StateMachines.PrijaveStipendijaStateMachine
                 var set = _context.Set<PrijaveStipendija>();
                 var entity = _mapper.Map<PrijaveStipendija>(request);
 
-                entity.Dokumentacija = await UploadFileAsync(request.Dokumentacija);
-                entity.Cv = await UploadFileAsync(request.Cv);
+                if (request.Dokumentacija != null)
+                {
+                    foreach (var dokument in request.Dokumentacija)
+                    {
+                        var (naziv, originalniNaziv) = await UploadFileAsync(dokument);
+                        if (naziv != null)
+                        {
+                            entity.Dokumenti.Add(new PrijavaDokumenti
+                            {
+                                Naziv = naziv,
+                                OriginalniNaziv = originalniNaziv 
+                            });
+                        }
+                    }
+                }
+
+                if (request.Cv != null)
+                {
+                    var (cvNaziv, _) = await UploadFileAsync(request.Cv);
+                    entity.Cv = cvNaziv;
+                }
+                else
+                {
+                    entity.Cv = null;
+                }
 
                 entity.Status = await _context.StatusPrijaves.FirstOrDefaultAsync(e => e.Naziv.Contains("Na cekanju"));
                 entity.StatusId = entity.Status.Id;
                 entity.Stipendija = await _context.Stipendijes.FirstOrDefaultAsync(e => e.Id == request.StipendijaId);
-                entity.StipendijaId = entity.Stipendija.Id;
+                entity.StipendijaID = entity.Stipendija.Id;
                 var student = await GetStudentByUsername(username);
                 if (student == null)
                 {
@@ -60,14 +83,14 @@ namespace StudentOglasi.Services.StateMachines.PrijaveStipendijaStateMachine
                 throw new Exception($"Mapping failed: {ex.Message}, Inner Exception: {ex.InnerException?.Message}", ex);
             }
         }
-        private async Task<string> UploadFileAsync(IFormFile? file)
+        private async Task<(string naziv, string originalniNaziv)> UploadFileAsync(IFormFile? file)
         {
-            if (file == null) return null;
+            if (file == null) return (null, null);
 
             var uploadResponse = await _fileService.UploadAsync(file);
             if (!uploadResponse.Error)
             {
-                return uploadResponse.Blob.Name;
+                return (uploadResponse.Blob.Name, file.FileName);
             }
             else
             {

@@ -130,11 +130,17 @@ class _ScholarshipApplicationDetailsDialogState
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        Text("Dokumenti:",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        _buildDownloadButton(
-                            "Propratna dokumentacija", prijava.dokumentacija),
-                        _buildDownloadButton("CV", prijava.cv),
+                        Text(
+                          "Dokumenti:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        if (prijava.dokumenti != null &&
+                            prijava.dokumenti!.isNotEmpty)
+                          ...prijava.dokumenti!.map((dokument) =>
+                              _buildDownloadButton(
+                                  dokument.originalniNaziv ?? "Dokument", dokument.naziv))
+                        else
+                          Text("Nema dostupnih dokumenata."),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [

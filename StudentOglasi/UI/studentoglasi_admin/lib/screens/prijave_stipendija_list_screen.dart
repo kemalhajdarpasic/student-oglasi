@@ -269,21 +269,21 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
                         DataColumn(
                           label: Expanded(
                             child: Text(
-                              'Naslov',
+                              'Naziv stipendije',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
                           ),
                         ),
-                        DataColumn(
-                          label: Expanded(
-                            child: Text(
-                              'Dokumentacija',
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
+                        // DataColumn(
+                        //   label: Expanded(
+                        //     child: Text(
+                        //       'Dokumentacija',
+                        //       style: TextStyle(fontStyle: FontStyle.italic),
+                        //       textAlign: TextAlign.center,
+                        //     ),
+                        //   ),
+                        // ),
                         DataColumn(
                           label: Expanded(
                             child: Text(
@@ -314,10 +314,12 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
                       ],
                       rows: result?.result
                               .map((PrijaveStipendija e) => DataRow(cells: [
-                                    DataCell(Text(
-                                        "${e.student?.idNavigation?.ime ?? ""} ${e.student?.idNavigation?.prezime ?? ""}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold))),
+                                    DataCell(Center(
+                                      child: Text(
+                                          "${e.student?.idNavigation?.ime ?? ""} ${e.student?.idNavigation?.prezime ?? ""}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                    )),
                                     DataCell(Center(
                                         child: Text(
                                             e.student?.brojIndeksa ?? ""))),
@@ -336,37 +338,37 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
                                         ),
                                       ),
                                     ),
-                                    DataCell(
-                                      InkWell(
-                                        onTap: () {
-                                          String fileUrl =
-                                              FilePathManager.constructUrl(
-                                                  e.dokumentacija ?? '');
-                                          String fileName =
-                                              e.dokumentacija ?? '';
+                                    // DataCell(
+                                    //   InkWell(
+                                    //     onTap: () {
+                                    //       String fileUrl =
+                                    //           FilePathManager.constructUrl(
+                                    //               e.dokumentacija ?? '');
+                                    //       String fileName =
+                                    //           e.dokumentacija ?? '';
 
-                                          downloadDocument(
-                                              context, fileUrl, fileName);
-                                        },
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "Preuzmi dokument",
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Icon(Icons.download,
-                                                color: Colors.blue),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                    //       downloadDocument(
+                                    //           context, fileUrl, fileName);
+                                    //     },
+                                    //     child: Row(
+                                    //       mainAxisSize: MainAxisSize.min,
+                                    //       mainAxisAlignment:
+                                    //           MainAxisAlignment.center,
+                                    //       children: [
+                                    //         Text(
+                                    //           "Preuzmi dokument",
+                                    //           style: TextStyle(
+                                    //             color: Colors.blue,
+                                    //           ),
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //         ),
+                                    //         SizedBox(width: 8),
+                                    //         Icon(Icons.download,
+                                    //             color: Colors.blue),
+                                    //       ],
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     DataCell(Center(
                                         child: Text(e.status?.naziv ?? ""))),
                                     DataCell(Center(

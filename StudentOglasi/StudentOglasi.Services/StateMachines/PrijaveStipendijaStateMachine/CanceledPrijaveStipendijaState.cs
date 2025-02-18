@@ -19,7 +19,7 @@ namespace StudentOglasi.Services.StateMachines.PrijaveStipendijaStateMachine
         {
             var set = _context.Set<Database.PrijaveStipendija>();
 
-            var entity = await set.FirstOrDefaultAsync(e => e.StudentId == studentId && e.StipendijaId == stipendijaId);
+            var entity = await set.FirstOrDefaultAsync(e => e.StudentId == studentId && e.StipendijaID == stipendijaId);
 
             entity.Status = await _context.StatusPrijaves.FirstOrDefaultAsync(e => e.Naziv.Contains("Odobrena"));
 

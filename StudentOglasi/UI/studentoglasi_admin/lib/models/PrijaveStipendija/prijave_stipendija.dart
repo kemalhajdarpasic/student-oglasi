@@ -1,5 +1,5 @@
-
 import 'package:json_annotation/json_annotation.dart';
+import 'package:studentoglasi_admin/models/PrijavaDokumenti/prijava_dokumenti.dart';
 import 'package:studentoglasi_admin/models/StatusPrijave/statusprijave.dart';
 import 'package:studentoglasi_admin/models/Stipendija/stipendija.dart';
 import 'package:studentoglasi_admin/models/Student/student.dart';
@@ -16,10 +16,20 @@ class PrijaveStipendija {
   StatusPrijave? status;
   Stipendije? stipendija;
   Student? student;
+  List<PrijavaDokumenti>? dokumenti;
 
-
-  PrijaveStipendija(this.studentId, this.stipendijaId, this.dokumentacija,this.cv,this.prosjekOcjena,this.status,this.stipendija,this.student);
-  factory PrijaveStipendija.fromJson(Map<String, dynamic> json) => _$PrijaveStipendijaFromJson(json);
+  PrijaveStipendija(
+      this.studentId,
+      this.stipendijaId,
+      this.dokumentacija,
+      this.cv,
+      this.prosjekOcjena,
+      this.status,
+      this.stipendija,
+      this.student,
+      this.dokumenti);
+  factory PrijaveStipendija.fromJson(Map<String, dynamic> json) =>
+      _$PrijaveStipendijaFromJson(json);
 
   Map<String, dynamic> toJson() => _$PrijaveStipendijaToJson(this);
 }

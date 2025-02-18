@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentOglasi.Services.Database;
 
@@ -11,9 +12,11 @@ using StudentOglasi.Services.Database;
 namespace StudentOglasi.Services.Migrations
 {
     [DbContext(typeof(StudentoglasiContext))]
-    partial class StudentoglasiContextModelSnapshot : ModelSnapshot
+    [Migration("20250216180410_MakeProsjekOcjenaNullable")]
+    partial class MakeProsjekOcjenaNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1545,34 +1548,6 @@ namespace StudentOglasi.Services.Migrations
                         });
                 });
 
-            modelBuilder.Entity("StudentOglasi.Services.Database.PrijavaDokumenti", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Naziv")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("OriginalniNaziv")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PrijavaStipendijaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id")
-                        .HasName("PK_PrijavaDokumenti");
-
-                    b.HasIndex("PrijavaStipendijaId");
-
-                    b.ToTable("PrijavaDokumenti", (string)null);
-                });
-
             modelBuilder.Entity("StudentOglasi.Services.Database.PrijavePraksa", b =>
                 {
                     b.Property<int>("StudentId")
@@ -1679,42 +1654,97 @@ namespace StudentOglasi.Services.Migrations
 
             modelBuilder.Entity("StudentOglasi.Services.Database.PrijaveStipendija", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("StipendijaId")
+                        .HasColumnType("int")
+                        .HasColumnName("StipendijaID");
 
                     b.Property<string>("Cv")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("CV");
 
+                    b.Property<string>("Dokumentacija")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<decimal?>("ProsjekOcjena")
                         .HasColumnType("decimal(4, 2)");
 
                     b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StipendijaID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("StatusID");
 
                     b.Property<DateTime?>("VrijemePrijave")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id")
-                        .HasName("PK_PrijaveStipendija");
+                    b.HasKey("StudentId", "StipendijaId")
+                        .HasName("PK_PrijavaStipendija");
 
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex(new[] { "StipendijaID" }, "IX_PrijavaStipendija_StipendijaID");
+                    b.HasIndex(new[] { "StipendijaId" }, "IX_PrijavaStipendija_StipendijaID");
 
                     b.HasIndex(new[] { "StatusId" }, "IX_PrijaveStipendija_StatusID");
 
                     b.ToTable("PrijaveStipendija", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            StudentId = 2,
+                            StipendijaId = 3,
+                            Cv = "CV_studenta_1.pdf",
+                            Dokumentacija = "Dokumentacija_studenta_1.pdf",
+                            ProsjekOcjena = 8.5m,
+                            StatusId = 2
+                        },
+                        new
+                        {
+                            StudentId = 3,
+                            StipendijaId = 4,
+                            Cv = "CV_studenta_2.pdf",
+                            Dokumentacija = "Dokumentacija_studenta_2.pdf",
+                            ProsjekOcjena = 9.0m,
+                            StatusId = 2
+                        },
+                        new
+                        {
+                            StudentId = 6,
+                            StipendijaId = 12,
+                            Cv = "CV_studenta.pdf",
+                            Dokumentacija = "Dokumentacija_studenta.pdf",
+                            ProsjekOcjena = 8.7m,
+                            StatusId = 4
+                        },
+                        new
+                        {
+                            StudentId = 7,
+                            StipendijaId = 13,
+                            Cv = "CV_studenta.pdf",
+                            Dokumentacija = "Dokumentacija_studenta.pdf",
+                            ProsjekOcjena = 9.1m,
+                            StatusId = 2
+                        },
+                        new
+                        {
+                            StudentId = 8,
+                            StipendijaId = 3,
+                            Cv = "CV_studenta.pdf",
+                            Dokumentacija = "Dokumentacija_studenta.pdf",
+                            ProsjekOcjena = 8.0m,
+                            StatusId = 2
+                        },
+                        new
+                        {
+                            StudentId = 9,
+                            StipendijaId = 4,
+                            Cv = "CV_studenta.pdf",
+                            Dokumentacija = "Dokumentacija_studenta.pdf",
+                            ProsjekOcjena = 7.9m,
+                            StatusId = 3
+                        });
                 });
 
             modelBuilder.Entity("StudentOglasi.Services.Database.Rezervacije", b =>
@@ -3118,17 +3148,6 @@ namespace StudentOglasi.Services.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("StudentOglasi.Services.Database.PrijavaDokumenti", b =>
-                {
-                    b.HasOne("StudentOglasi.Services.Database.PrijaveStipendija", "PrijavaStipendija")
-                        .WithMany("Dokumenti")
-                        .HasForeignKey("PrijavaStipendijaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PrijavaStipendija");
-                });
-
             modelBuilder.Entity("StudentOglasi.Services.Database.PrijavePraksa", b =>
                 {
                     b.HasOne("StudentOglasi.Services.Database.Prakse", "Praksa")
@@ -3161,17 +3180,20 @@ namespace StudentOglasi.Services.Migrations
                     b.HasOne("StudentOglasi.Services.Database.StatusPrijave", "Status")
                         .WithMany("PrijaveStipendijas")
                         .HasForeignKey("StatusId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_PrijaveStipendija_StatusPrijave");
 
                     b.HasOne("StudentOglasi.Services.Database.Stipendije", "Stipendija")
                         .WithMany("PrijaveStipendijas")
-                        .HasForeignKey("StipendijaID")
-                        .IsRequired();
+                        .HasForeignKey("StipendijaId")
+                        .IsRequired()
+                        .HasConstraintName("FK_PrijavaStipendija_Stipendija_StipendijaID");
 
                     b.HasOne("StudentOglasi.Services.Database.Studenti", "Student")
                         .WithMany("PrijaveStipendijas")
                         .HasForeignKey("StudentId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_PrijavaStipendija_Student_StudentId");
 
                     b.Navigation("Status");
 
@@ -3424,11 +3446,6 @@ namespace StudentOglasi.Services.Migrations
             modelBuilder.Entity("StudentOglasi.Services.Database.Prakse", b =>
                 {
                     b.Navigation("PrijavePraksas");
-                });
-
-            modelBuilder.Entity("StudentOglasi.Services.Database.PrijaveStipendija", b =>
-                {
-                    b.Navigation("Dokumenti");
                 });
 
             modelBuilder.Entity("StudentOglasi.Services.Database.Smjerovi", b =>

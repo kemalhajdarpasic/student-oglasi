@@ -46,7 +46,7 @@ namespace StudentOglasi.Services.Services
             }
             if (search?.Stipendija != null)
             {
-                filteredQuery = filteredQuery.Where(x => x.StipendijaId == search.Stipendija);
+                filteredQuery = filteredQuery.Where(x => x.StipendijaID == search.Stipendija);
             }
 
             return filteredQuery;
@@ -59,7 +59,8 @@ namespace StudentOglasi.Services.Services
                 .Include(p => p.Student.NacinStudiranja)
                 .Include(p => p.Student.IdNavigation)
                 .Include(p => p.Status)
-                .Include(p => p.Stipendija.IdNavigation).AsQueryable();
+                .Include(p => p.Stipendija.IdNavigation)
+                .Include(p=>p.Dokumenti).AsQueryable();
 
             return base.AddInclude(query, search);
         }
@@ -67,7 +68,7 @@ namespace StudentOglasi.Services.Services
         {
             var set = _context.Set<Database.PrijaveStipendija>();
 
-            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.StipendijaId == stipendijaId);
+            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.StipendijaID == stipendijaId);
             entity.Status = await _context.StatusPrijaves.FindAsync(entity.StatusId);
             var state = _baseState.CreateState(entity.Status.Naziv);
 
@@ -78,7 +79,7 @@ namespace StudentOglasi.Services.Services
         {
             var set = _context.Set<Database.PrijaveStipendija>();
 
-            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.StipendijaId == stipendijaId);
+            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.StipendijaID == stipendijaId);
             entity.Status = await _context.StatusPrijaves.FindAsync(entity.StatusId);
             var state = _baseState.CreateState(entity.Status.Naziv);
 
@@ -88,7 +89,7 @@ namespace StudentOglasi.Services.Services
         {
             var set = _context.Set<Database.PrijaveStipendija>();
 
-            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.StipendijaId == stipendijaId);
+            var entity = await set.FirstOrDefaultAsync(p => p.StudentId == studentId && p.StipendijaID == stipendijaId);
             entity.Status = await _context.StatusPrijaves.FindAsync(entity.StatusId);
             var state = _baseState.CreateState(entity.Status.Naziv ?? "Na cekanju");
             return await state.AllowedActions();
@@ -106,7 +107,8 @@ namespace StudentOglasi.Services.Services
                 .Include(p => p.Student.NacinStudiranja)
                 .Include(p => p.Student.Smjer)
                 .Include(p => p.Student.IdNavigation)
-                .Include(p => p.Status).ToList();
+                .Include(p => p.Status)
+                .Include(p => p.Dokumenti).ToList();
 
 
             return _mapper.Map<List<Model.PrijaveStipendija>>(entity);
@@ -122,7 +124,7 @@ namespace StudentOglasi.Services.Services
                 .Include(p => p.Status)
                 .Include(p => p.Stipendija)
                 .Include(p => p.Stipendija.IdNavigation)
-                .Where(p => p.StipendijaId == stipendijaId)
+                .Where(p => p.StipendijaID == stipendijaId)
                 .ToListAsync();
 
             var stipendija = await _context.Stipendijes
@@ -178,7 +180,6 @@ namespace StudentOglasi.Services.Services
                 table.AddCell("Broj indeksa");
                 table.AddCell("Ime i prezime");
                 table.AddCell("CV");
-                table.AddCell("Dokumentacija");
                 table.AddCell("Prosjek ocjena");
 
                 foreach (var prijava in prijave)
@@ -186,7 +187,6 @@ namespace StudentOglasi.Services.Services
                     table.AddCell(prijava.Student.BrojIndeksa);
                     table.AddCell($"{prijava.Student.IdNavigation.Ime} {prijava.Student.IdNavigation.Prezime}");
                     table.AddCell(prijava.Cv ?? "N/A");
-                    table.AddCell(prijava.Dokumentacija?.ToString() ?? "N/A");
                     table.AddCell(prijava.ProsjekOcjena.ToString() ?? "N/A");
                 }
 

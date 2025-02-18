@@ -141,32 +141,46 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   Future<T> insertFileMultipartData(Map<String, dynamic> formData) async {
     var url = "$_baseUrl$_endPoint";
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse(url),
-    );
+    var request = http.MultipartRequest('POST', Uri.parse(url));
 
     request.headers.addAll(createHeaders());
+    
+    List<String>? fileNames = formData['dokumentacija_imena'] as List<String>?;
 
     for (var key in formData.keys) {
       var value = formData[key];
-      if (value is String && value.contains('/')) {
+
+      if (key == 'dokumentacija' && value is List) {
+        for (int i = 0; i < value.length; i++) {
+          var file = value[i];
+          var fileName = fileNames != null && fileNames.length > i 
+              ? fileNames[i] 
+              : 'dokument_$i.pdf'; 
+
+          if (file is String && file.contains('/')) {
+            var fileName = file.split('/').last;
+            request.files.add(await http.MultipartFile.fromPath(
+                'dokumentacija', file,
+                filename: fileName)); 
+          } else if (file is Uint8List) {
+            request.files.add(http.MultipartFile.fromBytes(
+                'dokumentacija', file, filename: fileName));
+          }
+        }
+      } else if (value is String && value.contains('/')) {
         request.files.add(await http.MultipartFile.fromPath(key, value));
       } else if (value is Uint8List) {
         request.files.add(
             http.MultipartFile.fromBytes(key, value, filename: '$key.pdf'));
-      } 
-      /*else if (value is double) {
-        String formattedValue = value.toStringAsFixed(2).replaceAll('.', ',');
-        request.fields[key] = formattedValue;
-      }*/
-      else {
+      } else {
         request.fields[key] = value.toString();
       }
     }
 
+    print("Request fields: ${request.fields}");
+    print("Request files: ${request.files.map((f) => f.field).toList()}");
     print(
-        'Request fields: ${request.fields}');
+        "Request files names: ${request.files.map((f) => f.filename).toList()}");
 
     var response = await _httpClient.send(request);
 

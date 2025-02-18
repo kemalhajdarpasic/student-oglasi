@@ -36,8 +36,6 @@ class _PrijavaStipendijaDetailsDialogState
     _PrijavaStipendijaProvider = context.read<PrijaveStipendijaProvider>();
 
     _initialValue = {
-      'dokumentacija': widget.prijaveStipendija?.dokumentacija,
-      'cv': widget.prijaveStipendija?.cv,
       'prosjekOcjena': widget.prijaveStipendija?.prosjekOcjena.toString(),
       'student.brojIndeksa': widget.prijaveStipendija?.student?.brojIndeksa,
       'student.fakultet': widget.prijaveStipendija?.student?.fakultet?.naziv,
@@ -60,8 +58,7 @@ class _PrijavaStipendijaDetailsDialogState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.title ?? ''),
-          SizedBox(
-              height: 8.0),
+          SizedBox(height: 8.0),
           Text(
             'Praksa: ${widget.prijaveStipendija?.stipendija?.idNavigation?.naslov}',
             style: TextStyle(
@@ -69,8 +66,7 @@ class _PrijavaStipendijaDetailsDialogState
               color: Colors.blue,
             ),
           ),
-          SizedBox(
-              height: 8.0),
+          SizedBox(height: 8.0),
           Text(
             'Status prijave: ${widget.prijaveStipendija?.status?.naziv}',
             style: TextStyle(
@@ -87,80 +83,6 @@ class _PrijavaStipendijaDetailsDialogState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      width: 400,
-                      child: Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          FormBuilderTextField(
-                            name: 'dokumentacija',
-                            decoration: InputDecoration(
-                              labelText: 'Dokumentacija',
-                              labelStyle: TextStyle(color: Colors.blue),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                              ),
-                            ),
-                            enabled: false,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.download,
-                                color: Colors.blue),
-                            onPressed: () {
-                              String fileUrl = FilePathManager.constructUrl(
-                                  widget.prijaveStipendija?.dokumentacija ?? '');
-                              String fileName =
-                                  widget.prijaveStipendija?.dokumentacija ?? '';
-
-                              downloadDocument(context, fileUrl, fileName);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  Expanded(
-                    child: Container(
-                      width: 400,
-                      child: Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          FormBuilderTextField(
-                            name: 'cv',
-                            decoration: InputDecoration(
-                              labelText: 'CV',
-                              labelStyle: TextStyle(color: Colors.blue),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                              ),
-                            ),
-                            enabled: false,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.download,
-                                color: Colors.blue),
-                            onPressed: () {
-                              String fileUrl =
-                                  FilePathManager.constructUrl(widget.prijaveStipendija?.cv ?? '');
-                              String fileName = widget.prijaveStipendija?.cv ?? '';
-
-                              downloadDocument(context, fileUrl, fileName);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               SizedBox(height: 10),
               Row(
                 children: [
@@ -279,6 +201,56 @@ class _PrijavaStipendijaDetailsDialogState
                       ),
                     ),
                   ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dokumenti:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  if (widget.prijaveStipendija?.dokumenti != null &&
+                      widget.prijaveStipendija!.dokumenti!.isNotEmpty)
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children:
+                              widget.prijaveStipendija!.dokumenti!.map((dok) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: TextButton.icon(
+                                icon: Icon(Icons.download, color: Colors.blue),
+                                label: Text(
+                                    dok.originalniNaziv ?? 'Nepoznato ime'),
+                                onPressed: () {
+                                  String fileUrl = FilePathManager.constructUrl(
+                                      dok.naziv ?? '');
+                                  String fileName =
+                                      dok.originalniNaziv ?? 'dokument';
+                                  downloadDocument(context, fileUrl, fileName);
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        'Nema dostupnih dokumenata',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
                 ],
               )
             ],

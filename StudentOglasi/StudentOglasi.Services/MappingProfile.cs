@@ -58,6 +58,7 @@ namespace StudentOglasi.Services
             CreateMap<Model.Requests.SlikeInsertRequest, Database.Slike>()
                 .ForMember(dest => dest.Naziv, opt => opt.Ignore()); ;
             CreateMap<Database.PrijaveStipendija, Model.PrijaveStipendija>();
+            CreateMap<Database.PrijavaDokumenti, Model.PrijavaDokumenti>();
             CreateMap<Model.Requests.PrijaveStipendijaInsertRequest, Database.PrijaveStipendija>();
             CreateMap<Model.Requests.PrijaveStipendijaUpdateRequest, Database.PrijaveStipendija>();
             CreateMap<Database.PrijavePraksa, Model.PrijavePraksa>();

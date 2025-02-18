@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentOglasi.Services.Database;
 
@@ -11,9 +12,11 @@ using StudentOglasi.Services.Database;
 namespace StudentOglasi.Services.Migrations
 {
     [DbContext(typeof(StudentoglasiContext))]
-    partial class StudentoglasiContextModelSnapshot : ModelSnapshot
+    [Migration("20250216201134_AddPrijaveDokumentiTable")]
+    partial class AddPrijaveDokumentiTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1557,10 +1560,6 @@ namespace StudentOglasi.Services.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("OriginalniNaziv")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PrijavaStipendijaId")
                         .HasColumnType("int");

@@ -74,7 +74,9 @@ public partial class StudentoglasiContext : DbContext
 
     public virtual DbSet<Univerziteti> Univerzitetis { get; set; }
 
-protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public virtual DbSet<PrijavaDokumenti> PrijavaDokumentis { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
@@ -371,37 +373,46 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
         modelBuilder.Entity<PrijaveStipendija>(entity =>
         {
-            entity.HasKey(e => new { e.StudentId, e.StipendijaId }).HasName("PK_PrijavaStipendija");
+            entity.HasKey(e => e.Id).HasName("PK_PrijaveStipendija");
 
             entity.ToTable("PrijaveStipendija");
 
-            entity.HasIndex(e => e.StipendijaId, "IX_PrijavaStipendija_StipendijaID");
-
+            entity.HasIndex(e => e.StipendijaID, "IX_PrijavaStipendija_StipendijaID");
             entity.HasIndex(e => e.StatusId, "IX_PrijaveStipendija_StatusID");
 
-            entity.Property(e => e.StipendijaId).HasColumnName("StipendijaID");
-            entity.Property(e => e.Cv)
-                .HasMaxLength(100)
-                .HasColumnName("CV");
-            entity.Property(e => e.Dokumentacija).HasMaxLength(100);
+            entity.Property(e => e.Cv).HasMaxLength(100).HasColumnName("CV");
             entity.Property(e => e.ProsjekOcjena).HasColumnType("decimal(4, 2)");
-            entity.Property(e => e.StatusId).HasColumnName("StatusID");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.PrijaveStipendijas)
+            entity.HasOne(d => d.Status)
+                .WithMany(p => p.PrijaveStipendijas)
                 .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PrijaveStipendija_StatusPrijave");
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Stipendija).WithMany(p => p.PrijaveStipendijas)
-                .HasForeignKey(d => d.StipendijaId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PrijavaStipendija_Stipendija_StipendijaID");
+            entity.HasOne(d => d.Stipendija)
+                .WithMany(p => p.PrijaveStipendijas)
+                .HasForeignKey(d => d.StipendijaID)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Student).WithMany(p => p.PrijaveStipendijas)
+            entity.HasOne(d => d.Student)
+                .WithMany(p => p.PrijaveStipendijas)
                 .HasForeignKey(d => d.StudentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PrijavaStipendija_Student_StudentId");
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
+
+        modelBuilder.Entity<PrijavaDokumenti>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PrijavaDokumenti");
+
+            entity.ToTable("PrijavaDokumenti");
+
+            entity.Property(e => e.Naziv).IsRequired().HasMaxLength(100);
+
+            entity.HasOne(d => d.PrijavaStipendija)
+                .WithMany(p => p.Dokumenti)
+                .HasForeignKey(d => d.PrijavaStipendijaId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
 
         modelBuilder.Entity<Rezervacije>(entity =>
         {
@@ -1491,14 +1502,14 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             new PrijavePraksa { StudentId = 9, PraksaId = 2, PropratnoPismo = "Propratno_pismo.pdf", Cv = "CV_studenta.pdf", Certifikati = "Certifikati_studenta.pdf", StatusId = 4 }
             );
 
-        modelBuilder.Entity<PrijaveStipendija>().HasData(
-            new PrijaveStipendija { StudentId = 2, StipendijaId = 3, Dokumentacija = "Dokumentacija_studenta_1.pdf", Cv = "CV_studenta_1.pdf", ProsjekOcjena = 8.5m, StatusId = 2 },
-            new PrijaveStipendija { StudentId = 3, StipendijaId = 4, Dokumentacija = "Dokumentacija_studenta_2.pdf", Cv = "CV_studenta_2.pdf", ProsjekOcjena = 9.0m, StatusId = 2 },
-            new PrijaveStipendija { StudentId = 6, StipendijaId = 12, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 8.7m, StatusId = 4 },
-            new PrijaveStipendija { StudentId = 7, StipendijaId = 13, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 9.1m, StatusId = 2 },
-            new PrijaveStipendija { StudentId = 8, StipendijaId = 3, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 8.0m, StatusId = 2 },
-            new PrijaveStipendija { StudentId = 9, StipendijaId = 4, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 7.9m, StatusId = 3 }
-            );
+        //modelBuilder.Entity<PrijaveStipendija>().HasData(
+        //    new PrijaveStipendija { StudentId = 2, StipendijaId = 3, Dokumentacija = "Dokumentacija_studenta_1.pdf", Cv = "CV_studenta_1.pdf", ProsjekOcjena = 8.5m, StatusId = 2 },
+        //    new PrijaveStipendija { StudentId = 3, StipendijaId = 4, Dokumentacija = "Dokumentacija_studenta_2.pdf", Cv = "CV_studenta_2.pdf", ProsjekOcjena = 9.0m, StatusId = 2 },
+        //    new PrijaveStipendija { StudentId = 6, StipendijaId = 12, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 8.7m, StatusId = 4 },
+        //    new PrijaveStipendija { StudentId = 7, StipendijaId = 13, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 9.1m, StatusId = 2 },
+        //    new PrijaveStipendija { StudentId = 8, StipendijaId = 3, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 8.0m, StatusId = 2 },
+        //    new PrijaveStipendija { StudentId = 9, StipendijaId = 4, Dokumentacija = "Dokumentacija_studenta.pdf", Cv = "CV_studenta.pdf", ProsjekOcjena = 7.9m, StatusId = 3 }
+        //    );
 
         modelBuilder.Entity<Rezervacije>().HasData(
             new Rezervacije

@@ -22,6 +22,9 @@ PrijaveStipendija _$PrijaveStipendijaFromJson(Map<String, dynamic> json) =>
       json['student'] == null
           ? null
           : Student.fromJson(json['student'] as Map<String, dynamic>),
+      (json['dokumenti'] as List<dynamic>?)
+          ?.map((e) => PrijavaDokumenti.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$PrijaveStipendijaToJson(PrijaveStipendija instance) =>
@@ -34,4 +37,5 @@ Map<String, dynamic> _$PrijaveStipendijaToJson(PrijaveStipendija instance) =>
       'status': instance.status,
       'stipendija': instance.stipendija,
       'student': instance.student,
+      'dokumenti': instance.dokumenti,
     };

@@ -12,11 +12,10 @@ namespace StudentOglasi.Model.Requests
     {
         public int StipendijaId { get; set; }
 
-        public IFormFile? Dokumentacija { get; set; }
+        public List<IFormFile>? Dokumentacija { get; set; }
 
         public IFormFile? Cv { get; set; }
 
-        [Range(6, 10, ErrorMessage = "ProsjekOcjena must be between 6 and 10.")]
         public decimal? ProsjekOcjena { get; set; }
 
     }

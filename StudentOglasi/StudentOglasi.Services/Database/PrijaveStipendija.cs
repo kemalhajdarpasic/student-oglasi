@@ -5,15 +5,16 @@ namespace StudentOglasi.Services.Database;
 
 public partial class PrijaveStipendija
 {
+    public int Id { get; set; }
     public int StudentId { get; set; }
 
-    public int StipendijaId { get; set; }
+    public int StipendijaID { get; set; }
 
-    public string Dokumentacija { get; set; } = null!;
+    public virtual ICollection<PrijavaDokumenti> Dokumenti { get; set; } = new List<PrijavaDokumenti>();
 
     public string? Cv { get; set; }
 
-    public decimal ProsjekOcjena { get; set; }
+    public decimal? ProsjekOcjena { get; set; }
 
     public DateTime? VrijemePrijave { get; set; }
 
