@@ -5,6 +5,7 @@ import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/accommodation_unit_card.dart';
 import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/image_viewer.dart';
 import 'package:studentoglasi_mobile/widgets/star_rating.dart';
 
 class DesktopAccommodationDetailsLayout extends StatelessWidget {
@@ -23,7 +24,7 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     var studentiProvider =
         Provider.of<StudentiProvider>(context, listen: false);
-        
+
     return SingleChildScrollView(
       child: Center(
         child: ConstrainedBox(
@@ -41,16 +42,15 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                         smjestaj.naziv ?? 'Naziv nije dostupan',
                         style: TextStyle(
                             fontSize: 28, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow
-                            .ellipsis, 
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
                         if (!studentiProvider.isLoggedIn) {
-                        Navigator.of(context).pushNamed('/login');
-                        return;
-                      }
+                          Navigator.of(context).pushNamed('/login');
+                          return;
+                        }
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -131,14 +131,24 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                 padding: const EdgeInsets.all(8.0),
                                 child: smjestaj.slikes != null &&
                                         smjestaj.slikes!.isNotEmpty
-                                    ? ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        child: Image.network(
-                                          FilePathManager.constructUrl(
-                                              smjestaj.slikes!.first.naziv!),
-                                          fit: BoxFit.cover,
-                                          height: double.infinity,
+                                    ? InkWell(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => ImageViewer(
+                                              images: smjestaj.slikes!,
+                                            ),
+                                          );
+                                        },
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16.0),
+                                          child: Image.network(
+                                            FilePathManager.constructUrl(
+                                                smjestaj.slikes!.first.naziv!),
+                                            fit: BoxFit.cover,
+                                            height: double.infinity,
+                                          ),
                                         ),
                                       )
                                     : Container(
@@ -161,21 +171,35 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Row(
-                                      children: [
-                                        Expanded(
+                                      children: List.generate(
+                                        2,
+                                        (index) => Expanded(
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
-                                            child: smjestaj.slikes!.length > 1
-                                                ? ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                    child: Image.network(
-                                                      FilePathManager
-                                                          .constructUrl(smjestaj
-                                                              .slikes![1]
-                                                              .naziv!),
-                                                      fit: BoxFit.cover,
+                                            child: smjestaj.slikes!.length > index + 1
+                                                ? InkWell(
+                                                    onTap: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) =>
+                                                            ImageViewer(
+                                                          images:
+                                                              smjestaj.slikes!,
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(12.0),
+                                                        image: DecorationImage(
+                                                          image: NetworkImage(
+                                                            FilePathManager.constructUrl(
+                                                                smjestaj.slikes![index + 1].naziv!),
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
                                                     ),
                                                   )
                                                 : Container(
@@ -184,62 +208,68 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                                       child: Text(
                                                         'Nema slike',
                                                         style: TextStyle(
-                                                            color: Colors
-                                                                .grey[600]),
+                                                            color: Colors.grey[600]),
                                                       ),
                                                     ),
                                                   ),
                                           ),
                                         ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: smjestaj.slikes!.length > 2
-                                                ? ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                    child: Image.network(
-                                                      FilePathManager
-                                                          .constructUrl(smjestaj
-                                                              .slikes![2]
-                                                              .naziv!),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  )
-                                                : Container(
-                                                    color: Colors.grey[200],
-                                                    child: Center(
-                                                      child: Text(
-                                                        'Nema slike',
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .grey[600]),
-                                                      ),
-                                                    ),
-                                                  ),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                   Expanded(
                                     child: Row(
-                                      children: [
-                                        Expanded(
+                                      children: List.generate(
+                                        2,
+                                        (index) => Expanded(
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
-                                            child: smjestaj.slikes!.length > 3
-                                                ? ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                    child: Image.network(
-                                                      FilePathManager
-                                                          .constructUrl(smjestaj
-                                                              .slikes![3]
-                                                              .naziv!),
-                                                      fit: BoxFit.cover,
+                                            child: smjestaj.slikes!.length > index + 3
+                                                ? InkWell(
+                                                    onTap: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) =>
+                                                            ImageViewer(
+                                                          images:
+                                                              smjestaj.slikes!,
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Stack(
+                                                      children: [
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius.circular(12.0),
+                                                            image: DecorationImage(
+                                                              image: NetworkImage(
+                                                                FilePathManager.constructUrl(
+                                                                    smjestaj.slikes![index + 3].naziv!),
+                                                              ),
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        if (index + 3 == 4 && smjestaj.slikes!.length > 5)
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.black54,
+                                                              borderRadius:
+                                                                  BorderRadius.circular(12.0),
+                                                            ),
+                                                            child: Center(
+                                                              child: Text(
+                                                                "+${smjestaj.slikes!.length - 5} slika",
+                                                                style: TextStyle(
+                                                                  color: Colors.white,
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
                                                     ),
                                                   )
                                                 : Container(
@@ -248,43 +278,13 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                                                       child: Text(
                                                         'Nema slike',
                                                         style: TextStyle(
-                                                            color: Colors
-                                                                .grey[600]),
+                                                            color: Colors.grey[600]),
                                                       ),
                                                     ),
                                                   ),
                                           ),
                                         ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: smjestaj.slikes!.length > 4
-                                                ? ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                    child: Image.network(
-                                                      FilePathManager
-                                                          .constructUrl(smjestaj
-                                                              .slikes![4]
-                                                              .naziv!),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  )
-                                                : Container(
-                                                    color: Colors.grey[200],
-                                                    child: Center(
-                                                      child: Text(
-                                                        'Nema slike',
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .grey[600]),
-                                                      ),
-                                                    ),
-                                                  ),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -304,6 +304,7 @@ class DesktopAccommodationDetailsLayout extends StatelessWidget {
                           ),
                         ),
                       ),
+
                 SizedBox(height: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

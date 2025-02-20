@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:studentoglasi_mobile/models/Oglas/oglas.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/screens/components/comments_screen.dart';
@@ -57,8 +58,8 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     var studentiProvider =
-          Provider.of<StudentiProvider>(context, listen: false);
-          
+        Provider.of<StudentiProvider>(context, listen: false);
+
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
       return Scaffold(
@@ -87,38 +88,106 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      widget.scholarship.idNavigation?.slika != null
-                          ? Image.network(
-                              FilePathManager.constructUrl(
-                                  widget.scholarship.idNavigation!.slika!),
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: double.infinity,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(10),
+                      Stack(
+                        children: [
+                          widget.scholarship.idNavigation?.slika != null
+                              ? Image.network(
+                                  FilePathManager.constructUrl(
+                                      widget.scholarship.idNavigation!.slika!),
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  width: double.infinity,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image,
+                                        size: 100,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 20),
+                                      Text(
+                                        'Nema dostupne slike',
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                if (!studentiProvider.isLoggedIn) {
+                                  Navigator.of(context).pushNamed('/login');
+                                  return;
+                                }
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(
+                                      'Ocijenite stipendiju',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        StarRatingWidget(
+                                          postId: widget.scholarship.id!,
+                                          postType: ItemType.scholarship,
+                                          onRatingChanged: _fetchAverageRatings,
+                                          iconSize: 45,
+                                        ),
+                                        SizedBox(height: 10),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Loše',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                )),
+                                            Text('Odlično',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                )),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.star_rate, color: Colors.white),
+                              label: Text(
+                                'Ocijeni',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.image,
-                                    size: 100,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(height: 20),
-                                  Text(
-                                    'Nema dostupne slike',
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.grey),
-                                  ),
-                                ],
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 5,
                               ),
                             ),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 8),
                       Row(
                         children: [
@@ -173,79 +242,112 @@ class _ScholarshipDetailsScreenState extends State<ScholarshipDetailsScreen> {
                         widget.scholarship.idNavigation?.opis ?? 'Nema opisa',
                         style: TextStyle(fontSize: 16),
                       ),
-                      SizedBox(height: 16),
-                      Text('Uslovi:',
+                      SizedBox(height: 25),
+                      Text(
+                        'Uslovi i kriteriji',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                        thickness: 1,
+                      ),
+                      SizedBox(height: 8),
+                      Text('Uslovi',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('${widget.scholarship.uslovi ?? 'N/A'}'),
                       SizedBox(height: 8),
-                      Text('Iznos:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                          '${widget.scholarship.iznos != null ? widget.scholarship.iznos.toString() : 'N/A'}'),
-                      SizedBox(height: 8),
-                      Text('Kriterij:',
+                      Text('Kriterij',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('${widget.scholarship.kriterij ?? 'N/A'}'),
                       SizedBox(height: 8),
-                      Text('Potrebna dokumentacija:',
+                      Text('Potrebna dokumentacija',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text(
                           '${widget.scholarship.potrebnaDokumentacija ?? 'N/A'}'),
-                      SizedBox(height: 8),
-                      Text('Izvor:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('${widget.scholarship.izvor ?? 'N/A'}'),
-                      SizedBox(height: 8),
-                      Text('Nivo obrazovanja:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('${widget.scholarship.brojStipendisata ?? 'N/A'}'),
-                      SizedBox(height: 8),
-                      Text('Broj stipendista:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      SizedBox(height: 25),
                       Text(
-                          '${widget.scholarship.brojStipendisata != null ? widget.scholarship.brojStipendisata.toString() : 'N/A'}'),
+                        'Dodatne informacije',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                        thickness: 1,
+                      ),
                       SizedBox(height: 8),
-                      Text('Stipenditor:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('${widget.scholarship.stipenditor?.naziv ?? 'N/A'}'),
+                      _buildInfoRow('Izvor: ',
+                          widget.scholarship.izvor?.toString() ?? 'N/A'),
+                      _buildInfoRow(
+                          'Nivo obrazovanja: ',
+                          widget.scholarship.nivoObrazovanja?.toString() ??
+                              'N/A'),
+                      _buildInfoRow(
+                          'Broj stipendista: ',
+                          widget.scholarship.brojStipendisata?.toString() ??
+                              'N/A'),
+                      _buildInfoRow('Stipenditor: ',
+                          widget.scholarship.stipenditor?.naziv ?? 'N/A'),
+                      _buildInfoRow(
+                          'Iznos: ',
+                          widget.scholarship.iznos != null
+                              ? '${widget.scholarship.iznos} KM'
+                              : 'N/A'),
+                      _buildInfoRow(
+                        'Rok prijave: ',
+                        widget.scholarship.idNavigation?.rokPrijave != null
+                            ? DateFormat('dd.MM.yyyy').format(
+                                widget.scholarship.idNavigation!.rokPrijave!)
+                            : 'Nema datuma',
+                      ),
                       SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: StarRatingWidget(
-                              postId: widget.scholarship.id!,
-                              postType: ItemType.scholarship,
-                              onRatingChanged: _fetchAverageRatings,
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (!studentiProvider.isLoggedIn) {
-                                  Navigator.of(context).pushNamed('/login');
-                                  return;
-                                }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        PrijavaStipendijaFormScreen(
-                                      scholarship: widget.scholarship,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Text('Prijavi se'),
-                            ),
-                          ),
-                        ],
-                      )
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (!studentiProvider.isLoggedIn) {
+                              Navigator.of(context).pushNamed('/login');
+                              return;
+                            }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    PrijavaStipendijaFormScreen(
+                                  scholarship: widget.scholarship,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text('Prijavi se'),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
       );
     });
+  }
+
+  Widget _buildInfoRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            value,
+            style: TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -70,9 +70,9 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-     var studentiProvider =
-          Provider.of<StudentiProvider>(context, listen: false);
-          
+    var studentiProvider =
+        Provider.of<StudentiProvider>(context, listen: false);
+
     return LayoutBuilder(builder: (context, constraints) {
       final bool isDesktop = constraints.maxWidth > 900;
       return Scaffold(
@@ -101,38 +101,106 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      widget.internship.idNavigation?.slika != null
-                          ? Image.network(
-                              FilePathManager.constructUrl(
-                                  widget.internship.idNavigation!.slika!),
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: double.infinity,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(10),
+                      Stack(
+                        children: [
+                          widget.internship.idNavigation?.slika != null
+                              ? Image.network(
+                                  FilePathManager.constructUrl(
+                                      widget.internship.idNavigation!.slika!),
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  width: double.infinity,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image,
+                                        size: 100,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 20),
+                                      Text(
+                                        'Nema dostupne slike',
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                if (!studentiProvider.isLoggedIn) {
+                                  Navigator.of(context).pushNamed('/login');
+                                  return;
+                                }
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(
+                                      'Ocijenite praksu',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        StarRatingWidget(
+                                          postId: widget.internship.id!,
+                                          postType: ItemType.internship,
+                                          onRatingChanged: _fetchAverageRatings,
+                                          iconSize: 45,
+                                        ),
+                                        SizedBox(height: 10),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Loše',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                )),
+                                            Text('Odlično',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                )),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.star_rate, color: Colors.white),
+                              label: Text(
+                                'Ocijeni',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.image,
-                                    size: 100,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(height: 20),
-                                  Text(
-                                    'Nema dostupne slike',
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.grey),
-                                  ),
-                                ],
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 5,
                               ),
                             ),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 8),
                       Row(
                         children: [
@@ -185,26 +253,31 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
                       Text(
                           '${widget.internship.idNavigation?.opis ?? 'Nema opisa'}',
                           style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 8),
-                      Text('Rok prijave:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      SizedBox(height: 25),
                       Text(
-                          '${widget.internship.idNavigation?.rokPrijave != null ? DateFormat('dd MM yyyy').format(widget.internship.idNavigation!.rokPrijave) : 'Nema dostupnog datuma'}'),
+                        'Pogodnosti i zahtjevi',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                        thickness: 1,
+                      ),
                       SizedBox(height: 8),
-                      Text('Pocetak prakse:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                          '${praksa?.pocetakPrakse != null ? DateFormat('dd MM yyyy').format(praksa!.pocetakPrakse!) : 'Nema dostupnog datuma'}'),
-                      SizedBox(height: 8),
-                      Text('Kraj prakse:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                          '${praksa?.krajPrakse != null ? DateFormat('dd MM yyyy').format(praksa!.krajPrakse!) : 'Nema dostupnog datuma'}'),
-                      SizedBox(height: 8),
-                      Text('Organizacija:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                          '${praksa?.organizacija?.naziv ?? 'Nema dostupnog naziva organizacije'}'),
+                      Row(
+                        children: [
+                          Text(
+                            'Organizacija: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '${praksa?.organizacija?.naziv ?? 'Nema dostupnog naziva organizacije'}',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 8),
                       Row(
                         children: [
@@ -212,51 +285,74 @@ class _InternshipDetailsScreenState extends State<InternshipDetailsScreen> {
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           SizedBox(width: 8),
                           praksa?.placena == true
-                              ? Icon(Icons.check_circle,
-                                  color: Colors.green, size: 24)
-                              : Icon(Icons.cancel, color: Colors.red, size: 24),
+                              ? Icon(Icons.check, size: 24)
+                              : Icon(Icons.close, size: 24),
                         ],
                       ),
                       SizedBox(height: 8),
-                      Text('Benefiti:',
+                      Text('Benefiti',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('${praksa?.benefiti ?? 'Nema benefita'}'),
                       SizedBox(height: 8),
-                      Text('Kvalifikacije:',
+                      Text('Kvalifikacije',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('${praksa?.kvalifikacije ?? 'Nema kvalifikacija'}'),
-                      SizedBox(height: 16),
+                      SizedBox(height: 25),
+                      Text(
+                        'Rok prijave i početak prakse',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                        thickness: 1,
+                      ),
                       Row(
                         children: [
-                          Expanded(
-                            child: StarRatingWidget(
-                              postId: widget.internship.id!,
-                              postType: ItemType.internship,
-                              onRatingChanged: _fetchAverageRatings,
-                            ),
+                          Text(
+                            'Trajanje prakse: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (!studentiProvider.isLoggedIn) {
-                                  Navigator.of(context).pushNamed('/login');
-                                  return;
-                                }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        PrijavaPraksaFormScreen(
-                                      internship: widget.internship,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Text('Prijavi se'),
-                            ),
+                          Text(
+                            '${DateFormat('dd.MM.yyyy').format(praksa!.pocetakPrakse!)} - ${DateFormat('dd.MM.yyyy').format(praksa!.krajPrakse)}',
+                            style: TextStyle(fontSize: 14),
                           ),
                         ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text(
+                            'Rok prijave: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '${widget.internship.idNavigation?.rokPrijave != null ? DateFormat('dd MM yyyy').format(widget.internship.idNavigation!.rokPrijave) : 'Nema dostupnog datuma'}',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (!studentiProvider.isLoggedIn) {
+                              Navigator.of(context).pushNamed('/login');
+                              return;
+                            }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PrijavaPraksaFormScreen(
+                                  internship: widget.internship,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text('Prijavi se'),
+                        ),
                       ),
                     ],
                   ),
