@@ -7,6 +7,7 @@ import 'package:studentoglasi_mobile/utils/item_type.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
 import 'package:studentoglasi_mobile/widgets/like_button.dart';
 import 'package:collection/collection.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/news/desktop_news_category.dart';
 
 class DesktopHomepage extends StatelessWidget {
   final objave;
@@ -94,7 +95,8 @@ class DesktopHomepage extends StatelessWidget {
                                               Row(
                                                 children: [
                                                   IconButton(
-                                                    icon: Icon(Icons.comment_outlined,
+                                                    icon: Icon(
+                                                        Icons.comment_outlined,
                                                         color: Colors.white),
                                                     onPressed: () {
                                                       Navigator.push(
@@ -239,7 +241,8 @@ class DesktopHomepage extends StatelessWidget {
                                                       children: [
                                                         IconButton(
                                                           icon: Icon(
-                                                              Icons.comment_outlined,
+                                                              Icons
+                                                                  .comment_outlined,
                                                               color:
                                                                   Colors.white),
                                                           onPressed: () {
@@ -384,7 +387,8 @@ class DesktopHomepage extends StatelessWidget {
                                                       children: [
                                                         IconButton(
                                                           icon: Icon(
-                                                              Icons.comment_outlined,
+                                                              Icons
+                                                                  .comment_outlined,
                                                               color:
                                                                   Colors.white),
                                                           onPressed: () {
@@ -461,7 +465,7 @@ class DesktopHomepage extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 40),
                 if (objave != null && objave!.result.isNotEmpty) ...[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,12 +475,44 @@ class DesktopHomepage extends StatelessWidget {
                               (Objava objava) =>
                                   objava.kategorija?.naziv ?? 'Nepoznato')
                           .entries) ...[
-                        Text(
-                          entry.key,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DesktopNewsCategoryScreen(
+                                      kategorija: entry.value.first.kategorija!,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                              entry.key,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DesktopNewsCategoryScreen(
+                                      kategorija: entry.value.first.kategorija!,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text("Pogledaj sve"),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 8),
                         Row(
@@ -559,7 +595,7 @@ class DesktopHomepage extends StatelessWidget {
                             },
                           ),
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 30),
                       ],
                     ],
                   ),

@@ -10,5 +10,6 @@ namespace StudentOglasi.Model.SearchObjects
     {
         public string? Naslov { get; set; }
         public int? KategorijaID { get; set; }
+        public string? Sort { get; set; }
     }
 }

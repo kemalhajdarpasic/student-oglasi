@@ -125,7 +125,7 @@ class _MobileInternshipsLayoutState extends State<MobileInternshipsLayout> {
               ),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: _showSortOptions, 
+                  onPressed: _showSortOptions,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(horizontal: 16),

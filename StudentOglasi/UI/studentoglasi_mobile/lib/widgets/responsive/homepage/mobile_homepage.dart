@@ -4,6 +4,7 @@ import 'package:studentoglasi_mobile/models/Objava/objava.dart';
 import 'package:studentoglasi_mobile/models/search_result.dart';
 import 'package:studentoglasi_mobile/screens/news_details_screen.dart';
 import 'package:studentoglasi_mobile/utils/util.dart';
+import 'package:studentoglasi_mobile/widgets/responsive/news/mobile_news_category.dart';
 
 class MobileHomepage extends StatefulWidget {
   final SearchResult<Objava>? objave;
@@ -66,9 +67,42 @@ class _MobileHomepageState extends State<MobileHomepage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 8.0),
-                  child: Text(
-                    categoryName,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MobileNewsCategoryScreen(
+                                kategorija: entry.value.first.kategorija!,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          categoryName,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MobileNewsCategoryScreen(
+                                kategorija: entry.value.first.kategorija!,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text("Pogledaj sve"),
+                      ),
+                    ],
                   ),
                 ),
                 ...entry.value.map((objava) => _buildListItem(objava)).toList(),

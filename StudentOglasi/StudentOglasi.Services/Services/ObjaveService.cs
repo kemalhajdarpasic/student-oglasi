@@ -45,6 +45,7 @@ namespace StudentOglasi.Services.Services
 
             query = AddFilter(query, search);
             query = AddInclude(query, search);
+            query = ApplySorting(query, search?.Sort);
 
             PagedResult<Model.Objave> result = new PagedResult<Model.Objave>
             {
@@ -131,6 +132,31 @@ namespace StudentOglasi.Services.Services
         public override IQueryable<Database.Objave> AddInclude(IQueryable<Database.Objave> query, ObjaveSearchObject? search = null)
         {
             return base.AddInclude(query.Include("Kategorija"), search);
+        }
+
+        private IQueryable<Database.Objave> ApplySorting(IQueryable<Database.Objave> query, string? sortOption)
+        {
+            if (string.IsNullOrWhiteSpace(sortOption))
+                return query;
+
+            return sortOption.ToLower() switch
+            {
+                "popularnost" => query
+                    .Select(p => new
+                    {
+                        Objava = p,
+                        Popularnost = _context.Likes.Count(l => l.ItemId == p.Id && l.ItemType == "news")
+                    })
+                    .OrderByDescending(x => x.Popularnost)
+                    .Select(x => x.Objava),
+
+                "naziv a-z" => query.OrderBy(p => p.Naslov),
+                "naziv z-a" => query.OrderByDescending(p => p.Naslov),
+
+                "najnovije" => query.OrderByDescending(p => p.VrijemeObjave),
+                "najstarije" => query.OrderBy(p => p.VrijemeObjave),
+                _ => query
+            };
         }
     }
 }
