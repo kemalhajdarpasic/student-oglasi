@@ -61,7 +61,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     _studentProvider = context.read<StudentiProvider>();
     return Scaffold(
-      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: Text('StudentOglasi',
             style: TextStyle(
@@ -70,8 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
               fontWeight: FontWeight.bold,
             )),
         centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-        automaticallyImplyLeading: false,
+        backgroundColor: Colors.blueAccent
       ),
       body: SingleChildScrollView(
         child: Padding(

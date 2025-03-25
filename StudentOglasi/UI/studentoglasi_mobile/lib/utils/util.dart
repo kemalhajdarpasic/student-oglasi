@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/firebase_options.dart';
+import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
 import 'package:studentoglasi_mobile/services/database_service.dart';
 import 'package:studentoglasi_mobile/services/media_service.dart';
 
@@ -10,6 +13,17 @@ import '../firebase_api.dart';
 class Authorization {
   static String? username;
   static String? password;
+}
+
+void logout(BuildContext context) {
+  final studentiProvider = Provider.of<StudentiProvider>(context, listen: false);
+  
+  Authorization.username = null;
+  Authorization.password = null;
+  studentiProvider.logout();
+
+  Navigator.pop(context); 
+  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
 }
 
 String formatNumber(dynamic) {

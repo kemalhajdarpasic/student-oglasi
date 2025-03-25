@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/Stipendija/stipendija.dart';
+import 'package:studentoglasi_mobile/screens/scholarships_screen.dart';
 import '../providers/prijavestipendija_provider.dart';
 import '../screens/main_screen.dart';
 
@@ -100,15 +101,20 @@ class _PrijavaStipendijaFormScreenState
     try {
       await _prijaveStipendijaProvider.insertFileMultipartData(formData);
 
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Prijava je uspešno poslana!'),
+        backgroundColor: Colors.lightGreen,
+      ));
+
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => ObjavaListScreen(),
+          builder: (context) => ScholarshipsScreen(),
         ),
       );
     } catch (e) {
       print('Error submitting application: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Greška pri slanju prijave: $e')),
+        SnackBar(content: Text('Korisnik je već ste prijavljeni na ovu stipedniju.')),
       );
     }
   }

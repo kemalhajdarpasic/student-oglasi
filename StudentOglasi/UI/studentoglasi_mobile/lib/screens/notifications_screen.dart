@@ -23,7 +23,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _fetchNotifications() async {
     try {
-      var data = await Provider.of<ObavijestiProvider>(context, listen: false).get();
+      var data =
+          await Provider.of<ObavijestiProvider>(context, listen: false).get();
       setState(() {
         _notifications = data;
         _isLoading = false;
@@ -51,51 +52,60 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _hasError
-              ? Center(child: Text('Neuspješno učitavanje obavijesti.'))
-              : _notifications.result.isEmpty
-                  ? Center(child: Text('Trenutno nema obavijesti'))
-                  : ListView.builder(
-                      itemCount: _notifications.result.length,
-                      itemBuilder: (ctx, index) {
-                        final notification = _notifications.result[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 16.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _formatDate(notification.datumKreiranja),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
+          : Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 1000),
+                child: _hasError
+                    ? Center(child: Text('Neuspješno učitavanje obavijesti.'))
+                    : _notifications.result.isEmpty
+                        ? Center(child: Text('Trenutno nema obavijesti'))
+                        : ListView.builder(
+                            itemCount: _notifications.result.length,
+                            itemBuilder: (ctx, index) {
+                              final notification = _notifications.result[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 16.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _formatDate(
+                                            notification.datumKreiranja),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        notification.naziv ?? 'Nema naziva',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        notification.opis ??
+                                            'Nema dostupnog opisa',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[800],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  notification.naziv ?? 'Nema naziva',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  notification.opis ?? 'Nema dostupnog opisa',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
+              ),
+            ),
     );
   }
 }

@@ -66,7 +66,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
           appBar: AppBar(
             title: isDesktop ? NavbarDesktop() : Text('Moje rezervacije'),
           ),
-          drawer: isDesktop ? null : DrawerMenu(),
+          drawer: isDesktop ? null : DrawerMenu(isLoggedIn: true,),
           body: Center(
             child: ConstrainedBox(
               constraints:
@@ -209,8 +209,8 @@ class _MyReservationsScreenState extends State<MyReservationsScreen>
                               if (confirm == true) {
                                 try {
                                   bool isCancelled =
-                                      await _rezeracijeProvider.cancel(
-                                    rezervacija.id
+                                      await _rezeracijeProvider.delete(
+                                    rezervacija.id!
                                   );
 
                                   if (isCancelled) {

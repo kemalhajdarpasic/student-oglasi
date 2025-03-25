@@ -12,39 +12,46 @@ class PaymentHandler {
       await showDialog(
         context: context,
         builder: (context) => Dialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PaymentElement(
-                autofocus: true,
-                enablePostalCode: true,
-                clientSecret: paymentIntentSecret??'',
-                onCardChanged: (_) {},
-              ),
-              OutlinedButton(
-                onPressed: () async {
-                  try {
-                    await WebStripe.instance.confirmPaymentElement(
-                      ConfirmPaymentElementOptions(
-                        redirect: PaymentConfirmationRedirect.ifRequired,
-                        confirmParams:
-                            ConfirmPaymentParams(return_url: ''), // Add if needed
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Uplata je uspješno izvršena!')),
-                    );
-                    confirmReservation();
-                  } catch (e) {
-                    print('Payment failed: $e');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Uplata nije uspjela')),
-                    );
-                  }
-                },
-                child: Text('Potvrdi'),
-              ),
-            ],
+          child: Container(
+            width: 800,
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PaymentElement(
+                  autofocus: true,
+                  enablePostalCode: true,
+                  clientSecret: paymentIntentSecret ?? '',
+                  onCardChanged: (_) {},
+                ),
+                OutlinedButton(
+                  onPressed: () async {
+                    try {
+                      await WebStripe.instance.confirmPaymentElement(
+                        ConfirmPaymentElementOptions(
+                          redirect: PaymentConfirmationRedirect.ifRequired,
+                          confirmParams: ConfirmPaymentParams(
+                              return_url: ''), // Add if needed
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Uplata je uspješno izvršena!'),
+                          backgroundColor: Colors.lightGreen,
+                        ),
+                      );
+                      confirmReservation();
+                    } catch (e) {
+                      print('Payment failed: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Uplata nije uspjela')),
+                      );
+                    }
+                  },
+                  child: Text('Potvrdi'),
+                ),
+              ],
+            ),
           ),
         ),
       );

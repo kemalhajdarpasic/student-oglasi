@@ -62,7 +62,7 @@ class _RezervacijeListScreen extends State<RezervacijeListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: "Rezervacije",
       addButtonLabel: 'Generiši izvještaj',
@@ -109,12 +109,12 @@ class _RezervacijeListScreen extends State<RezervacijeListScreen> {
       'brojIndeksa': _brojIndeksaController.text,
       'status': selectedStatusPrijave?.id,
       'page': _currentPage + 1,
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }

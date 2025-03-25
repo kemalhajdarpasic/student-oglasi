@@ -53,12 +53,12 @@ class _SmjestajiListScreenState extends State<SmjestajiListScreen> {
       'gradID': selectedGrad?.id,
       'tipSmjestajaID': selectedTipSmjestaja?.id,
       'page': _currentPage + 1, 
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
        _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }
@@ -91,7 +91,7 @@ class _SmjestajiListScreenState extends State<SmjestajiListScreen> {
   
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: 'Smještaji',
       addButtonLabel: 'Dodaj smještaj',

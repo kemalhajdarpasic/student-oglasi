@@ -66,6 +66,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
     return LayoutBuilder(
       builder: (context, constraints) {
         bool isDesktop = constraints.maxWidth > 800;
+        final bool isLoggedIn = _studentProvider.isLoggedIn;
 
         return DefaultTabController(
           length: 2,
@@ -82,7 +83,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                 indicatorColor: Colors.white,
               ),
             ),
-            drawer: isDesktop ? null : DrawerMenu(),
+            drawer: isDesktop ? null : DrawerMenu(isLoggedIn: isLoggedIn,),
             body: Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -269,7 +270,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                     ),
                     Row(
                       children: [
-                        if (prijava.status?.naziv?.toLowerCase() ==
+                        if (MediaQuery.of(context).size.width > 800 && prijava.status?.naziv?.toLowerCase() ==
                             'na cekanju')
                           ElevatedButton(
                             onPressed: () async {
@@ -433,7 +434,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                     ),
                     Row(
                       children: [
-                        if (prijava.status?.naziv?.toLowerCase() ==
+                         if (MediaQuery.of(context).size.width > 800 && prijava.status?.naziv?.toLowerCase() ==
                             'na cekanju')
                           ElevatedButton(
                             onPressed: () async {

@@ -49,7 +49,7 @@ namespace StudentOglasi.Services.Services
                 filteredQuery = filteredQuery.Where(x => x.StipendijaID == search.Stipendija);
             }
 
-            return filteredQuery;
+            return filteredQuery.OrderByDescending(x => x.VrijemePrijave);
         }
         public override IQueryable<Database.PrijaveStipendija> AddInclude(IQueryable<Database.PrijaveStipendija> query, PrijaveStipendijaSearchObject? search = null)
         {
@@ -170,7 +170,7 @@ namespace StudentOglasi.Services.Services
                 };
                 document.Add(stipenditor);
 
-                var table = new PdfPTable(5)
+                var table = new PdfPTable(4)
                 {
                     WidthPercentage = 100,
                     SpacingBefore = 10f,
@@ -179,15 +179,15 @@ namespace StudentOglasi.Services.Services
 
                 table.AddCell("Broj indeksa");
                 table.AddCell("Ime i prezime");
-                table.AddCell("CV");
                 table.AddCell("Prosjek ocjena");
+                table.AddCell("Status");
 
                 foreach (var prijava in prijave)
                 {
                     table.AddCell(prijava.Student.BrojIndeksa);
                     table.AddCell($"{prijava.Student.IdNavigation.Ime} {prijava.Student.IdNavigation.Prezime}");
-                    table.AddCell(prijava.Cv ?? "N/A");
-                    table.AddCell(prijava.ProsjekOcjena.ToString() ?? "N/A");
+                    table.AddCell(prijava.Student.ProsjecnaOcjena.ToString() ?? "N/A");
+                    table.AddCell(prijava.Status?.Naziv ?? "N/A");
                 }
 
                 document.Add(table);

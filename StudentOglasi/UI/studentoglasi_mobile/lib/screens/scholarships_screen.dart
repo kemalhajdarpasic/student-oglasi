@@ -146,9 +146,9 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
                   ),
             backgroundColor: Colors.blue,
             iconTheme: IconThemeData(color: Colors.white),
-            automaticallyImplyLeading: !isDesktop && isLoggedIn,
+            automaticallyImplyLeading: !isDesktop,
           ),
-          drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
+          drawer: isDesktop ? null : DrawerMenu(isLoggedIn: isLoggedIn,),
           body: isDesktop
               ? DesktopScholarshipsLayout(
                   stipendije: _stipendije?.result ?? [],

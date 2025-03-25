@@ -75,7 +75,9 @@ namespace StudentOglasi.Services.Services
                 .Include(r => r.Student.Smjer)
                 .Include(r => r.Student.NacinStudiranja)
                 .Include(r => r.Student.IdNavigation)
-                .Include(r => r.Status).AsQueryable();
+                .Include(r => r.Status)
+                .OrderByDescending(r => r.VrijemeKreiranja)
+                .AsQueryable();
 
             PagedResult<Model.Rezervacije> result = new PagedResult<Model.Rezervacije>();
 
@@ -144,6 +146,17 @@ namespace StudentOglasi.Services.Services
         {
             var state = _baseState.CreateState("Initial");
             return await state.Insert(request);
+        }
+
+        public async Task Delete(int id)
+        {
+            var set = _context.Set<Database.Rezervacije>();
+            var entity = await set.FindAsync(id);
+            if (entity != null)
+            {
+                set.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<List<Model.Rezervacije>> GetByStudentIdAsync(int studentId)
@@ -257,28 +270,26 @@ namespace StudentOglasi.Services.Services
                 };
 
                 table.AddCell("Broj indeksa");
-                table.AddCell("Ime i prezime");
                 table.AddCell("Datum prijave");
                 table.AddCell("Datum odjave");
                 table.AddCell("Broj osoba");
-
                 if (!smjestajnaJedinicaId.HasValue)
                 {
-                    table.AddCell("Smještajna jedinica"); 
+                    table.AddCell("Smještajna jedinica");
                 }
+                table.AddCell("Status");
 
                 foreach (var prijava in prijave)
                 {
                     table.AddCell(prijava.Student.BrojIndeksa);
-                    table.AddCell($"{prijava.Student.IdNavigation.Ime} {prijava.Student.IdNavigation.Prezime}");
                     table.AddCell(prijava.DatumPrijave.ToString("dd.MM.yyyy") ?? "N/A");
                     table.AddCell(prijava.DatumOdjave.ToString("dd.MM.yyyy") ?? "N/A");
                     table.AddCell(prijava.BrojOsoba?.ToString() ?? "N/A");
-
                     if (!smjestajnaJedinicaId.HasValue)
                     {
                         table.AddCell(prijava.SmjestajnaJedinica.Naziv ?? "N/A");
                     }
+                    table.AddCell(prijava.Status?.Naziv ?? "N/A");
                 }
 
                 document.Add(table);

@@ -78,7 +78,7 @@ class _StipendijeListScreenState extends State<StipendijeListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: "Stipendije",
       addButtonLabel: "Dodaj stipendiju",
@@ -126,12 +126,12 @@ class _StipendijeListScreenState extends State<StipendijeListScreen> {
       'naslov': _naslovController.text,
       'stipenditor': selectedStipenditor?.id,
       'page': _currentPage + 1,
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }

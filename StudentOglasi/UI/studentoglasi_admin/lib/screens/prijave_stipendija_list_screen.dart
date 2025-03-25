@@ -62,7 +62,7 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: "Prijave stipendija",
       addButtonLabel: 'Generiši izvještaj',
@@ -112,12 +112,12 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
       'brojIndeksa': _brojIndeksaController.text,
       'status': selectedStatusPrijave?.id,
       'page': _currentPage + 1, // pages are 1-indexed in the backend
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }
@@ -287,7 +287,7 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
                         DataColumn(
                           label: Expanded(
                             child: Text(
-                              'Status',
+                              'Prosjek ocjena',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
@@ -296,7 +296,7 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
                         DataColumn(
                           label: Expanded(
                             child: Text(
-                              'Prosjek ocjena',
+                              'Status',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
@@ -369,11 +369,13 @@ class _PrijaveStipendijaListScreen extends State<PrijaveStipendijaListScreen> {
                                     //     ),
                                     //   ),
                                     // ),
+
+                                    DataCell(Center(
+                                        child: Text(e.student?.prosjecnaOcjena
+                                                .toString() ??
+                                            ""))),
                                     DataCell(Center(
                                         child: Text(e.status?.naziv ?? ""))),
-                                    DataCell(Center(
-                                        child:
-                                            Text(e.prosjekOcjena.toString()))),
                                     DataCell(
                                       Row(
                                         mainAxisAlignment:

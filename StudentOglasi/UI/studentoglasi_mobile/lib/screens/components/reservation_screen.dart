@@ -6,6 +6,7 @@ import 'package:studentoglasi_mobile/models/ZauzetiTermini/zauzeti_termini.dart'
 import 'package:studentoglasi_mobile/providers/payment_provider.dart';
 import 'package:studentoglasi_mobile/providers/rezervacije_provider.dart';
 import 'package:studentoglasi_mobile/providers/studenti_provider.dart';
+import 'package:studentoglasi_mobile/screens/accommodations_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'payment/payment_handler_mobile.dart'
     if (dart.library.js) 'payment/payment_handler_web.dart';
@@ -140,9 +141,16 @@ class _ReservationScreenState extends State<ReservationScreen> {
         await rezervacijeProvider.insertJsonData(rezervacija);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Rezervacija je uspješno potvrđena!')),
+          SnackBar(
+            content: Text('Rezervacija je uspješno potvrđena!'),
+            backgroundColor: Colors.lightGreen,
+          ),
         );
-        Navigator.pop(context);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AccommodationsScreen(),
+          ),
+        );
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Došlo je do greške prilikom rezervacije')),

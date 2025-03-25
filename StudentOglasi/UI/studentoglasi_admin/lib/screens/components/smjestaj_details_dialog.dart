@@ -489,7 +489,10 @@ class _SmjestajDetailsDialogState extends State<SmjestajDetailsDialog> {
                       ),
                     ),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.add),
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
                     onPressed: () => _showSmjestajnaJedinicaDialog(),
                     label: Text('Dodaj smještajnu jedinicu'),
                     style: ButtonStyle(

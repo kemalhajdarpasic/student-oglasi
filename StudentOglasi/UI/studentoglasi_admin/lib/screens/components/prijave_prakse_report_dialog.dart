@@ -106,8 +106,8 @@ class _PrijavePrakseReportDialogState extends State<PrijavePrakseReportDialog> {
                   OpenFile.open(file.path);
                 }
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Preuzimanje izvještaja nije uspjelo')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Preuzimanje izvještaja nije uspjelo')));
               }
             }
           },
@@ -279,7 +279,7 @@ class _PrijavePrakseReportDialogState extends State<PrijavePrakseReportDialog> {
                         const DataColumn(
                           label: Expanded(
                             child: Text(
-                              'CV',
+                              'Prosjek ocjena',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
@@ -288,16 +288,7 @@ class _PrijavePrakseReportDialogState extends State<PrijavePrakseReportDialog> {
                         const DataColumn(
                           label: Expanded(
                             child: Text(
-                              'Certifikati',
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        const DataColumn(
-                          label: Expanded(
-                            child: Text(
-                              'Propratno pismo',
+                              'Status',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
@@ -311,11 +302,11 @@ class _PrijavePrakseReportDialogState extends State<PrijavePrakseReportDialog> {
                                 DataCell(Center(
                                     child: Text(
                                         '${e.student?.idNavigation?.ime} ${e.student?.idNavigation?.prezime}'))),
-                                DataCell(Center(child: Text(e.cv ?? ""))),
-                                DataCell(
-                                    Center(child: Text(e.certifikati ?? ""))),
                                 DataCell(Center(
-                                    child: Text(e.propratnoPismo ?? ""))),
+                                    child: Text(e.student!.prosjecnaOcjena
+                                        .toString()))),
+                                DataCell(
+                                    Center(child: Text(e.status?.naziv ?? ""))),
                               ]))
                           .toList(),
                     ),

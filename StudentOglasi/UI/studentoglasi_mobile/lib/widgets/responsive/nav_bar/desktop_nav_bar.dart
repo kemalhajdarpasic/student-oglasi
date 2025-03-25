@@ -88,8 +88,8 @@ class NavbarDesktop extends StatelessWidget {
           case 'prijave':
             Navigator.pushNamed(context, '/prijave');
             break;
-          case 'chat':
-            Navigator.pushNamed(context, '/chat');
+          case 'rezervacije':
+            Navigator.pushNamed(context, '/rezervacije');
             break;
           case 'obavijesti':
             Navigator.pushNamed(context, '/obavijesti');
@@ -122,12 +122,12 @@ class NavbarDesktop extends StatelessWidget {
             ),
           ),
           PopupMenuItem(
-            value: 'chat',
+            value: 'rezervacije',
             child: Row(
               children: [
-                Icon(Icons.chat_bubble_outline, color: Colors.blue),
+                Icon(Icons.hotel_outlined, color: Colors.blue),
                 SizedBox(width: 8),
-                Text('Chat'),
+                Text('Moje rezervacije'),
               ],
             ),
           ),

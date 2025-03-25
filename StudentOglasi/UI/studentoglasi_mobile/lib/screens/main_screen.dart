@@ -99,15 +99,27 @@ class _ObjavaListScreenState extends State<ObjavaListScreen> {
         appBar: AppBar(
           title: isDesktop
               ? NavbarDesktop()
-              : NavBarMobile(
-                  naslovController: _naslovController,
-                  onSearchChanged: _onSearchChanged,
+              : Padding(
+                  padding: const EdgeInsets.only(
+                      left: 52.0), 
+                  child: Text(
+                    'StudentOglasi',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
           backgroundColor: Colors.blue,
           iconTheme: IconThemeData(color: Colors.white),
-          automaticallyImplyLeading: !isDesktop && isLoggedIn,
+          automaticallyImplyLeading: !isDesktop,
         ),
-        drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
+        drawer: isDesktop
+            ? null
+            : DrawerMenu(
+                isLoggedIn: isLoggedIn,
+              ),
         body: isDesktop
             ? Padding(
                 padding: const EdgeInsets.only(top: 20.0),

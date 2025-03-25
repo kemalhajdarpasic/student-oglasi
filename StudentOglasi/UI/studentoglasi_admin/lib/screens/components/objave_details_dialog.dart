@@ -114,7 +114,7 @@ class _ObjaveDetailsDialogState extends State<ObjaveDetailsDialog> {
                                       ),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 10),
                         Row(
                           children: [
                             Expanded(

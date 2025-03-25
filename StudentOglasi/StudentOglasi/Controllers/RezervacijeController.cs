@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StudentOglasi.Model;
 using StudentOglasi.Model.Requests;
 using StudentOglasi.Model.SearchObjects;
@@ -19,6 +20,13 @@ namespace StudentOglasi.Controllers
         public async Task<Model.Rezervacije> Insert([FromBody] RezervacijaInsertRequest request)
         {
             return await (_service as IRezervacijeService).Insert(request);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public virtual async Task Delete(int id)
+        {
+            await (_service as IRezervacijeService).Delete(id);
         }
 
         [HttpGet("booked-dates/{smjestajnaJedinicaId}")]

@@ -143,9 +143,9 @@ class _AccommodationsScreenState extends State<AccommodationsScreen> {
                 ),
           backgroundColor: Colors.blue,
           iconTheme: IconThemeData(color: Colors.white),
-          automaticallyImplyLeading: !isDesktop && isLoggedIn,
+          automaticallyImplyLeading: !isDesktop,
         ),
-        drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
+        drawer: isDesktop ? null : DrawerMenu(isLoggedIn: isLoggedIn,),
         body: isDesktop
             ? DesktopAccommodationsLayout(
                 smjestaji: smjestaji?.result ?? [],

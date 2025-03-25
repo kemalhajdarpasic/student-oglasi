@@ -54,46 +54,50 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
         //     ],
         //   ),
         // ),
-        body:
-        Row(children: [
-          Expanded(child: SideMenu()),
-        
-         Expanded(
-          flex: 5,
+        body: Row(
+      children: [
+        Expanded(child: SideMenu()),
+        Expanded(
+            flex: 5,
             child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(125, 50, 100, 0),
-              child: Row(
-                children: [
-                  widget.title_widget ??
-                      Text(
-                        widget.title ?? "",
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.bold),
-                      ),
-                  Spacer(),
-                  if (widget.addButtonLabel != null)
-                    ElevatedButton.icon(
-                      onPressed: widget.onAddButtonPressed,
-                      label: Text(widget.addButtonLabel ?? ''),
-                      icon: Icon(widget.addButtonIcon ?? Icons.add),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.blue.shade800),
-                        foregroundColor:
-                            MaterialStateProperty.all<Color>(Colors.white),
-                        textStyle: MaterialStateProperty.all<TextStyle>(
-                            TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: widget.child!,
-            ),
-          ],
-        ))],));
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(125, 50, 100, 0),
+                  child: Row(
+                    children: [
+                      widget.title_widget ??
+                          Text(
+                            widget.title ?? "",
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                          ),
+                      Spacer(),
+                      if (widget.addButtonLabel != null)
+                        ElevatedButton.icon(
+                          onPressed: widget.onAddButtonPressed,
+                          label: Text(widget.addButtonLabel ?? ''),
+                          icon: Icon(
+                            widget.addButtonIcon ?? Icons.add,
+                            color: Colors.white,
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.blue.shade800),
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                            textStyle: MaterialStateProperty.all<TextStyle>(
+                                TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: widget.child!,
+                ),
+              ],
+            ))
+      ],
+    ));
   }
 }

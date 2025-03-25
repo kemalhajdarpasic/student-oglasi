@@ -89,6 +89,14 @@ class _RezervacijeDetailsDialogState extends State<RezervacijeDetailsDialog> {
               color: Colors.blue,
             ),
           ),
+          SizedBox(height: 8.0),
+          Text(
+            'Status prijave: ${widget.rezervacija?.status?.naziv}',
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+            ),
+          ),
         ],
       ),
       content: SingleChildScrollView(
@@ -277,39 +285,98 @@ class _RezervacijeDetailsDialogState extends State<RezervacijeDetailsDialog> {
         ),
       ),
       actions: [
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await _RezervacijeProvider.cancel(widget.rezervacija?.id);
-                  Navigator.pop(context, true);
-                },
-                child: Text('Otkaži'),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                  textStyle: MaterialStateProperty.all<TextStyle>(
-                      TextStyle(fontWeight: FontWeight.bold)),
+        if (widget.rezervacija?.statusId == 2 ||
+            widget.rezervacija?.status?.naziv == "Na cekanju")
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _RezervacijeProvider.cancel(widget.rezervacija?.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.cancel, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Rezervacija je uspješno otkazana!'),
+                            ],
+                          ),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      Navigator.pop(context, true);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.error, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                  'Došlo je do greške prilikom otkazivanja prijave.'),
+                            ],
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  child: Text('Otkaži'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.red),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                 ),
-              ),
-            ]),
-        ElevatedButton(
-          onPressed: () async {
-            await _RezervacijeProvider.approve(widget.rezervacija?.id);
-            Navigator.pop(context, true);
-          },
-          child: Text('Odobri'),
-          style: ButtonStyle(
-            backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.lightGreen),
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            textStyle: MaterialStateProperty.all<TextStyle>(
-                TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _RezervacijeProvider.approve(
+                          widget.rezervacija?.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Rezervacija je uspješno odobrena!'),
+                            ],
+                          ),
+                          backgroundColor: Colors.lightGreen,
+                        ),
+                      );
+                      Navigator.pop(context, true);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(Icons.error, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text('Došlo je do greške. Molimo pokušajte opet!'),
+                          ],
+                        ),
+                        backgroundColor: Colors.redAccent,
+                      ));
+                    }
+                  },
+                  child: Text('Odobri'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.lightGreen),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ]),
       ],
     );
   }

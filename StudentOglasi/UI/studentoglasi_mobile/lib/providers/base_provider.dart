@@ -89,6 +89,22 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
+  Future<bool> delete(int id) async {
+    var url = Uri.parse('$_baseUrl$_endPoint/$id');
+    var headers = createHeaders();
+
+    final response = await _httpClient.delete(url, headers: headers);
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    } else if (response.statusCode == 401) {
+      throw Exception("Unauthorized");
+    } else {
+      print(response.body);
+      throw Exception("Failed to delete item with ID: $id");
+    }
+  }
+
   Future<T> insertJsonData(dynamic request) async {
     var url = "$_baseUrl$_endPoint";
     var uri = Uri.parse(url);
@@ -144,7 +160,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var request = http.MultipartRequest('POST', Uri.parse(url));
 
     request.headers.addAll(createHeaders());
-    
+
     List<String>? fileNames = formData['dokumentacija_imena'] as List<String>?;
 
     for (var key in formData.keys) {
@@ -153,18 +169,19 @@ abstract class BaseProvider<T> with ChangeNotifier {
       if (key == 'dokumentacija' && value is List) {
         for (int i = 0; i < value.length; i++) {
           var file = value[i];
-          var fileName = fileNames != null && fileNames.length > i 
-              ? fileNames[i] 
-              : 'dokument_$i.pdf'; 
+          var fileName = fileNames != null && fileNames.length > i
+              ? fileNames[i]
+              : 'dokument_$i.pdf';
 
           if (file is String && file.contains('/')) {
             var fileName = file.split('/').last;
             request.files.add(await http.MultipartFile.fromPath(
                 'dokumentacija', file,
-                filename: fileName)); 
+                filename: fileName));
           } else if (file is Uint8List) {
             request.files.add(http.MultipartFile.fromBytes(
-                'dokumentacija', file, filename: fileName));
+                'dokumentacija', file,
+                filename: fileName));
           }
         }
       } else if (value is String && value.contains('/')) {

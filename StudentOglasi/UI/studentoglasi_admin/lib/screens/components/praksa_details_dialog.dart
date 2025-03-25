@@ -259,8 +259,10 @@ class _PraksaDetailsDialogState extends State<PraksaDetailsDialog> {
                             name: 'idNavigation.vrijemeObjave',
                             inputType: InputType.date,
                             format: DateFormat('dd.MM.yyyy.'),
-                            decoration:
-                                InputDecoration(labelText: 'Vrijeme objave'),
+                            decoration: InputDecoration(
+                              labelText: 'Vrijeme objave',
+                              border: OutlineInputBorder(),
+                            ),
                             validator: (value) {
                               if (value == null) {
                                 return 'Izaberite datum';
@@ -278,8 +280,10 @@ class _PraksaDetailsDialogState extends State<PraksaDetailsDialog> {
                             name: 'idNavigation.rokPrijave',
                             inputType: InputType.date,
                             format: DateFormat('dd.MM.yyyy.'),
-                            decoration:
-                                InputDecoration(labelText: 'Rok prijave'),
+                            decoration: InputDecoration(
+                              labelText: 'Rok prijave',
+                              border: OutlineInputBorder(),
+                            ),
                             validator: (value) {
                               if (value == null) {
                                 return 'Izaberite datum';
@@ -323,8 +327,10 @@ class _PraksaDetailsDialogState extends State<PraksaDetailsDialog> {
                             name: 'pocetakPrakse',
                             inputType: InputType.date,
                             format: DateFormat('dd.MM.yyyy.'),
-                            decoration:
-                                InputDecoration(labelText: 'Početak prakse'),
+                            decoration: InputDecoration(
+                              labelText: 'Početak prakse',
+                              border: OutlineInputBorder(),
+                            ),
                             validator: (value) {
                               if (value == null) {
                                 return 'Izaberite datum';
@@ -352,8 +358,10 @@ class _PraksaDetailsDialogState extends State<PraksaDetailsDialog> {
                             name: 'krajPrakse',
                             inputType: InputType.date,
                             format: DateFormat('dd.MM.yyyy.'),
-                            decoration:
-                                InputDecoration(labelText: 'Kraj prakse'),
+                            decoration: InputDecoration(
+                              labelText: 'Kraj prakse',
+                              border: OutlineInputBorder(),
+                            ),
                             validator: (value) {
                               if (value == null) {
                                 return 'Izaberite datum';

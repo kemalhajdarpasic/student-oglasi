@@ -49,7 +49,7 @@ class _ObjaveListScreenState extends State<ObjaveListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: "Novosti",
       addButtonLabel: "Dodaj objavu",
@@ -95,12 +95,12 @@ class _ObjaveListScreenState extends State<ObjaveListScreen> {
       'naslov': _naslovController.text,
       'kategorijaID': selectedKategorija?.id,
       'page': _currentPage + 1,
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }
@@ -156,8 +156,8 @@ class _ObjaveListScreenState extends State<ObjaveListScreen> {
                       return DropdownMenuItem<Kategorija>(
                         value: kategorija,
                         child: Text(kategorija.naziv ?? '',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 14)),
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 14)),
                       );
                     }).toList() ??
                     [],
@@ -174,7 +174,7 @@ class _ObjaveListScreenState extends State<ObjaveListScreen> {
               child: Text("Filtriraj"),
             ),
           ),
-          SizedBox(width: 20.0), 
+          SizedBox(width: 20.0),
           Padding(
             padding: const EdgeInsets.only(top: 25.0),
             child: ElevatedButton(
@@ -183,12 +183,11 @@ class _ObjaveListScreenState extends State<ObjaveListScreen> {
                 setState(() {
                   selectedKategorija = null;
                 });
-                _fetchData(); 
+                _fetchData();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    Color.fromARGB(255, 240, 92, 92),
-                foregroundColor: Colors.white, 
+                backgroundColor: Color.fromARGB(255, 240, 92, 92),
+                foregroundColor: Colors.white,
               ),
               child: Text("Očisti filtere"),
             ),
@@ -238,11 +237,18 @@ class _ObjaveListScreenState extends State<ObjaveListScreen> {
               ],
               rows: result?.result
                       .map((Objava e) => DataRow(cells: [
-                            DataCell(Center(
+                            DataCell(
+                              Center(
                                 child: Text(
-                              e.naslov ?? "",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ))),
+                                  (e.naslov != null && e.naslov!.length > 30)
+                                      ? '${e.naslov!.substring(0, 30)}...'
+                                      : e.naslov ?? "",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ),
                             DataCell(Center(
                                 child: Text(e.vrijemeObjave != null
                                     ? DateFormat('dd.MM.yyyy')

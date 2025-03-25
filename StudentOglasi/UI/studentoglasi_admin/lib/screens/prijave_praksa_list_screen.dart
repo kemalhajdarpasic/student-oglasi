@@ -58,7 +58,7 @@ class _PrijavePraksaListScreen extends State<PrijavePraksaListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: "Prijave praksa",
       addButtonLabel: 'Generiši izvještaj',
@@ -112,12 +112,12 @@ class _PrijavePraksaListScreen extends State<PrijavePraksaListScreen> {
       'brojIndeksa': _brojIndeksaController.text,
       'status': selectedStatusPrijave?.id,
       'page': _currentPage + 1, // pages are 1-indexed in the backend
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }
@@ -266,7 +266,16 @@ class _PrijavePraksaListScreen extends State<PrijavePraksaListScreen> {
                         DataColumn(
                           label: Expanded(
                             child: Text(
-                              'Certifikati',
+                              'Naziv prakse',
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            child: Text(
+                              'Prosjek ocjena',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
@@ -276,15 +285,6 @@ class _PrijavePraksaListScreen extends State<PrijavePraksaListScreen> {
                           label: Expanded(
                             child: Text(
                               'Status',
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        DataColumn(
-                          label: Expanded(
-                            child: Text(
-                              'Naziv prakse',
                               style: TextStyle(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
@@ -310,38 +310,6 @@ class _PrijavePraksaListScreen extends State<PrijavePraksaListScreen> {
                                         child: Text(
                                             e.student?.brojIndeksa ?? ""))),
                                     DataCell(
-                                      InkWell(
-                                        onTap: () {
-                                          String fileUrl =
-                                              FilePathManager.constructUrl(
-                                                  e.certifikati ?? '');
-                                          String fileName = e.certifikati ?? '';
-
-                                          downloadDocument(
-                                              context, fileUrl, fileName);
-                                        },
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "Preuzmi dokument",
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Icon(Icons.download,
-                                                color: Colors.blue),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(Center(
-                                        child: Text(e.status?.naziv ?? ""))),
-                                    DataCell(
                                       Center(
                                         child: Text(
                                           (e.praksa?.idNavigation?.naslov !=
@@ -356,6 +324,12 @@ class _PrijavePraksaListScreen extends State<PrijavePraksaListScreen> {
                                         ),
                                       ),
                                     ),
+                                    DataCell(Center(
+                                        child: Text(e.student?.prosjecnaOcjena
+                                                .toString() ??
+                                            ""))),
+                                    DataCell(Center(
+                                        child: Text(e.status?.naziv ?? ""))),
                                     DataCell(
                                       Row(
                                         mainAxisAlignment:

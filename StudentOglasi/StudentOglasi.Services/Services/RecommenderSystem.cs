@@ -29,15 +29,15 @@ namespace StudentOglasi.Services.Services
                 {
                     _mlContext = new MLContext();
 
-                    var trainingData = GetTrainingData().Result;
-                    _model = TrainModel(trainingData);
+                    var dataSet = GetDataset().Result;
+                    _model = TrainModel(dataSet);
 
                     _predictionEngine = _mlContext.Model.CreatePredictionEngine<RecommendationInput, RecommendationOutput>(_model);
                 }
             }
         }
 
-        private async Task<IDataView> GetTrainingData()
+        private async Task<IDataView> GetDataset()
         {
             var ratings = await _context.Ocjenes
                 .Select(o => new RecommendationInput
@@ -52,9 +52,16 @@ namespace StudentOglasi.Services.Services
 
         private ITransformer TrainModel(IDataView data)
         {
-            var pipeline = _mlContext.Transforms.Conversion.MapValueToKey("UserIdEncoded", nameof(RecommendationInput.StudentId))
-                .Append(_mlContext.Transforms.Conversion.MapValueToKey("PostIdEncoded", nameof(RecommendationInput.CombinedKey)))
-                .Append(_mlContext.Recommendation().Trainers.MatrixFactorization(new MatrixFactorizationTrainer.Options
+            var trainTestSplit = _mlContext.Data.TrainTestSplit(data, testFraction: 0.2);
+            var trainingData = trainTestSplit.TrainSet;
+            var testData = trainTestSplit.TestSet;
+
+            var pipeline = _mlContext.Transforms.Conversion.MapValueToKey
+                ("UserIdEncoded", nameof(RecommendationInput.StudentId))
+                .Append(_mlContext.Transforms.Conversion.MapValueToKey
+                ("PostIdEncoded", nameof(RecommendationInput.CombinedKey)))
+                .Append(_mlContext.Recommendation().Trainers.
+                MatrixFactorization(new MatrixFactorizationTrainer.Options
                 {
                     MatrixColumnIndexColumnName = "UserIdEncoded",
                     MatrixRowIndexColumnName = "PostIdEncoded",
@@ -63,10 +70,24 @@ namespace StudentOglasi.Services.Services
                     ApproximationRank = 100
                 }));
 
-            return pipeline.Fit(data);
+            var model = pipeline.Fit(trainingData);
+
+            EvaluateModel(model, testData);
+
+            return model;
         }
 
-        public async Task<List<int>> GetRecommendedPostIds(int studentId, string postType)
+        private void EvaluateModel(ITransformer model, IDataView testData)
+        {
+            var predictions = model.Transform(testData);
+            var metrics = _mlContext.Regression.Evaluate(predictions, labelColumnName: nameof(RecommendationInput.Ocjena));
+
+            Console.WriteLine($"RMSE: {metrics.RootMeanSquaredError}");
+            Console.WriteLine($"MAE: {metrics.MeanAbsoluteError}");
+        }
+
+        public async Task<List<int>> GetRecommendedPostIds(int studentId, string 
+            postType)
         {
             var ocijenjeniPostovi = await _context.Ocjenes
                 .Where(o => o.StudentId == studentId && o.PostType == postType)
@@ -79,8 +100,8 @@ namespace StudentOglasi.Services.Services
             {
                 postIdsToPredict = await _context.Oglasis
                     .Where(o => ((postType == "internship" && o.Prakse != null) ||
-                                 (postType == "scholarship" && o.Stipendije != null)) &&
-                                !ocijenjeniPostovi.Contains(o.Id))
+                                 (postType == "scholarship" && o.Stipendije != null)) 
+                                 && !ocijenjeniPostovi.Contains(o.Id))
                     .Select(o => o.Id)
                     .ToListAsync();
             }
@@ -101,7 +122,8 @@ namespace StudentOglasi.Services.Services
             foreach (var postId in postIdsToPredict)
             {
                 var combinedKey = $"{postId}_{postType}";
-                var prediction = _predictionEngine.Predict(new RecommendationInput { StudentId = studentId, CombinedKey = combinedKey});
+                var prediction = _predictionEngine.Predict(new RecommendationInput { 
+                    StudentId = studentId, CombinedKey = combinedKey});
 
                 if (prediction.Score > 3)
                 {

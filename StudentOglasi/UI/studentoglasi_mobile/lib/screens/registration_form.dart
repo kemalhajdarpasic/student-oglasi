@@ -94,367 +94,387 @@ class _RegistrationFormState extends State<RegistrationForm> {
       appBar: AppBar(
         title: Text('Registracija korisnika'),
       ),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepTapped: (step) {
-          setState(() {
-            if (_currentStep == 0) {
-              _saveUserForm();
-              if (_userFormKey.currentState?.saveAndValidate() ?? false) {
-                _currentStep = step;
-                _loadStudentForm();
-              }
-            } else {
-              _saveStudentForm();
-              _currentStep = step;
-              _loadStudentForm();
-            }
-          });
-        },
-        onStepContinue: () async {
-          if (_currentStep == 0) {
-            _saveUserForm();
-
-            if (_userFormKey.currentState?.saveAndValidate() ?? false) {
-              String? username =
-                  _userFormKey.currentState?.fields['korisnickoIme']?.value;
-
-              if (username != null) {
-                bool isTaken =
-                    await _studentiProvider.isUsernameTaken(username);
-
-                if (!isTaken) {
-                  setState(() {
-                    _currentStep += 1;
-                  });
-                  _loadStudentForm();
+      body: Center(
+        child: Container(
+          width: 1000,
+          alignment: Alignment.topCenter,
+          padding: EdgeInsets.all(16.0),
+          child: Stepper(
+            currentStep: _currentStep,
+            onStepTapped: (step) {
+              setState(() {
+                if (_currentStep == 0) {
+                  _saveUserForm();
+                  if (_userFormKey.currentState?.saveAndValidate() ?? false) {
+                    _currentStep = step;
+                    _loadStudentForm();
+                  }
                 } else {
-                  _userFormKey.currentState?.fields['korisnickoIme']
-                      ?.invalidate('Korisničko ime je zauzeto.');
+                  _saveStudentForm();
+                  _currentStep = step;
+                  _loadStudentForm();
+                }
+              });
+            },
+            onStepContinue: () async {
+              if (_currentStep == 0) {
+                _saveUserForm();
+
+                if (_userFormKey.currentState?.saveAndValidate() ?? false) {
+                  String? username =
+                      _userFormKey.currentState?.fields['korisnickoIme']?.value;
+
+                  if (username != null) {
+                    bool isTaken =
+                        await _studentiProvider.isUsernameTaken(username);
+
+                    if (!isTaken) {
+                      setState(() {
+                        _currentStep += 1;
+                      });
+                      _loadStudentForm();
+                    } else {
+                      _userFormKey.currentState?.fields['korisnickoIme']
+                          ?.invalidate('Korisničko ime je zauzeto.');
+                    }
+                  }
+                }
+              } else if (_currentStep == 1) {
+                _saveStudentForm();
+                if (_studentFormKey.currentState?.saveAndValidate() ?? false) {
+                  print('User Form Values: $_userFormData');
+                  print('Student Form Values: $_studentFormData');
+
+                  var formData = {
+                    'idNavigation.ime': _userFormData['ime'],
+                    'idNavigation.prezime': _userFormData['prezime'],
+                    'idNavigation.email': _userFormData['email'],
+                    'idNavigation.korisnickoIme':
+                        _userFormData['korisnickoIme'],
+                    'idNavigation.password': _userFormData['password'],
+                    'idNavigation.passwordPotvrda':
+                        _userFormData['passwordPotvrda'],
+                    'brojIndeksa': _studentFormData['brojIndeksa'],
+                    'godinaStudija': _studentFormData['godinaStudija'],
+                    'prosjecnaOcjena':
+                        _studentFormData['prosjecnaOcjena'].toString(),
+                    'fakultetId': selectedFakultet?.id,
+                    'smjerId': (_studentFormData['smjer'] as Smjer).id,
+                    'slika': null,
+                    'nacinStudiranjaId':
+                        (_studentFormData['nacinStudiranja'] as NacinStudiranja)
+                            .id,
+                    'status': true,
+                  };
+                  _sendDataToApi(formData);
                 }
               }
-            }
-          } else if (_currentStep == 1) {
-            _saveStudentForm();
-            if (_studentFormKey.currentState?.saveAndValidate() ?? false) {
-              print('User Form Values: $_userFormData');
-              print('Student Form Values: $_studentFormData');
-
-              var formData = {
-                'idNavigation.ime': _userFormData['ime'],
-                'idNavigation.prezime': _userFormData['prezime'],
-                'idNavigation.email': _userFormData['email'],
-                'idNavigation.korisnickoIme': _userFormData['korisnickoIme'],
-                'idNavigation.password': _userFormData['password'],
-                'idNavigation.passwordPotvrda':
-                    _userFormData['passwordPotvrda'],
-                'brojIndeksa': _studentFormData['brojIndeksa'],
-                'godinaStudija': _studentFormData['godinaStudija'],
-                'prosjecnaOcjena':
-                    _studentFormData['prosjecnaOcjena'].toString(),
-                'fakultetId': selectedFakultet?.id,
-                'smjerId': (_studentFormData['smjer'] as Smjer).id,
-                'slika': null,
-                'nacinStudiranjaId':
-                    (_studentFormData['nacinStudiranja'] as NacinStudiranja).id,
-                'status': true,
-              };
-              _sendDataToApi(formData);
-            }
-          }
-        },
-        onStepCancel: () {
-          if (_currentStep > 0) {
-            setState(() {
-              _currentStep -= 1;
-              _loadUserForm();
-            });
-          }
-        },
-        controlsBuilder: (BuildContext context, ControlsDetails details) {
-          return Row(
-            children: <Widget>[
-              if (_currentStep == 1)
-                ElevatedButton(
-                  onPressed: details.onStepContinue,
-                  child: Text('Sačuvaj'),
-                )
-              else
-                ElevatedButton(
-                  onPressed: details.onStepContinue,
-                  child: Text('Nastavi'),
-                ),
-              if (_currentStep > 0)
-                TextButton(
-                  onPressed: details.onStepCancel,
-                  child: Text('Nazad'),
-                ),
-            ],
-          );
-        },
-        steps: [
-          Step(
-            title: Text('Korisnički podaci'),
-            isActive: _currentStep == 0,
-            content: FormBuilder(
-              key: _userFormKey,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'ime',
-                      decoration: InputDecoration(labelText: 'Ime'),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Ime je obavezno.'),
-                        FormBuilderValidators.minLength(3),
-                        FormBuilderValidators.maxLength(50),
-                      ]),
+            },
+            onStepCancel: () {
+              if (_currentStep > 0) {
+                setState(() {
+                  _currentStep -= 1;
+                  _loadUserForm();
+                });
+              }
+            },
+            controlsBuilder: (BuildContext context, ControlsDetails details) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  if (_currentStep > 0)
+                    TextButton(
+                      onPressed: details.onStepCancel,
+                      child: Text('Nazad'),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'prezime',
-                      decoration: InputDecoration(labelText: 'Prezime'),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Prezime je obavezno.'),
-                        FormBuilderValidators.minLength(3),
-                        FormBuilderValidators.maxLength(50),
-                      ]),
+                  SizedBox(width: 8),
+                  if (_currentStep == 1)
+                    ElevatedButton(
+                      onPressed: details.onStepContinue,
+                      child: Text('Registruj se'),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: details.onStepContinue,
+                      child: Text('Nastavi'),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'email',
-                      decoration: InputDecoration(labelText: 'Email'),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Email je obavezan.'),
-                        FormBuilderValidators.email(
-                          errorText: 'Unesite ispravan format email adrese.',
+                ],
+              );
+            },
+            steps: [
+              Step(
+                title: Text('Korisnički podaci'),
+                isActive: _currentStep == 0,
+                content: FormBuilder(
+                  key: _userFormKey,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'ime',
+                          decoration: InputDecoration(labelText: 'Ime'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Ime je obavezno.'),
+                            FormBuilderValidators.minLength(3),
+                            FormBuilderValidators.maxLength(50),
+                          ]),
                         ),
-                      ]),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'korisnickoIme',
-                      decoration: InputDecoration(labelText: 'Korisničko Ime'),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Korisničko ime je obavezno'),
-                        FormBuilderValidators.minLength(5,
-                            errorText:
-                                'Korisničko ime mora imati najmanje 5 znakova'),
-                        FormBuilderValidators.maxLength(50,
-                            errorText:
-                                'Korisničko ime može imati najviše 50 znakova'),
-                      ]),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'password',
-                      decoration: InputDecoration(
-                        labelText: 'Lozinka',
-                        errorMaxLines: 3,
                       ),
-                      obscureText: true,
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Lozinka je obavezna.'),
-                        FormBuilderValidators.minLength(8,
-                            errorText:
-                                'Lozinka mora imati najmanje 8 znakova.'),
-                        FormBuilderValidators.maxLength(15,
-                            errorText:
-                                'Lozinka može imati najviše 15 znakova.'),
-                        FormBuilderValidators.match(
-                          RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$'),
-                          errorText:
-                              'Lozinka mora sadržavati barem jedno veliko slovo, jedno malo slovo i jednu znamenku.',
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'prezime',
+                          decoration: InputDecoration(labelText: 'Prezime'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Prezime je obavezno.'),
+                            FormBuilderValidators.minLength(3),
+                            FormBuilderValidators.maxLength(50),
+                          ]),
                         ),
-                      ]),
-                    ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'email',
+                          decoration: InputDecoration(labelText: 'Email'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Email je obavezan.'),
+                            FormBuilderValidators.email(
+                              errorText:
+                                  'Unesite ispravan format email adrese.',
+                            ),
+                          ]),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'korisnickoIme',
+                          decoration:
+                              InputDecoration(labelText: 'Korisničko Ime'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Korisničko ime je obavezno'),
+                            FormBuilderValidators.minLength(5,
+                                errorText:
+                                    'Korisničko ime mora imati najmanje 5 znakova'),
+                            FormBuilderValidators.maxLength(50,
+                                errorText:
+                                    'Korisničko ime može imati najviše 50 znakova'),
+                          ]),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'password',
+                          decoration: InputDecoration(
+                            labelText: 'Lozinka',
+                            errorMaxLines: 3,
+                          ),
+                          obscureText: true,
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Lozinka je obavezna.'),
+                            FormBuilderValidators.minLength(8,
+                                errorText:
+                                    'Lozinka mora imati najmanje 8 znakova.'),
+                            FormBuilderValidators.maxLength(15,
+                                errorText:
+                                    'Lozinka može imati najviše 15 znakova.'),
+                            FormBuilderValidators.match(
+                              RegExp(
+                                  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$'),
+                              errorText:
+                                  'Lozinka mora sadržavati barem jedno veliko slovo, jedno malo slovo i jednu znamenku.',
+                            ),
+                          ]),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'passwordPotvrda',
+                          decoration:
+                              InputDecoration(labelText: 'Potvrdite lozinku'),
+                          obscureText: true,
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Lozinka je obavezna.'),
+                            (val) {
+                              if (_userFormKey.currentState?.fields['password']
+                                      ?.value !=
+                                  val) {
+                                return "Lozinke se ne podudaraju";
+                              }
+                              return null;
+                            },
+                          ]),
+                        ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'passwordPotvrda',
-                      decoration:
-                          InputDecoration(labelText: 'Potvrdite lozinku'),
-                      obscureText: true,
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Lozinka je obavezna.'),
-                        (val) {
-                          if (_userFormKey
-                                  .currentState?.fields['password']?.value !=
-                              val) {
-                            return "Lozinke se ne podudaraju";
-                          }
-                          return null;
-                        },
-                      ]),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Step(
-            title: Text('Podaci o studentu'),
-            isActive: _currentStep == 1,
-            content: FormBuilder(
-              key: _studentFormKey,
-              onChanged: () {
-                _studentFormData = _studentFormKey.currentState?.value ?? {};
-              },
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderDropdown<Univerzitet>(
-                      name: 'univerzitet',
-                      decoration: InputDecoration(labelText: 'Univerzitet'),
-                      validator: FormBuilderValidators.required(
-                          errorText: 'Univerzitet je obavezan.'),
-                      onChanged: (Univerzitet? newValue) {
-                        setState(() {
-                          selectedUniverzitet = newValue;
-                          selectedFakultet = null;
-                          smjerovi = [];
-                        });
-                      },
-                      items: univerziteti?.result
-                              .map((univerzitet) =>
-                                  DropdownMenuItem<Univerzitet>(
-                                    value: univerzitet,
-                                    child: Text(univerzitet.naziv ?? ''),
-                                  ))
-                              .toList() ??
-                          [],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderDropdown<Fakultet>(
-                      name: 'fakultet',
-                      decoration: InputDecoration(labelText: 'Fakultet'),
-                      validator: FormBuilderValidators.required(
-                          errorText: 'Fakultet je obavezan.'),
-                      onChanged: (Fakultet? newValue) {
-                        setState(() {
-                          selectedFakultet = newValue;
-                          smjerovi = newValue?.smjerovi ?? [];
-                        });
-                      },
-                      items: selectedUniverzitet?.fakultetis
-                              ?.map((fakultet) => DropdownMenuItem<Fakultet>(
-                                    value: fakultet,
-                                    child: Text(fakultet.naziv ?? ''),
-                                  ))
-                              .toList() ??
-                          [],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderDropdown<Smjer>(
-                      name: 'smjer',
-                      decoration: InputDecoration(labelText: 'Smjer'),
-                      validator: FormBuilderValidators.required(
-                          errorText: 'Smjer je obavezan.'),
-                      items: smjerovi
-                          .map((smjer) => DropdownMenuItem<Smjer>(
-                                value: smjer,
-                                child: Text(smjer.naziv ?? ''),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderDropdown<NacinStudiranja>(
-                      name: 'nacinStudiranja',
-                      decoration:
-                          InputDecoration(labelText: 'Način Studiranja'),
-                      validator: FormBuilderValidators.required(
-                          errorText: 'Način Studiranja je obavezan.'),
-                      items: naciniStudiranjaResult?.result
-                              .map((nacinStudiranja) =>
-                                  DropdownMenuItem<NacinStudiranja>(
-                                    value: nacinStudiranja,
-                                    child: Text(nacinStudiranja.naziv ?? ''),
-                                  ))
-                              .toList() ??
-                          [],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'brojIndeksa',
-                      decoration: InputDecoration(labelText: 'Broj Indeksa'),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                            errorText: 'Broj indeksa je obavezan'),
-                        FormBuilderValidators.maxLength(20,
-                            errorText:
-                                'Broj indeksa može imati najviše 20 znakova'),
-                      ]),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderDropdown<int>(
-                      name: 'godinaStudija',
-                      decoration: InputDecoration(labelText: 'Godina Studija'),
-                      validator: FormBuilderValidators.required(
-                          errorText: 'Godina Studija je obavezna.'),
-                      items: [1, 2, 3, 4]
-                          .map((year) => DropdownMenuItem<int>(
-                                value: year,
-                                child: Text('$year. godina'),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormBuilderTextField(
-                      name: 'prosjecnaOcjena',
-                      decoration:
-                          InputDecoration(labelText: 'Prosječna Ocjena'),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.numeric(
-                          errorText: 'Unesena vrijednost mora biti numerička.',
+              Step(
+                title: Text('Podaci o studiju'),
+                isActive: _currentStep == 1,
+                content: FormBuilder(
+                  key: _studentFormKey,
+                  onChanged: () {
+                    _studentFormData =
+                        _studentFormKey.currentState?.value ?? {};
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderDropdown<Univerzitet>(
+                          name: 'univerzitet',
+                          decoration: InputDecoration(labelText: 'Univerzitet'),
+                          validator: FormBuilderValidators.required(
+                              errorText: 'Univerzitet je obavezan.'),
+                          onChanged: (Univerzitet? newValue) {
+                            setState(() {
+                              selectedUniverzitet = newValue;
+                              selectedFakultet = null;
+                              smjerovi = [];
+                            });
+                          },
+                          items: univerziteti?.result
+                                  .map((univerzitet) =>
+                                      DropdownMenuItem<Univerzitet>(
+                                        value: univerzitet,
+                                        child: Text(univerzitet.naziv ?? ''),
+                                      ))
+                                  .toList() ??
+                              [],
                         ),
-                        FormBuilderValidators.min(
-                          6.0,
-                          errorText:
-                              'Unesena vrijednost mora biti najmanje 6.0.',
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderDropdown<Fakultet>(
+                          name: 'fakultet',
+                          decoration: InputDecoration(labelText: 'Fakultet'),
+                          validator: FormBuilderValidators.required(
+                              errorText: 'Fakultet je obavezan.'),
+                          onChanged: (Fakultet? newValue) {
+                            setState(() {
+                              selectedFakultet = newValue;
+                              smjerovi = newValue?.smjerovi ?? [];
+                            });
+                          },
+                          items: selectedUniverzitet?.fakultetis
+                                  ?.map(
+                                      (fakultet) => DropdownMenuItem<Fakultet>(
+                                            value: fakultet,
+                                            child: Text(fakultet.naziv ?? ''),
+                                          ))
+                                  .toList() ??
+                              [],
                         ),
-                        FormBuilderValidators.max(
-                          10.0,
-                          errorText:
-                              'Unesena vrijednost ne smije biti veća od 10.0.',
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderDropdown<Smjer>(
+                          name: 'smjer',
+                          decoration: InputDecoration(labelText: 'Smjer'),
+                          validator: FormBuilderValidators.required(
+                              errorText: 'Smjer je obavezan.'),
+                          items: smjerovi
+                              .map((smjer) => DropdownMenuItem<Smjer>(
+                                    value: smjer,
+                                    child: Text(smjer.naziv ?? ''),
+                                  ))
+                              .toList(),
                         ),
-                      ]),
-                      keyboardType: TextInputType.number,
-                    ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderDropdown<NacinStudiranja>(
+                          name: 'nacinStudiranja',
+                          decoration:
+                              InputDecoration(labelText: 'Način Studiranja'),
+                          validator: FormBuilderValidators.required(
+                              errorText: 'Način Studiranja je obavezan.'),
+                          items: naciniStudiranjaResult?.result
+                                  .map((nacinStudiranja) =>
+                                      DropdownMenuItem<NacinStudiranja>(
+                                        value: nacinStudiranja,
+                                        child:
+                                            Text(nacinStudiranja.naziv ?? ''),
+                                      ))
+                                  .toList() ??
+                              [],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'brojIndeksa',
+                          decoration:
+                              InputDecoration(labelText: 'Broj Indeksa'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Broj indeksa je obavezan'),
+                            FormBuilderValidators.maxLength(20,
+                                errorText:
+                                    'Broj indeksa može imati najviše 20 znakova'),
+                          ]),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderDropdown<int>(
+                          name: 'godinaStudija',
+                          decoration:
+                              InputDecoration(labelText: 'Godina Studija'),
+                          validator: FormBuilderValidators.required(
+                              errorText: 'Godina Studija je obavezna.'),
+                          items: [1, 2, 3, 4]
+                              .map((year) => DropdownMenuItem<int>(
+                                    value: year,
+                                    child: Text('$year. godina'),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: FormBuilderTextField(
+                          name: 'prosjecnaOcjena',
+                          decoration:
+                              InputDecoration(labelText: 'Prosječna Ocjena'),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.numeric(
+                              errorText:
+                                  'Unesena vrijednost mora biti numerička.',
+                            ),
+                            FormBuilderValidators.min(
+                              6.0,
+                              errorText:
+                                  'Unesena vrijednost mora biti najmanje 6.0.',
+                            ),
+                            FormBuilderValidators.max(
+                              10.0,
+                              errorText:
+                                  'Unesena vrijednost ne smije biti veća od 10.0.',
+                            ),
+                          ]),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -467,6 +487,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
       Authorization.username = formData['idNavigation.korisnickoIme'];
       Authorization.password = formData['idNavigation.password'];
 
+      await _studentiProvider.getCurrentStudent();
+      
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ObjavaListScreen(),

@@ -200,16 +200,16 @@ class _RezervacijeReportDialogState extends State<RezervacijeReportDialog> {
                   OpenFile.open(file.path);
                 }
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Preuzimanje zvještaja nije uspjelo')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Preuzimanje zvještaja nije uspjelo')));
               }
             }
           },
           child: Icon(Icons.download),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(
-               Colors.white),
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.blue.shade800),
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+            foregroundColor:
+                MaterialStateProperty.all<Color>(Colors.blue.shade800),
             textStyle: MaterialStateProperty.all<TextStyle>(
                 TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -272,6 +272,7 @@ class _RezervacijeReportDialogState extends State<RezervacijeReportDialog> {
           : null,
       'krajnjiDatum':
           endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : null,
+      'status': 3,
     });
     return reportData;
   }

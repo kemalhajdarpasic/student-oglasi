@@ -79,7 +79,7 @@ class _PrakseListScreenState extends State<PrakseListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
 
     return MasterScreenWidget(
       title: "Prakse",
@@ -131,12 +131,12 @@ class _PrakseListScreenState extends State<PrakseListScreen> {
       'organizacija': selectedOrganizacije?.id,
       'status': selectedStatusOglasi?.id,
       'page': _currentPage + 1,
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }
@@ -356,7 +356,7 @@ class _PrakseListScreenState extends State<PrakseListScreen> {
                                 alignment: Alignment.center,
                                 child: Text(e.idNavigation?.rokPrijave != null
                                     ? DateFormat('dd.MM.yyyy')
-                                        .format(e.pocetakPrakse!)
+                                        .format(e.idNavigation!.rokPrijave)
                                     : ''),
                               )),
                               DataCell(Container(

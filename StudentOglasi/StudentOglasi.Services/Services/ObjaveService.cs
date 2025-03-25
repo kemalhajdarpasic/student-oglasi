@@ -137,7 +137,7 @@ namespace StudentOglasi.Services.Services
         private IQueryable<Database.Objave> ApplySorting(IQueryable<Database.Objave> query, string? sortOption)
         {
             if (string.IsNullOrWhiteSpace(sortOption))
-                return query;
+                return query.OrderByDescending(p => p.VrijemeObjave);
 
             return sortOption.ToLower() switch
             {
@@ -155,7 +155,7 @@ namespace StudentOglasi.Services.Services
 
                 "najnovije" => query.OrderByDescending(p => p.VrijemeObjave),
                 "najstarije" => query.OrderBy(p => p.VrijemeObjave),
-                _ => query
+                _ => query.OrderByDescending(p => p.VrijemeObjave)
             };
         }
     }

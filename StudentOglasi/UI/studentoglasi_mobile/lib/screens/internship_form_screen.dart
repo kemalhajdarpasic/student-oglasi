@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:studentoglasi_mobile/models/Praksa/praksa.dart';
+import 'package:studentoglasi_mobile/screens/internships_screen.dart';
 import '../providers/prijavepraksa_provider.dart';
 import '../screens/main_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -61,14 +62,19 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
 
       try {
         await _prijavaPraksaProvider.insertFileMultipartData(_formData);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Prijava je uspešno poslana!'),
+          backgroundColor: Colors.lightGreen,
+        ));
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => ObjavaListScreen(),
+          builder: (context) => InternshipsScreen(),
         ));
       } catch (e) {
         print('Error submitting application: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        SnackBar(content: Text('Korisnik je već ste prijavljeni na ovu praksu.'),
+        backgroundColor: Colors.redAccent,),
+      );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -192,7 +198,7 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
                   ),
                   child: isFileSelected
                       ? SingleChildScrollView(
-                        child: Column(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
@@ -232,7 +238,7 @@ class _PrijavaPraksaFormScreenState extends State<PrijavaPraksaFormScreen> {
                               )
                             ],
                           ),
-                      )
+                        )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

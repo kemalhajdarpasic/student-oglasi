@@ -71,7 +71,7 @@ namespace StudentOglasi.Services.Services
                 filteredQuery = filteredQuery.Where(x => x.PraksaId == search.Praksa);
             }
 
-            return filteredQuery;
+            return filteredQuery.OrderByDescending(x => x.VrijemePrijave);
         }
         public override IQueryable<Database.PrijavePraksa> AddInclude(IQueryable<Database.PrijavePraksa> query, PrijavePraksaSearchObject? search = null)
         {
@@ -174,7 +174,7 @@ namespace StudentOglasi.Services.Services
                 };
                 document.Add(stipenditor);
 
-                var table = new PdfPTable(5)
+                var table = new PdfPTable(4)
                 {
                     WidthPercentage = 100,
                     SpacingBefore = 10f,
@@ -183,17 +183,15 @@ namespace StudentOglasi.Services.Services
 
                 table.AddCell("Broj indeksa");
                 table.AddCell("Ime i prezime");
-                table.AddCell("CV");
-                table.AddCell("Certifikati");
-                table.AddCell("Propratno pismo");
+                table.AddCell("Prosjek ocjena");
+                table.AddCell("Status");
 
                 foreach (var prijava in prijave)
                 {
                     table.AddCell(prijava.Student.BrojIndeksa);
                     table.AddCell($"{prijava.Student.IdNavigation.Ime} {prijava.Student.IdNavigation.Prezime}");
-                    table.AddCell(prijava.Cv ?? "N/A");
-                    table.AddCell(prijava.Certifikati?.ToString() ?? "N/A");
-                    table.AddCell(prijava.PropratnoPismo?.ToString() ?? "N/A");
+                    table.AddCell(prijava.Student.ProsjecnaOcjena.ToString() ?? "N/A");
+                    table.AddCell(prijava.Status?.Naziv ?? "N/A");
                 }
 
                 document.Add(table);

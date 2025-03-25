@@ -8,7 +8,6 @@ import 'package:studentoglasi_admin/providers/prijavepraksa_provider.dart';
 import 'package:studentoglasi_admin/utils/file_downloader.dart';
 import 'package:studentoglasi_admin/utils/util.dart';
 
-
 class PrijavaPraksaDetailsDialog extends StatefulWidget {
   String? title;
   PrijavePraksa? prijavePraksa;
@@ -67,8 +66,7 @@ class _PrijavaPraksaDetailsDialogState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.title ?? ''),
-          SizedBox(
-              height: 8.0), 
+          SizedBox(height: 8.0),
           Text(
             'Praksa: ${widget.prijavePraksa?.praksa?.idNavigation?.naslov}',
             style: TextStyle(
@@ -76,13 +74,12 @@ class _PrijavaPraksaDetailsDialogState
               color: Colors.blue,
             ),
           ),
-          SizedBox(
-              height: 8.0), 
+          SizedBox(height: 8.0),
           Text(
             'Status prijave: ${widget.prijavePraksa?.status?.naziv}',
             style: TextStyle(
-              fontSize: 18.0, 
-              color: Colors.blue, 
+              fontSize: 18.0,
+              color: Colors.blue,
             ),
           ),
         ],
@@ -116,12 +113,12 @@ class _PrijavaPraksaDetailsDialogState
                             style: TextStyle(color: Colors.black),
                           ),
                           IconButton(
-                            icon: Icon(Icons.download,
-                                color: Colors.blue),
+                            icon: Icon(Icons.download, color: Colors.blue),
                             onPressed: () {
-                              String fileUrl =
-                                  FilePathManager.constructUrl(widget.prijavePraksa?.propratnoPismo ?? '');
-                              String fileName = widget.prijavePraksa?.propratnoPismo?? '';
+                              String fileUrl = FilePathManager.constructUrl(
+                                  widget.prijavePraksa?.propratnoPismo ?? '');
+                              String fileName =
+                                  widget.prijavePraksa?.propratnoPismo ?? '';
 
                               downloadDocument(context, fileUrl, fileName);
                             },
@@ -151,13 +148,11 @@ class _PrijavaPraksaDetailsDialogState
                             style: TextStyle(color: Colors.black),
                           ),
                           IconButton(
-                            icon: Icon(Icons.download,
-                                color: Colors.blue),
+                            icon: Icon(Icons.download, color: Colors.blue),
                             onPressed: () {
                               String fileUrl = FilePathManager.constructUrl(
                                   widget.prijavePraksa?.cv ?? '');
-                              String fileName =
-                                  widget.prijavePraksa?.cv ?? '';
+                              String fileName = widget.prijavePraksa?.cv ?? '';
 
                               downloadDocument(context, fileUrl, fileName);
                             },
@@ -289,12 +284,12 @@ class _PrijavaPraksaDetailsDialogState
                             style: TextStyle(color: Colors.black),
                           ),
                           IconButton(
-                            icon: Icon(Icons.download,
-                                color: Colors.blue),
+                            icon: Icon(Icons.download, color: Colors.blue),
                             onPressed: () {
-                              String fileUrl =
-                                  FilePathManager.constructUrl(widget.prijavePraksa?.certifikati ?? '');
-                              String fileName = widget.prijavePraksa?.certifikati?? '';
+                              String fileUrl = FilePathManager.constructUrl(
+                                  widget.prijavePraksa?.certifikati ?? '');
+                              String fileName =
+                                  widget.prijavePraksa?.certifikati ?? '';
 
                               downloadDocument(context, fileUrl, fileName);
                             },
@@ -310,43 +305,105 @@ class _PrijavaPraksaDetailsDialogState
         ),
       ),
       actions: [
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await _PrijavePraksaProvider.cancel(
-                      widget.prijavePraksa?.studentId,
-                      entityId: widget.prijavePraksa?.praksaId);
-                  Navigator.pop(context, true);
-                },
-                child: Text('Otkaži'),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                  textStyle: MaterialStateProperty.all<TextStyle>(
-                      TextStyle(fontWeight: FontWeight.bold)),
+        if (widget.prijavePraksa?.statusId == 2 ||
+            widget.prijavePraksa?.status?.naziv == "Na cekanju")
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _PrijavePraksaProvider.cancel(
+                          widget.prijavePraksa?.studentId,
+                          entityId: widget.prijavePraksa?.praksaId);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.cancel, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Prijava je uspješno otkazana!'),
+                            ],
+                          ),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+
+                      Navigator.pop(context, true);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.error, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                  'Došlo je do greške prilikom otkazivanja prijave.'),
+                            ],
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  child: Text('Otkaži'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.red),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                 ),
-              ),
-            ]),
-        ElevatedButton(
-          onPressed: () async {
-            await _PrijavePraksaProvider.approve(
-                widget.prijavePraksa?.studentId,
-                entityId: widget.prijavePraksa?.praksaId);
-            Navigator.pop(context, true);
-          },
-          child: Text('Odobri'),
-          style: ButtonStyle(
-            backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.lightGreen),
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            textStyle: MaterialStateProperty.all<TextStyle>(
-                TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _PrijavePraksaProvider.approve(
+                          widget.prijavePraksa?.studentId,
+                          entityId: widget.prijavePraksa?.praksaId);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Prijava je uspješno odobrena!'),
+                            ],
+                          ),
+                          backgroundColor: Colors.lightGreen,
+                        ),
+                      );
+
+                      Navigator.pop(context, true);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(Icons.error, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text('Došlo je do greške. Molimo pokušajte opet!'),
+                          ],
+                        ),
+                        backgroundColor: Colors.redAccent,
+                      ));
+                    }
+                  },
+                  child: Text('Odobri'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.lightGreen),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ]),
       ],
     );
   }

@@ -170,38 +170,44 @@ class _ProfileScreenState extends State<ProfileScreen>
           indicatorColor: Colors.white,
         ),
       ),
-      drawer: DrawerMenu(),
+      drawer: DrawerMenu(isLoggedIn: true,),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _currentStudent == null
-              ? Center(child: Text('Failed to load student data'))
-              : FormBuilder(
-                  key: _formKey,
-                  initialValue: {
-                    'idNavigation.ime': _currentStudent?.idNavigation.ime,
-                    'idNavigation.prezime':
-                        _currentStudent?.idNavigation.prezime,
-                    'idNavigation.korisnickoIme':
-                        _currentStudent?.idNavigation.korisnickoIme,
-                    'idNavigation.email': _currentStudent?.idNavigation.email,
-                    'brojIndeksa': _currentStudent?.brojIndeksa,
-                    'godinaStudija': _currentStudent?.godinaStudija,
-                    'prosjecnaOcjena':
-                        _currentStudent?.prosjecnaOcjena.toString(),
-                    'univerzitetId': _selectedUniverzitet?.id.toString(),
-                    'fakultetId': _selectedFakultet?.id.toString(),
-                    'smjerId': _selectedSmjer?.id.toString(),
-                    'nacinStudiranjaId':
-                        _currentStudent?.nacinStudiranja.id.toString(),
-                  },
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildBasicInfoTab(),
-                      _buildStudyInfoTab(),
-                    ],
-                  ),
-                ),
+          : Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 1200),
+                child: _currentStudent == null
+                    ? Center(child: Text('Failed to load student data'))
+                    : FormBuilder(
+                        key: _formKey,
+                        initialValue: {
+                          'idNavigation.ime': _currentStudent?.idNavigation.ime,
+                          'idNavigation.prezime':
+                              _currentStudent?.idNavigation.prezime,
+                          'idNavigation.korisnickoIme':
+                              _currentStudent?.idNavigation.korisnickoIme,
+                          'idNavigation.email':
+                              _currentStudent?.idNavigation.email,
+                          'brojIndeksa': _currentStudent?.brojIndeksa,
+                          'godinaStudija': _currentStudent?.godinaStudija,
+                          'prosjecnaOcjena':
+                              _currentStudent?.prosjecnaOcjena.toString(),
+                          'univerzitetId': _selectedUniverzitet?.id.toString(),
+                          'fakultetId': _selectedFakultet?.id.toString(),
+                          'smjerId': _selectedSmjer?.id.toString(),
+                          'nacinStudiranjaId':
+                              _currentStudent?.nacinStudiranja.id.toString(),
+                        },
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildBasicInfoTab(),
+                            _buildStudyInfoTab(),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isEditing ? _saveChanges : _toggleEdit,
         icon: Icon(_isEditing ? Icons.check : Icons.edit),
@@ -302,7 +308,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ChangePasswordScreen(userId: _currentStudent?.id)),
               );
             },
-            icon: Icon(Icons.lock, color: Colors.white,),
+            icon: Icon(
+              Icons.lock,
+              color: Colors.white,
+            ),
             label: Text('Promijeni šifru'),
           ),
           SizedBox(height: 16),

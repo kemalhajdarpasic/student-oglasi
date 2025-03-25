@@ -64,12 +64,12 @@ class _StudentiListScreenState extends State<StudentiListScreen> {
       'fakultetID': selectedFakultet?.id,
       'godinaStudija': selectedGodina,
       'page': _currentPage + 1,
-      'pageSize': 5,
+      'pageSize': 8,
     });
     setState(() {
       result = data;
       _totalItems = data.count;
-      int numberPages = calculateNumberPages(_totalItems, 5);
+      int numberPages = calculateNumberPages(_totalItems, 8);
       if (_currentPage >= numberPages) {
         _currentPage = numberPages - 1;
       }
@@ -108,7 +108,7 @@ class _StudentiListScreenState extends State<StudentiListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int numberPages = calculateNumberPages(_totalItems, 5);
+    int numberPages = calculateNumberPages(_totalItems, 8);
     return MasterScreenWidget(
       title: "Studenti",
       addButtonLabel: "Dodaj studenta",

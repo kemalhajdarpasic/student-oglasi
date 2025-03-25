@@ -140,9 +140,9 @@ class _InternshipsScreenState extends State<InternshipsScreen> {
                 ),
           backgroundColor: Colors.blue,
           iconTheme: IconThemeData(color: Colors.white),
-          automaticallyImplyLeading: !isDesktop && isLoggedIn,
+          automaticallyImplyLeading: !isDesktop,
         ),
-        drawer: isDesktop || !isLoggedIn ? null : DrawerMenu(),
+        drawer: isDesktop ? null : DrawerMenu(isLoggedIn: isLoggedIn,),
         body: isDesktop
             ? DesktopInternshipsLayout(
                 prakse: _praksa?.result ?? [],

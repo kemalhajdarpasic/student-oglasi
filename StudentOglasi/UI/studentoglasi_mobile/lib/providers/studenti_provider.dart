@@ -57,4 +57,9 @@ class StudentiProvider extends BaseProvider<Student> {
       return true;
     }
   }
+
+  void logout() {
+  _currentStudent = null;
+  notifyListeners();
+}
 }

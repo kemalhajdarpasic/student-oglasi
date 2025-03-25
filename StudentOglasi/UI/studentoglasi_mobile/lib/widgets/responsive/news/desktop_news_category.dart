@@ -18,7 +18,8 @@ class DesktopNewsCategoryScreen extends StatefulWidget {
   DesktopNewsCategoryScreen({required this.kategorija});
 
   @override
-  State<DesktopNewsCategoryScreen> createState() => _DesktopNewsCategoryScreenState();
+  State<DesktopNewsCategoryScreen> createState() =>
+      _DesktopNewsCategoryScreenState();
 }
 
 class _DesktopNewsCategoryScreenState extends State<DesktopNewsCategoryScreen> {
@@ -288,18 +289,21 @@ class _DesktopNewsCategoryScreenState extends State<DesktopNewsCategoryScreen> {
                                 ],
                               ),
                               const SizedBox(height: 12.0),
-                              Text(
-                                objava.sadrzaj ?? 'Bez opisa',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.grey[700]),
-                                maxLines: 5,
-                                overflow: TextOverflow.ellipsis,
+                              SizedBox(
+                                height: 100, 
+                                child: Text(
+                                  objava.sadrzaj ?? 'Bez opisa',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.grey[700]),
+                                  maxLines: 5,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
                         ),
                         SizedBox(
-                          height: 80,
+                          height: 20,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
